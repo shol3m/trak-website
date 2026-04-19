@@ -1,26 +1,45 @@
 import type { Metadata } from 'next'
-import { Russo_One, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ContactsSection from '@/components/sections/ContactsSection'
 
-const russoOne = Russo_One({
-  weight: '400',
-  subsets: ['latin', 'cyrillic'],
+const russoOne = localFont({
+  src: [
+    { path: '../public/fonts/russo-one-latin.woff2', style: 'normal' },
+    { path: '../public/fonts/russo-one-cyrillic.woff2', style: 'normal' },
+  ],
   variable: '--font-russo',
+  display: 'swap',
 })
 
-const ibmPlexSans = IBM_Plex_Sans({
-  weight: ['400', '500', '600'],
-  subsets: ['latin', 'cyrillic'],
+const ibmPlexSans = localFont({
+  src: [
+    { path: '../public/fonts/ibm-plex-sans-400-latin.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-400-cyrillic.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-400i-latin.woff2', weight: '400', style: 'italic' },
+    { path: '../public/fonts/ibm-plex-sans-400i-cyrillic.woff2', weight: '400', style: 'italic' },
+    { path: '../public/fonts/ibm-plex-sans-500-latin.woff2', weight: '500', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-500-cyrillic.woff2', weight: '500', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-600-latin.woff2', weight: '600', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-600-cyrillic.woff2', weight: '600', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-700-latin.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-sans-700-cyrillic.woff2', weight: '700', style: 'normal' },
+  ],
   variable: '--font-ibm-plex',
+  display: 'swap',
 })
 
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ['400', '500'],
-  subsets: ['latin', 'cyrillic'],
+const ibmPlexMono = localFont({
+  src: [
+    { path: '../public/fonts/ibm-plex-mono-400-latin.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-mono-400-cyrillic.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-mono-500-latin.woff2', weight: '500', style: 'normal' },
+    { path: '../public/fonts/ibm-plex-mono-500-cyrillic.woff2', weight: '500', style: 'normal' },
+  ],
   variable: '--font-ibm-plex-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
