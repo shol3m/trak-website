@@ -27,7 +27,7 @@ export default function Header() {
         <Container>
           <div className="flex items-center justify-between h-16 gap-6">
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" priority />
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:invert" priority />
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 flex-1">

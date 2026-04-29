@@ -62,7 +62,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
             <Link href="/" className="block mb-3">
-              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" />
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:invert" />
             </Link>
             <p className="font-body text-text-dim text-sm leading-relaxed mb-4">
               Торгово-сервисный комплекс. Официальный торговый представитель ОАО «ГАЗ». Субдилер ТД «Соллерс» (УАЗ, ЗМЗ).
