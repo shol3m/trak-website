@@ -93,13 +93,13 @@ export default function CatalogView({ products, categories, initialSlug }: Catal
         </h1>
 
         {/* Filters */}
-        <div className="sticky top-16 z-40 bg-bg-page/95 backdrop-blur-sm py-4 border-b border-ui-border mb-8 -mx-4 px-4 md:mx-0 md:px-0">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* Brand pills */}
-            <div className="flex flex-wrap gap-2">
+        <div className="sticky top-16 z-40 bg-bg-page/95 backdrop-blur-sm py-3 border-b border-ui-border mb-8 -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex flex-col gap-3">
+            {/* Brand pills — горизонтальная прокрутка на мобиле */}
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               <button
                 onClick={() => setParam('brand', 'ALL')}
-                className={`font-mono text-xs px-3 py-1.5 ${selectedBrand === 'ALL' ? activePill : inactivePill}`}
+                className={`font-mono text-xs px-3 py-1.5 shrink-0 ${selectedBrand === 'ALL' ? activePill : inactivePill}`}
               >
                 Все бренды
               </button>
@@ -107,7 +107,7 @@ export default function CatalogView({ products, categories, initialSlug }: Catal
                 <button
                   key={brand}
                   onClick={() => setParam('brand', brand)}
-                  className={`font-mono text-xs px-3 py-1.5 ${selectedBrand === brand ? activePill : inactivePill}`}
+                  className={`font-mono text-xs px-3 py-1.5 shrink-0 ${selectedBrand === brand ? activePill : inactivePill}`}
                 >
                   {BRAND_LABELS[brand]}
                 </button>
@@ -118,7 +118,7 @@ export default function CatalogView({ products, categories, initialSlug }: Catal
             <select
               value={selectedCategory}
               onChange={(e) => setParam('category', e.target.value)}
-              className="font-mono text-xs border border-ui-border bg-bg-card text-text-base px-3 py-1.5 outline-none focus:border-[#C8102E] transition-colors duration-200 sm:w-auto w-full"
+              className="font-mono text-xs border border-ui-border bg-bg-card text-text-base px-3 py-1.5 outline-none focus:border-[#C8102E] transition-colors duration-200 w-full sm:w-auto"
             >
               <option value="ALL">Все категории</option>
               {Array.from(new Set(products.map((p) => p.category))).sort().map((cat) => (

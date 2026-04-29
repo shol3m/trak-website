@@ -49,14 +49,14 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           </span>
         )}
       </div>
-      <div className="p-4 flex flex-col gap-2 flex-1">
+      <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1">
         <span className="font-mono text-xs text-text-dim">{product.article}</span>
         <p className="font-body text-text-base text-sm leading-snug flex-1">{product.name}</p>
-        <div className="flex items-center justify-between mt-2">
-          <span className="font-heading text-xl text-text-base">
+        <div className="flex flex-col gap-2 mt-2 sm:flex-row sm:items-center sm:justify-between">
+          <span className="font-heading text-base sm:text-xl text-text-base">
             {product.price.toLocaleString('ru-RU')} ₽
           </span>
-          <Button size="sm" onClick={handleAddToCart}>
+          <Button size="sm" onClick={handleAddToCart} className="w-full sm:w-auto text-xs">
             {inStock ? 'В корзину' : 'Заказать'}
           </Button>
         </div>
