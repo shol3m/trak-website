@@ -13,11 +13,51 @@ const fadeUp = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.1 } }),
 }
 
+function CertCard({
+  cert, index, aspect, onOpen,
+}: {
+  cert: { id: number; title: string; path: string }
+  index: number
+  aspect: string
+  onOpen: (v: { src: string; title: string }) => void
+}) {
+  return (
+    <motion.div
+      custom={index}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeUp}
+      className="group bg-bg-card border border-ui-border hover:border-[#1A3A6B] transition-colors duration-300 overflow-hidden cursor-pointer"
+      onClick={() => onOpen({ src: cert.path, title: cert.title })}
+    >
+      <div className={`${aspect} relative bg-bg-muted flex items-center justify-center`}>
+        <Image
+          src={cert.path}
+          alt={cert.title}
+          fill
+          className="object-contain p-2"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          unoptimized
+        />
+        <div className="absolute inset-0 bg-bg-page/0 group-hover:bg-bg-page/40 transition-colors duration-300 flex items-center justify-center">
+          <svg className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="14" cy="14" r="8" stroke="#F0F0F0" strokeWidth="2"/>
+            <path d="M20 20l6 6" stroke="#F0F0F0" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M10 14h8M14 10v8" stroke="#F0F0F0" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div className="p-3">
+        <p className="font-body text-xs text-text-dim leading-relaxed">{cert.title}</p>
+      </div>
+    </motion.div>
+  )
+}
+
 const stats = [
   { value: '30+', label: 'лет на рынке' },
   { value: '50 000+', label: 'позиций в ассортименте' },
-  { value: '3', label: 'бренда: ГАЗ, УАЗ, ВАЗ' },
-  { value: '1', label: 'официальный дилер ГАЗ' },
 ]
 
 const advantages = [
@@ -45,18 +85,20 @@ const advantages = [
 
 const certificates = [
   { id: 1, title: 'Свидетельство торгового представителя ОАО «ГАЗ»', path: '/certificates/cert-1.jpg' },
-  { id: 2, title: 'Субдилерский договор ТД «Соллерс» (ЗМЗ)', path: '/certificates/cert-2.jpg' },
-  { id: 3, title: 'Субдилерский договор ТД «Соллерс» (УАЗ)', path: '/certificates/cert-3.jpg' },
+  { id: 2, title: 'Свидетельство сертифицированной торговой точки ООО «УАЗ»', path: '/certificates/cert-2.jpg' },
+  { id: 3, title: 'Свидетельство субдилера АО «ЛАДА Имидж»', path: '/certificates/cert-3.jpg' },
   { id: 4, title: 'Сертификат соответствия', path: '/certificates/cert-4.jpg' },
+  { id: 5, title: 'Приложение к сертификату соответствия', path: '/certificates/cert-5.jpg' },
 ]
 
 export default function AboutPage() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [lightbox, setLightbox] = useState<{ src: string; title: string } | null>(null)
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D]">
+    <main className="min-h-screen bg-bg-page">
       {/* Hero */}
-      <section className="py-20 border-b border-[#2A2A2A]">
+      <section className="py-20 border-b border-ui-border">
         <Container>
           <motion.div
             initial="hidden"
@@ -67,10 +109,10 @@ export default function AboutPage() {
             <span className="font-body text-xs text-[#1A3A6B] uppercase tracking-[0.2em] block mb-4">
               О компании
             </span>
-            <h1 className="font-heading text-4xl md:text-5xl text-[#F0F0F0] uppercase tracking-wide mb-6">
+            <h1 className="font-heading text-4xl md:text-5xl text-text-base uppercase tracking-wide mb-6">
               ТРАК — торгово-сервисный комплекс
             </h1>
-            <p className="font-body text-[#888888] text-lg leading-relaxed">
+            <p className="font-body text-text-dim text-lg leading-relaxed">
               Более 30 лет мы обеспечиваем владельцев отечественных автомобилей оригинальными запчастями
               и профессиональным сервисом. Официальный торговый представитель ОАО «ГАЗ»,
               субдилер ТД «Соллерс» по ЗМЗ и УАЗ.
@@ -80,9 +122,9 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-[#0A1929] border-b border-[#1A3A6B]/30">
+      <section className="py-16 bg-blue-50 dark:bg-[#0A1929] border-b border-blue-100 dark:border-[#1A3A6B]/30">
         <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24">
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}
@@ -94,7 +136,7 @@ export default function AboutPage() {
                 className="text-center"
               >
                 <div className="font-heading text-4xl md:text-5xl text-[#2563EB] mb-2">{s.value}</div>
-                <div className="font-body text-sm text-[#888888] uppercase tracking-wider">{s.label}</div>
+                <div className="font-body text-sm text-text-dim uppercase tracking-wider">{s.label}</div>
               </motion.div>
             ))}
           </div>
@@ -102,7 +144,7 @@ export default function AboutPage() {
       </section>
 
       {/* About */}
-      <section className="py-20 border-b border-[#2A2A2A]">
+      <section className="py-20 border-b border-ui-border">
         <Container>
           <div className="grid md:grid-cols-2 gap-16 items-start">
             <motion.div
@@ -112,7 +154,7 @@ export default function AboutPage() {
               variants={fadeUp}
             >
               <SectionHeading title="Кто мы" />
-              <div className="space-y-4 font-body text-[#888888] leading-relaxed">
+              <div className="space-y-4 font-body text-text-dim leading-relaxed">
                 <p>
                   ТРАК — это торгово-сервисный комплекс в Уфе, специализирующийся на запчастях
                   и обслуживании отечественной техники. Мы работаем с ГАЗ, УАЗ, ВАЗ и КАМАЗ,
@@ -149,10 +191,10 @@ export default function AboutPage() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="flex justify-between items-center py-3 border-b border-[#2A2A2A]"
+                  className="flex justify-between items-center py-3 border-b border-ui-border"
                 >
-                  <span className="font-body text-sm text-[#888888]">{label}</span>
-                  <span className="font-body text-sm text-[#F0F0F0] font-medium">{value}</span>
+                  <span className="font-body text-sm text-text-dim">{label}</span>
+                  <span className="font-body text-sm text-text-base font-medium">{value}</span>
                 </div>
               ))}
             </motion.div>
@@ -161,7 +203,7 @@ export default function AboutPage() {
       </section>
 
       {/* Advantages */}
-      <section className="py-20 border-b border-[#2A2A2A]">
+      <section className="py-20 border-b border-ui-border">
         <Container>
           <SectionHeading title="Почему выбирают нас" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -173,13 +215,13 @@ export default function AboutPage() {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="bg-[#111111] border border-[#2A2A2A] p-6 hover:border-[#1A3A6B] transition-colors duration-300"
+                className="bg-bg-card border border-ui-border p-6 hover:border-[#1A3A6B] transition-colors duration-300"
               >
                 <div className="text-3xl mb-4">{a.icon}</div>
-                <h3 className="font-heading text-base text-[#F0F0F0] uppercase tracking-wide mb-3">
+                <h3 className="font-heading text-base text-text-base uppercase tracking-wide mb-3">
                   {a.title}
                 </h3>
-                <p className="font-body text-sm text-[#888888] leading-relaxed">{a.desc}</p>
+                <p className="font-body text-sm text-text-dim leading-relaxed">{a.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -187,64 +229,72 @@ export default function AboutPage() {
       </section>
 
       {/* Certificates */}
-      <section className="py-20 border-b border-[#2A2A2A]">
+      <section className="py-20 border-b border-ui-border">
         <Container>
           <SectionHeading
             title="Сертификаты и свидетельства"
             subtitle="Официальные документы, подтверждающие наш статус авторизованного представителя."
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {certificates.map((cert, i) => (
-              <motion.div
-                key={cert.id}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="group relative bg-[#111111] border border-[#2A2A2A] hover:border-[#1A3A6B] transition-colors duration-300 overflow-hidden"
-              >
-                <div className="aspect-[3/4] flex flex-col items-center justify-center p-6 gap-4">
-                  <div className="w-16 h-16 rounded-none bg-[#1A3A6B]/20 border border-[#1A3A6B]/30 flex items-center justify-center">
-                    <svg
-                      width="28"
-                      height="28"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#2563EB"
-                      strokeWidth="1.5"
-                    >
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                      <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                  </div>
-                  <p className="font-body text-xs text-[#888888] text-center leading-relaxed">
-                    {cert.title}
-                  </p>
-                  <span className="font-body text-[10px] text-[#1A3A6B] uppercase tracking-widest">
-                    Загрузить фото
-                  </span>
-                </div>
-              </motion.div>
+
+          {/* Свидетельства: cert-1 portrait | cert-2 landscape | cert-3 portrait */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.8fr_1fr] gap-4 mb-4">
+            {certificates.slice(0, 3).map((cert, i) => (
+              <CertCard key={cert.id} cert={cert} index={i} aspect={i === 1 ? 'aspect-[16/10]' : 'aspect-[3/4]'} onOpen={setLightbox} />
+            ))}
+          </div>
+
+          {/* Сертификаты: 2 A4-portrait карточки по центру */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            {certificates.slice(3).map((cert, i) => (
+              <CertCard key={cert.id} cert={cert} index={i + 3} aspect="aspect-[1/1.41]" onOpen={setLightbox} />
             ))}
           </div>
         </Container>
       </section>
 
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center border border-ui-border hover:border-[#C8102E] bg-bg-card transition-colors duration-200"
+            onClick={() => setLightbox(null)}
+            aria-label="Закрыть"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-text-base">
+              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <div
+            className="relative max-h-[90vh] max-w-2xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={lightbox.src}
+              alt={lightbox.title}
+              width={800}
+              height={1133}
+              className="object-contain max-h-[85vh] w-auto mx-auto"
+              unoptimized
+            />
+            <p className="text-center font-body text-xs text-text-dim mt-3">{lightbox.title}</p>
+          </div>
+        </div>
+      )}
+
       {/* CTA */}
       <section className="py-20">
         <Container>
-          <div className="border border-[#2A2A2A] bg-[#111111] p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="border border-ui-border bg-bg-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
               <span className="font-body text-xs text-[#1A3A6B] uppercase tracking-[0.2em] block mb-2">
                 Свяжитесь с нами
               </span>
               <a
                 href="tel:+73472237208"
-                className="font-heading text-3xl text-[#F0F0F0] hover:text-[#C8102E] transition-colors duration-200"
+                className="font-heading text-3xl text-text-base hover:text-[#C8102E] transition-colors duration-200"
               >
                 +7 347 223-72-08
               </a>

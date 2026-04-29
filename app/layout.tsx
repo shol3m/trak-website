@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import ThemeProvider from '@/components/providers/ThemeProvider'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ContactsSection from '@/components/sections/ContactsSection'
+import WhatsAppButton from '@/components/ui/WhatsAppButton'
+import CartDrawer from '@/components/ui/CartDrawer'
 
 const russoOne = localFont({
   src: [
@@ -44,7 +47,7 @@ const ibmPlexMono = localFont({
 
 export const metadata: Metadata = {
   title: 'ТРАК — Автозапчасти и сервис в Уфе',
-  description: 'Официальный дистрибьютор ГАЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
+  description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
   icons: { icon: '/logo.png' },
 }
 
@@ -54,14 +57,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className={`${russoOne.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
-      <body className="bg-[#0D0D0D] text-white font-body antialiased">
-        <Header />
-        <div className="pt-16">
-          {children}
-        </div>
-        <ContactsSection />
-        <Footer />
+    <html lang="ru" suppressHydrationWarning className={`${russoOne.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+      <body className="font-body antialiased">
+        <ThemeProvider>
+          <Header />
+          <div className="pt-16">
+            {children}
+          </div>
+          <ContactsSection />
+          <Footer />
+          <WhatsAppButton />
+          <CartDrawer />
+        </ThemeProvider>
       </body>
     </html>
   )

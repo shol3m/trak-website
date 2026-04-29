@@ -12,10 +12,18 @@
 --gold:       #C4922A   /* акцент для статусов "официальный дилер" */
 
 ## Типографика
-Заголовки H1-H3: Russo One (Google Fonts)
-Текст body:       IBM Plex Sans (Google Fonts)
-Моно/артикулы:    IBM Plex Mono (Google Fonts)
-Подключение:      next/font/google
+Заголовки H1-H3: Russo One
+Текст body:       IBM Plex Sans
+Моно/артикулы:    IBM Plex Mono
+Подключение:      next/font/local — локальные файлы из public/fonts/ (без сетевых запросов при сборке)
+
+Файлы шрифтов (public/fonts/):
+- russo-one-latin.woff2, russo-one-cyrillic.woff2
+- ibm-plex-sans-{400,500,600,700}-{latin,cyrillic}.woff2
+- ibm-plex-sans-400i-{latin,cyrillic}.woff2
+- ibm-plex-mono-{400,500}-{latin,cyrillic}.woff2
+
+Важно: НЕ использовать next/font/google — падает на Netlify при выставленном HTTP_PROXY
 
 ## Компонент: кнопки
 Primary:   bg-red text-white hover:bg-red-dark, px-6 py-3 rounded-none (квадратные)

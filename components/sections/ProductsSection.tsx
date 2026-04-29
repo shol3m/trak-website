@@ -9,7 +9,7 @@ import { featuredProducts } from '@/lib/mock-data'
 
 export default function ProductsSection() {
   return (
-    <section className="py-20 bg-[#1E1E1E]">
+    <section className="py-20 bg-bg-muted">
       <Container>
         <div className="flex items-end justify-between mb-10">
           <SectionHeading title="Популярные товары" />

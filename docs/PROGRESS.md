@@ -1,6 +1,109 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-04-20 (сессия 6)_
+_Последнее обновление: 2026-04-23 (сессия 11 — P2+P3 аудита UX/UI)_
+
+---
+
+## P2 + P3 аудита UX/UI (2026-04-23, сессия 11)
+
+### P2 — Новые компоненты
+
+- `components/sections/BrandsSection.tsx` — 4 карточки брендов (ГАЗ — "Официальный дилер", УАЗ — "Субдилер"), staggered Framer Motion, hover border-red. Вставлена в `app/page.tsx` после AdvantagesSection
+- `components/sections/PartFinderSection.tsx` — client-компонент: select Марка → Модель → Категория. При выборе марки обновляет список моделей. Кнопка "Найти запчасть" → `/catalog?brand=...&model=...&category=...`. Вставлена после CategoriesSection
+- `components/ui/WhatsAppButton.tsx` — fixed bottom-right, зелёный (#25D366), анимация появления delay 1.5s, tooltip при hover. Добавлена в `app/layout.tsx`
+- `lib/mock-data.ts` — добавлен `mockModels: Record<brand, string[]>` (5 моделей ГАЗ, 5 ВАЗ, 4 УАЗ, 4 КАМАЗ)
+
+### P3 — Улучшения
+
+- `components/sections/AdvantagesSection.tsx` — emoji (`✓`, `⚡`, `🛡`, `30+`) заменены на inline SVG-иконки (checkmark, lightning, shield, clock)
+- `components/layout/Footer.tsx` — динамический год уже был реализован в сессии 10 (`new Date().getFullYear()`)
+- `app/sitemap.ts` — создан, 4 URL: `/`, `/service`, `/catalog`, `/about`
+
+`npx tsc --noEmit` — ✓
+
+---
+
+## Данные + анимации (2026-04-22, сессия 10)
+
+**Исправление данных:**
+- `docs/BRIEF.md` — разделены марки: магазин (ГАЗ/ВАЗ/УАЗ/КАМАЗ) vs сервис (ГАЗ/ВАЗ/УАЗ + иномарки); добавлено примечание об ограничениях (нет шиномонтажа и кузовного ремонта)
+- `CLAUDE.md` — добавлена секция "ОГРАНИЧЕНИЯ СЕРВИСА"
+- `lib/mock-data.ts` — тип group расширен (`'Электрика'`); добавлены 3 услуги: Ремонт КПП, Ремонт генератора, Ремонт стартера (итого 17 услуг)
+
+**Баг-фикс:**
+- `app/globals.css` — `body::before` z-index исправлен с 9999 → 0 (ранее перекрывал focus rings)
+
+**Анимации (Framer Motion, без новых зависимостей):**
+- `components/sections/HeroSection.tsx` — parallax на фоновые градиенты (useScroll + useTransform); animated counter для "50 000+" от 0 до значения при появлении в viewport
+- `components/sections/AdvantagesSection.tsx` — hover lift на карточках (y: -4px, red shadow)
+- `components/layout/Footer.tsx` — TrustCounter анимирует числа "30+" и "50 000+" при скролле до футера; динамический год через `new Date().getFullYear()`; добавлен "Ремонт КПП" в список сервиса
+
+`npm run build` — ✓
+
+---
+
+## UX/UI Аудит (2026-04-22, сессия 9)
+
+**Проведён полный аудит — код изменений не вносился, только план.**
+
+### P1 — Критические проблемы (реализовать первыми)
+1. `HeroSection.tsx` — CTA "Записаться на СТО" открывает href=/service вместо BookingModal
+2. `ContactsSection.tsx` — нет реального адреса улицы; нет embed Яндекс.Карт
+3. `app/layout.tsx` — нет JSON-LD LocalBusiness, нет OpenGraph тегов
+4. `app/globals.css` — `body::before` имеет z-index:9999, перекрывает focus rings (accessibility)
+5. `ReviewsSection.tsx` — subtitle "500 клиентов за 30 лет" звучит как антидоверие
+
+### P2 — Новые компоненты к созданию
+- `BrandsSection.tsx` — логотипы брендов поставщиков
+- `PartFinderSection.tsx` — подбор запчастей по марке/модели/категории
+- WhatsApp floating кнопка
+
+### P3 — Улучшения
+- Emoji иконки в AdvantagesSection → SVG
+- Footer: динамический год
+- mock-data: новые группы услуг (Шины, Кузов/кондиционер, Электрика)
+- `app/sitemap.ts` — создать для SEO
+
+### Тема
+Рекомендована гибридная: Header/Hero/Footer тёмные, остальные секции светлые (#F5F7FA).
+Палитра задокументирована в CLAUDE.md.
+
+### Шрифты
+Текущие Russo One + IBM Plex Sans — оставить. IBM Plex Mono — только для артикулов деталей.
+
+---
+
+## Последние изменения (2026-04-22, сессия 8)
+
+**Выполнено — точечный рефакторинг:**
+- `components/layout/Header.tsx` — nav-ссылки `/catalog` и `/delivery` скрыты (закомментированы до реализации)
+- `components/sections/HeroSection.tsx` — badge синхронизирован с BRIEF.md; CTA "Найти запчасть" → "Наши услуги" (href `/service`)
+- `components/layout/Footer.tsx` — статус компании синхронизирован с BRIEF.md; добавлен второй номер сервиса `+7 903 311-16-45`
+- `components/sections/ContactsSection.tsx` — tel: ссылки нормализованы (явный формат `tel:+7...`); заменён map-плейсхолдер на кнопку "Открыть на Яндекс.Картах"
+- `app/about/page.tsx` — стат "3 бренда" → "4 бренда (ВАЗ, ГАЗ, УАЗ, КАМАЗ)"; сертификаты: document-иконки → SVG-заглушки через `<Image>`
+- `lib/mock-data.ts` — `MockService` расширен полем `group`; 4 сервиса → 14 с группировкой по 4 категориям
+- `app/service/page.tsx` — рендер услуг по группам с заголовком группы
+- `components/ui/ProductCard.tsx` — `<img>` → `<Image>` из next/image, убран eslint-disable
+- `components/ui/Button.tsx` — добавлены `focus-visible` стили (ring) для всех вариантов
+- `docs/DESIGN.md` — обновлены ссылки на шрифты: Google Fonts → локальные файлы `public/fonts/`
+- `app/layout.tsx` — metadata description синхронизирован: добавлен "субдилер УАЗ и ЗМЗ"
+- `next.config.mjs` — добавлен `images: { unoptimized: true }`
+- `netlify.toml` — создан (build command + @netlify/plugin-nextjs)
+- `public/certificates/cert-{1-4}.svg` — созданы SVG-заглушки сертификатов
+
+`npm run build` — ✓
+
+---
+
+## Последние изменения (2026-04-20, сессия 7)
+
+**Выполнено:**
+- `app/layout.tsx` — `next/font/google` заменён на `next/font/local`; шрифты берутся из `public/fonts/` без сетевых запросов при сборке
+- `public/fonts/` — добавлены 16 woff2-файлов: Russo One, IBM Plex Sans (400/500/600/700), IBM Plex Mono (400/500); latin + cyrillic сабсеты
+- `.env.example` — добавлено предупреждение: `HTTP_PROXY`/`HTTPS_PROXY` только для локальной разработки, не ставить на Netlify
+- `npm run build` — прошёл успешно ✓
+
+**Причина:** `next/font/google` пытался скачать шрифты через `HTTP_PROXY=127.0.0.1:12334` во время `next build`, что падало на Netlify (нет локального прокси)
 
 ---
 

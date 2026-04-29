@@ -5,25 +5,28 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import Container from './Container'
 import BookingModal from '@/components/ui/BookingModal'
+import ThemeToggle from '@/components/ui/ThemeToggle'
+import { useCartStore, useCartCount } from '@/lib/cart-store'
 
 const navLinks = [
   { label: 'Каталог', href: '/catalog' },
   { label: 'Сервис', href: '/service' },
-  { label: 'Доставка', href: '/delivery' },
   { label: 'О нас', href: '/about' },
 ]
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const openCart = useCartStore((s) => s.openCart)
+  const cartCount = useCartCount()
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#2A2A2A]">
+      <header className="fixed top-0 left-0 w-full z-50 bg-bg-card/90 backdrop-blur-md border-b border-ui-border">
         <Container>
           <div className="flex items-center justify-between h-16 gap-6">
             <Link href="/" className="shrink-0">
-              <span className="font-heading text-2xl text-[#F0F0F0] tracking-widest uppercase">ТРАК</span>
+              <span className="font-heading text-2xl text-text-base tracking-widest uppercase">ТРАК</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 flex-1">
@@ -31,17 +34,17 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-body text-[#888888] hover:text-[#2563EB] transition-colors duration-200 text-sm whitespace-nowrap"
+                  className="font-body text-text-dim hover:text-[#2563EB] transition-colors duration-200 text-sm whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
 
-            <div className="hidden md:flex items-center gap-4 shrink-0">
+            <div className="hidden md:flex items-center gap-3 shrink-0">
               <a
                 href="tel:+73472237208"
-                className="font-body text-sm text-[#F0F0F0] hover:text-[#C8102E] transition-colors duration-200 whitespace-nowrap"
+                className="font-body text-sm text-text-base hover:text-[#C8102E] transition-colors duration-200 whitespace-nowrap"
               >
                 +7 347 223-72-08
               </a>
@@ -51,20 +54,47 @@ export default function Header() {
               >
                 Записаться на СТО
               </button>
-              <Link
-                href="/catalog"
-                className="bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-4 py-2 transition-colors duration-200 whitespace-nowrap"
+              <ThemeToggle />
+              <button
+                onClick={openCart}
+                className="relative text-text-dim hover:text-text-base transition-colors duration-200"
+                aria-label={`Корзина: ${cartCount} товаров`}
               >
-                Каталог запчастей
-              </Link>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#C8102E] text-white font-mono text-[10px] w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </button>
             </div>
 
             <div className="flex items-center gap-3 md:hidden">
-              <a href="tel:+73472237208" className="font-mono text-xs text-[#888888]">
+              <a href="tel:+73472237208" className="font-mono text-xs text-text-dim">
                 +7 347 223-72-08
               </a>
               <button
-                className="text-[#888888] hover:text-[#F0F0F0] transition-colors duration-200"
+                onClick={openCart}
+                className="relative text-text-dim hover:text-text-base transition-colors duration-200"
+                aria-label={`Корзина: ${cartCount} товаров`}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#C8102E] text-white font-mono text-[10px] w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </button>
+              <button
+                className="text-text-dim hover:text-text-base transition-colors duration-200"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label="Меню"
               >
@@ -91,7 +121,7 @@ export default function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden border-t border-[#2A2A2A] bg-[#0D0D0D] overflow-hidden"
+              className="md:hidden border-t border-ui-border bg-bg-card overflow-hidden"
             >
               <Container>
                 <nav className="flex flex-col py-4 gap-4">
@@ -100,11 +130,15 @@ export default function Header() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMenuOpen(false)}
-                      className="font-body text-[#888888] hover:text-[#2563EB] transition-colors duration-200 text-base py-1"
+                      className="font-body text-text-dim hover:text-[#2563EB] transition-colors duration-200 text-base py-1"
                     >
                       {link.label}
                     </Link>
                   ))}
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-xs text-text-dim">Тема</span>
+                    <ThemeToggle />
+                  </div>
                   <button
                     onClick={() => { setMenuOpen(false); setModalOpen(true) }}
                     className="bg-[#1A3A6B] hover:bg-[#2563EB] text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"

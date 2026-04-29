@@ -8,7 +8,7 @@ import { mockCategories } from '@/lib/mock-data'
 
 export default function CategoriesSection() {
   return (
-    <section className="py-20 bg-[#0D0D0D]">
+    <section className="py-20 bg-bg-page">
       <Container>
         <SectionHeading
           title="Категории товаров"
@@ -25,7 +25,7 @@ export default function CategoriesSection() {
             >
               <Link
                 href={`/catalog/${cat.slug}`}
-                className="group relative flex flex-col gap-3 bg-[#111111] border border-[#2A2A2A] hover:border-[#C8102E] hover:bg-[#161616] p-6 transition-all duration-300 block overflow-hidden"
+                className="group relative flex flex-col gap-3 bg-bg-card border border-ui-border hover:border-[#C8102E] hover:bg-bg-muted p-6 transition-all duration-300 block overflow-hidden"
               >
                 <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#C8102E] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
                 <motion.span
@@ -36,10 +36,10 @@ export default function CategoriesSection() {
                   {cat.icon}
                 </motion.span>
                 <div>
-                  <p className="font-heading text-sm uppercase tracking-wide text-[#F0F0F0] group-hover:text-[#C8102E] transition-colors duration-200">
+                  <p className="font-heading text-sm uppercase tracking-wide text-text-base group-hover:text-[#C8102E] transition-colors duration-200">
                     {cat.name}
                   </p>
-                  <p className="font-mono text-xs text-[#888888] mt-1">{cat.count.toLocaleString('ru-RU')} товаров</p>
+                  <p className="font-mono text-xs text-text-dim mt-1">{cat.count.toLocaleString('ru-RU')} товаров</p>
                 </div>
               </Link>
             </motion.div>

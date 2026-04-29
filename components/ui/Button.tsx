@@ -11,9 +11,9 @@ type ButtonProps = {
 }
 
 const variants = {
-  primary: 'bg-[#C8102E] text-white hover:bg-[#9B0B22]',
-  secondary: 'border border-[#C8102E] text-[#C8102E] hover:bg-[#C8102E] hover:text-white',
-  ghost: 'text-[#888888] hover:text-[#F0F0F0] underline',
+  primary: 'bg-[#C8102E] text-white hover:bg-[#9B0B22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8102E] focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page',
+  secondary: 'border border-[#C8102E] text-[#C8102E] hover:bg-[#C8102E] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8102E] focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page',
+  ghost: 'text-text-dim hover:text-text-base underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page',
 }
 
 const sizes = {

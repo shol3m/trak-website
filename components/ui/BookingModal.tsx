@@ -142,7 +142,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   }
 
   const inputCls = (hasError: boolean) =>
-    `bg-[#0D0D0D] border ${hasError ? 'border-[#C8102E]' : 'border-[#2A2A2A] focus:border-[#3B82F6]'} text-[#F0F0F0] font-body text-sm px-4 py-3 outline-none transition-colors duration-200 placeholder:text-[#444444]`
+    `bg-bg-page border ${hasError ? 'border-[#C8102E]' : 'border-ui-border focus:border-[#3B82F6]'} text-text-base font-body text-sm px-4 py-3 outline-none transition-colors duration-200 placeholder:text-text-ghost`
 
   return (
     <AnimatePresence>
@@ -160,7 +160,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
           />
 
           <motion.div
-            className="relative w-full max-w-md bg-[#111111] border border-[#1A3A6B] p-8"
+            className="relative w-full max-w-md bg-white dark:bg-[#111111] border border-[#1A3A6B] p-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -168,7 +168,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#888888] hover:text-[#F0F0F0] transition-colors duration-200"
+              className="absolute top-4 right-4 text-text-dim hover:text-text-base transition-colors duration-200"
               aria-label="Закрыть"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -179,12 +179,12 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             <span className="font-body text-xs text-[#3B82F6] uppercase tracking-[0.2em] mb-3 block">
               Запись
             </span>
-            <h3 className="font-heading text-2xl text-[#F0F0F0] uppercase mb-6">
+            <h3 className="font-heading text-2xl text-text-base uppercase mb-6">
               Записаться на СТО
             </h3>
 
             {status === 'success' ? (
-              <p className="font-body text-sm text-[#F0F0F0] leading-relaxed">
+              <p className="font-body text-sm text-text-base leading-relaxed">
                 Заявка принята! Мы свяжемся с вами.
               </p>
             ) : (
@@ -202,7 +202,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 />
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-body text-xs text-[#888888] uppercase tracking-wider">
+                  <label className="font-body text-xs text-text-dim uppercase tracking-wider">
                     Имя
                   </label>
                   <input
@@ -217,7 +217,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-body text-xs text-[#888888] uppercase tracking-wider">
+                  <label className="font-body text-xs text-text-dim uppercase tracking-wider">
                     Телефон
                   </label>
                   <input
@@ -232,7 +232,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-body text-xs text-[#888888] uppercase tracking-wider">
+                  <label className="font-body text-xs text-text-dim uppercase tracking-wider">
                     Марка и модель авто
                   </label>
                   <input
@@ -245,7 +245,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 </div>
 
                 {rateLimitMsg && (
-                  <p className="font-body text-xs text-[#888888]">{rateLimitMsg}</p>
+                  <p className="font-body text-xs text-text-dim">{rateLimitMsg}</p>
                 )}
                 {status === 'error' && (
                   <p className="font-body text-xs text-[#C8102E]">{errorMsg}</p>

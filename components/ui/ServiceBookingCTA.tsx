@@ -8,14 +8,14 @@ export default function ServiceBookingCTA() {
 
   return (
     <>
-      <div className="border border-[#2A2A2A] bg-[#111111] p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="border border-ui-border bg-bg-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
           <span className="font-body text-xs text-[#C8102E] uppercase tracking-[0.2em] block mb-2">
             Запись по телефону
           </span>
           <a
             href="tel:+73472981645"
-            className="font-heading text-3xl text-[#F0F0F0] hover:text-[#C8102E] transition-colors duration-200"
+            className="font-heading text-3xl text-text-base hover:text-[#C8102E] transition-colors duration-200"
           >
             +7 347 298-16-45
           </a>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <rect width="1200" height="675" fill="#0D1A2E"/>
+  <rect width="1200" height="675" fill="url(#g1)"/>
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A3A6B" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#0D0D0D" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <text x="600" y="300" font-family="sans-serif" font-size="48" fill="#F0F0F0" text-anchor="middle" opacity="0.3">Запчасти</text>
+  <text x="600" y="370" font-family="sans-serif" font-size="24" fill="#888" text-anchor="middle" opacity="0.3">hero-1.svg — заменить на реальное фото</text>
+</svg>
