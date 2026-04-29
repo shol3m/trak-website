@@ -58,7 +58,7 @@ export default function HeroSlider() {
         <Swiper
           modules={[Autoplay, Navigation, Pagination, EffectFade]}
           effect="fade"
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          autoplay={{ delay: 8000, disableOnInteraction: false }}
           navigation={{
             nextEl: '.hero-next',
             prevEl: '.hero-prev',
@@ -100,7 +100,7 @@ export default function HeroSlider() {
                     <div className="w-12 h-0.5 bg-[#1A3A6B] mb-6" />
 
                     <h1
-                      className="font-heading text-5xl md:text-7xl text-[#F0F0F0] uppercase leading-[0.9] tracking-tight mb-6"
+                      className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-6"
                       style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.9)' }}
                     >
                       {slide.title}<br />

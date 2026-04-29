@@ -31,7 +31,7 @@ function TrustCounter({ raw }: { raw: string }) {
   }, [inView, numeric])
 
   if (!numeric) {
-    return <p className="font-heading text-2xl text-[#C8102E]">{raw}</p>
+    return <p className="font-heading font-bold text-2xl text-[#C8102E]">{raw}</p>
   }
 
   return (

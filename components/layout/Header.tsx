@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Container from './Container'
 import BookingModal from '@/components/ui/BookingModal'
@@ -26,7 +27,7 @@ export default function Header() {
         <Container>
           <div className="flex items-center justify-between h-16 gap-6">
             <Link href="/" className="shrink-0">
-              <span className="font-heading text-2xl text-text-base tracking-widest uppercase">ТРАК</span>
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" priority />
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 flex-1">
@@ -74,6 +75,7 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-3 md:hidden">
+              <ThemeToggle />
               <a href="tel:+73472237208" className="font-mono text-xs text-text-dim">
                 +7 347 223-72-08
               </a>
@@ -135,10 +137,6 @@ export default function Header() {
                       {link.label}
                     </Link>
                   ))}
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-xs text-text-dim">Тема</span>
-                    <ThemeToggle />
-                  </div>
                   <button
                     onClick={() => { setMenuOpen(false); setModalOpen(true) }}
                     className="bg-[#1A3A6B] hover:bg-[#2563EB] text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"
