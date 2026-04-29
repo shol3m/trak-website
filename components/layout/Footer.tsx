@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useInView, animate } from 'framer-motion'
 import Container from './Container'
 
@@ -60,8 +61,8 @@ export default function Footer() {
       <Container className="pt-10 pb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
-            <Link href="/" className="font-heading text-2xl text-text-base tracking-widest uppercase block mb-3">
-              ТРАК
+            <Link href="/" className="block mb-3">
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" />
             </Link>
             <p className="font-body text-text-dim text-sm leading-relaxed mb-4">
               Торгово-сервисный комплекс. Официальный торговый представитель ОАО «ГАЗ». Субдилер ТД «Соллерс» (УАЗ, ЗМЗ).
