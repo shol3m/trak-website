@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import https from 'https'
+import { prisma } from '@/lib/prisma'
 
 const orderItemSchema = z.object({
-  productId: z.string(),
+  productId: z.string().optional(),
   name: z.string(),
   article: z.string(),
   price: z.number().positive(),
@@ -50,14 +51,32 @@ export async function POST(req: NextRequest) {
   const { name, phone, comment, honeypot, items } = parsed.data
   if (honeypot) return NextResponse.json({ error: 'bot' }, { status: 400 })
 
+  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+  await prisma.order.create({
+    data: {
+      name,
+      phone,
+      comment,
+      total,
+      items: {
+        create: items.map((i) => ({
+          productId: i.productId ?? null,
+          article: i.article,
+          itemName: i.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+      },
+    },
+  })
+
   const token = process.env.TELEGRAM_BOT_TOKEN
   const chatIds = [process.env.TELEGRAM_CHAT_ID, process.env.TELEGRAM_CHAT_ID_2].filter(Boolean) as string[]
 
   if (!token || chatIds.length === 0) {
-    return NextResponse.json({ error: 'Сервер не настроен' }, { status: 500 })
+    return NextResponse.json({ ok: true })
   }
-
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
   const itemLines = items
     .map((i) => `• ${i.article} — ${i.name} × ${i.quantity} = ${(i.price * i.quantity).toLocaleString('ru-RU')} ₽`)
@@ -80,11 +99,7 @@ export async function POST(req: NextRequest) {
   const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
   const agent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
 
-  const results = await Promise.all(chatIds.map((id) => sendToChat(token, id, text, agent)))
-
-  if (results.some((ok) => !ok)) {
-    return NextResponse.json({ error: 'Ошибка отправки' }, { status: 502 })
-  }
+  await Promise.all(chatIds.map((id) => sendToChat(token, id, text, agent)))
 
   return NextResponse.json({ ok: true })
 }
