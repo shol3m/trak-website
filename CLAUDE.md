@@ -93,7 +93,9 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 
 ### API & SEO
 - `app/api/booking/route.ts` — POST, zod-валидация, отправка в два Telegram-чата, поддержка HTTPS_PROXY (runtime only)
-- `app/api/order/route.ts` — POST, zod-валидация (name, phone, items[], comment), отправка заказа в Telegram
+- `app/api/order/route.ts` — POST, zod-валидация (name, phone, items[], comment), сохранение в БД + отправка в Telegram
+- `app/api/orders/route.ts` — GET для 1С: CSV-выгрузка PENDING заказов, Basic Auth, после выдачи → PROCESSING
+- `app/api/products/route.ts` — POST для 1С: приём CSV с `;`, upsert по externalId, Basic Auth
 - `app/sitemap.ts` — 4 URL для SEO (/, /service, /catalog, /about)
 
 ### Slug ↔ категория (важно)
@@ -206,6 +208,7 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 ## ENV
 - `HTTP_PROXY` / `HTTPS_PROXY` — только для локальной разработки (Telegram через прокси)
 - На Netlify эти переменные НЕ ставить — ломают сборку
+- `SYNC_LOGIN` / `SYNC_PASSWORD` — Basic Auth для эндпоинтов 1С (`/api/products`, `/api/orders`)
 
 ## ИЗВЕСТНЫЕ ФИКСЫ ВЕРСИЙ (не менять без причины)
 | Проблема | Решение |
