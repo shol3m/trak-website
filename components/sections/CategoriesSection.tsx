@@ -4,7 +4,9 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/ui/SectionHeading'
-import { mockCategories } from '@/lib/mock-data'
+import { STATIC_CATEGORIES } from '@/lib/categories'
+
+const DISPLAY = STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee')
 
 export default function CategoriesSection() {
   return (
@@ -15,7 +17,7 @@ export default function CategoriesSection() {
           subtitle="50 000+ позиций для всех марок и моделей"
         />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {mockCategories.map((cat, i) => (
+          {DISPLAY.map((cat, i) => (
             <motion.div
               key={cat.id}
               initial={{ opacity: 0, y: 30 }}
@@ -35,12 +37,9 @@ export default function CategoriesSection() {
                 >
                   {cat.icon}
                 </motion.span>
-                <div>
-                  <p className="font-heading text-sm uppercase tracking-wide text-text-base group-hover:text-[#C8102E] transition-colors duration-200">
-                    {cat.name}
-                  </p>
-                  <p className="font-mono text-xs text-text-dim mt-1">{cat.count.toLocaleString('ru-RU')} товаров</p>
-                </div>
+                <p className="font-heading text-sm uppercase tracking-wide text-text-base group-hover:text-[#C8102E] transition-colors duration-200">
+                  {cat.name}
+                </p>
               </Link>
             </motion.div>
           ))}

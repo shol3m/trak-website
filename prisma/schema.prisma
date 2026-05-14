@@ -97,9 +97,10 @@ model Product {
   weight         Float?
 
   // Поля для будущих интеграций (1С, API поставщика, CSV, другие системы)
-  externalId     String?   @unique  // ID товара во внешней системе для upsert
-  source         String?            // "1c" | "supplier_api" | "csv" | "manual"
-  syncedAt       DateTime?          // дата последней синхронизации из внешнего источника
+  externalId     String?   @unique
+  source         String?
+  brandName      String?
+  syncedAt       DateTime?
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt

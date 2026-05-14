@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import type { MockProduct } from '@/lib/mock-data'
+import type { CatalogProduct } from '@/lib/categories'
 import { useCartStore } from '@/lib/cart-store'
 import Button from '@/components/ui/Button'
 
-export default function AddToCartButton({ product }: { product: MockProduct }) {
+export default function AddToCartButton({ product }: { product: CatalogProduct }) {
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
   const [added, setAdded] = useState(false)

@@ -1,165 +1,182 @@
 'use client'
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Link from 'next/link'
-import type { MockProduct, MockCategory } from '@/lib/mock-data'
+import { motion } from 'framer-motion'
+import type { CatalogProduct } from '@/lib/categories'
+import { STATIC_CATEGORIES } from '@/lib/categories'
 import { useCartStore } from '@/lib/cart-store'
 import ProductCard from '@/components/ui/ProductCard'
 import Container from '@/components/layout/Container'
 
-const BRAND_LABELS: Record<MockProduct['brand'], string> = {
-  VAZ: 'ВАЗ',
-  GAZ: 'ГАЗ',
-  UAZ: 'УАЗ',
-  KAMAZ: 'КАМАЗ',
-}
-
-// Maps category slugs to product.category strings (names differ in mock data)
-const SLUG_TO_CATEGORY: Record<string, string> = {
-  'dvigateli': 'Двигатели',
-  'filtry': 'Фильтры',
-  'tormoznaya-sistema': 'Тормозная система',
-  'podveska': 'Подвеска',
-  'masla-i-zhidkosti': 'Масла и жидкости',
-  'transmissiya': 'Трансмиссия',
-}
-
 interface CatalogViewProps {
-  products: MockProduct[]
-  categories: MockCategory[]
-  initialSlug?: string
+  products: CatalogProduct[]
+  total: number
+  pages: number
+  page: number
+  search: string
+  activeSlug?: string
 }
 
-export default function CatalogView({ products, categories, initialSlug }: CatalogViewProps) {
+const DISPLAY_CATS = STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee')
+
+export default function CatalogView({
+  products,
+  total,
+  pages,
+  page,
+  search,
+  activeSlug,
+}: CatalogViewProps) {
   const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const selectedBrand = (searchParams.get('brand') as MockProduct['brand'] | null) ?? 'ALL'
-  const selectedCategory = searchParams.get('category') ??
-    (initialSlug ? (SLUG_TO_CATEGORY[initialSlug] ?? 'ALL') : 'ALL')
-
+  const [query, setQuery] = useState(search)
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
 
-  const setParam = useCallback(
-    (key: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      if (value === 'ALL') params.delete(key)
-      else params.set(key, value)
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
-    },
-    [router, pathname, searchParams]
-  )
+  const activeCategory = STATIC_CATEGORIES.find((c) => c.slug === activeSlug)
+  const basePath = activeSlug ? `/catalog/${activeSlug}` : '/catalog'
+  const searchParam = search ? `&q=${encodeURIComponent(search)}` : ''
 
-  const filtered = products
-    .filter((p) => selectedBrand === 'ALL' || p.brand === selectedBrand)
-    .filter((p) => selectedCategory === 'ALL' || p.category === selectedCategory)
-
-  function handleAddToCart(product: MockProduct) {
-    addItem(product)
-    openCart()
+  function handleSearch() {
+    const q = query.trim()
+    router.push(q ? `/catalog?q=${encodeURIComponent(q)}` : '/catalog')
   }
 
-  const activePill = 'bg-[#C8102E] text-white border border-[#C8102E]'
-  const inactivePill = 'bg-bg-card border border-ui-border text-text-dim hover:border-[#C8102E] hover:text-[#C8102E] transition-colors duration-200'
-
-  const categoryLabel = initialSlug
-    ? categories.find((c) => c.slug === initialSlug)?.name
-    : null
+  function handleClear() {
+    setQuery('')
+    router.push(basePath)
+  }
 
   return (
     <div className="min-h-screen bg-bg-page pt-24 pb-20">
       <Container>
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-mono text-xs text-text-dim mb-8">
-          <Link href="/" className="hover:text-[#C8102E] transition-colors">Главная</Link>
-          <span>/</span>
-          {categoryLabel ? (
-            <>
-              <Link href="/catalog" className="hover:text-[#C8102E] transition-colors">Каталог</Link>
-              <span>/</span>
-              <span className="text-text-base">{categoryLabel}</span>
-            </>
-          ) : (
-            <span className="text-text-base">Каталог</span>
-          )}
-        </nav>
-
-        <h1 className="font-heading text-3xl md:text-4xl text-text-base uppercase mb-8">
-          {categoryLabel ?? 'Каталог запчастей'}
-        </h1>
-
-        {/* Filters */}
-        <div className="sticky top-16 z-40 bg-bg-page/95 backdrop-blur-sm py-3 border-b border-ui-border mb-8 -mx-4 px-4 md:mx-0 md:px-0">
-          <div className="flex flex-col gap-3">
-            {/* Brand pills — горизонтальная прокрутка на мобиле */}
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <button
-                onClick={() => setParam('brand', 'ALL')}
-                className={`font-mono text-xs px-3 py-1.5 shrink-0 ${selectedBrand === 'ALL' ? activePill : inactivePill}`}
-              >
-                Все бренды
-              </button>
-              {(Object.keys(BRAND_LABELS) as MockProduct['brand'][]).map((brand) => (
-                <button
-                  key={brand}
-                  onClick={() => setParam('brand', brand)}
-                  className={`font-mono text-xs px-3 py-1.5 shrink-0 ${selectedBrand === brand ? activePill : inactivePill}`}
-                >
-                  {BRAND_LABELS[brand]}
-                </button>
-              ))}
-            </div>
-
-            {/* Category select */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => setParam('category', e.target.value)}
-              className="font-mono text-xs border border-ui-border bg-bg-card text-text-base px-3 py-1.5 outline-none focus:border-[#C8102E] transition-colors duration-200 w-full sm:w-auto"
-            >
-              <option value="ALL">Все категории</option>
-              {Array.from(new Set(products.map((p) => p.category))).sort().map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="font-heading text-2xl md:text-3xl text-text-base uppercase mb-1">
+            {activeCategory ? activeCategory.name : 'Каталог запчастей'}
+          </h1>
+          <p className="font-mono text-sm text-text-dim">
+            {total > 0
+              ? `${total.toLocaleString('ru-RU')} товаров`
+              : 'Товары появятся после первой синхронизации с 1С'}
+          </p>
         </div>
 
-        {/* Result count */}
-        <p className="font-mono text-xs text-text-dim mb-6">
-          Найдено: {filtered.length} {filtered.length === 1 ? 'товар' : filtered.length < 5 ? 'товара' : 'товаров'}
-        </p>
-
-        {/* Grid */}
-        {filtered.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-            initial="hidden"
-            animate="visible"
-            variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+        {/* Search */}
+        <div className="flex gap-2 mb-6">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Артикул или название..."
+            className="flex-1 px-4 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-sm focus:outline-none focus:border-[#C8102E] transition-colors"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-5 py-2.5 bg-[#C8102E] text-white font-mono text-sm uppercase hover:bg-[#a50e26] transition-colors"
           >
-            {filtered.map((product) => (
-              <motion.div
-                key={product.id}
-                variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+            Найти
+          </button>
+          {(search || query) && (
+            <button
+              onClick={handleClear}
+              className="px-4 py-2.5 border border-ui-border text-text-dim font-mono text-sm hover:text-text-base hover:border-[#C8102E] transition-colors"
+              aria-label="Сбросить"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Category tabs */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-1">
+          <Link
+            href="/catalog"
+            className={`flex-shrink-0 px-4 py-2 font-mono text-xs uppercase border transition-colors whitespace-nowrap ${
+              !activeSlug
+                ? 'bg-[#C8102E] text-white border-[#C8102E]'
+                : 'bg-bg-card border-ui-border text-text-dim hover:border-[#C8102E] hover:text-text-base'
+            }`}
+          >
+            Все
+          </Link>
+          {DISPLAY_CATS.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/catalog/${cat.slug}`}
+              className={`flex-shrink-0 px-4 py-2 font-mono text-xs uppercase border transition-colors whitespace-nowrap ${
+                activeSlug === cat.slug
+                  ? 'bg-[#C8102E] text-white border-[#C8102E]'
+                  : 'bg-bg-card border-ui-border text-text-dim hover:border-[#C8102E] hover:text-text-base'
+              }`}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Products */}
+        {products.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="font-mono text-sm text-text-dim">
+              {search
+                ? `По запросу «${search}» ничего не найдено`
+                : 'Товары появятся после первой синхронизации с 1С'}
+            </p>
+            {search && (
+              <button
+                onClick={handleClear}
+                className="mt-4 font-mono text-xs text-[#C8102E] hover:underline"
               >
-                <Link href={`/catalog/${categories.find((c) => c.name === product.category || SLUG_TO_CATEGORY[c.slug] === product.category)?.slug ?? 'other'}/${product.article}`} className="block">
-                  <ProductCard
-                    product={product}
-                    onAddToCart={(p) => { handleAddToCart(p) }}
-                  />
-                </Link>
-              </motion.div>
+                Сбросить поиск
+              </button>
+            )}
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          >
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                href={`/catalog/${product.categorySlug}/${product.article}`}
+                onAddToCart={() => {
+                  addItem(product)
+                  openCart()
+                }}
+              />
             ))}
           </motion.div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <span className="text-5xl mb-4">🔍</span>
-            <p className="font-heading text-xl text-text-base uppercase mb-2">Ничего не найдено</p>
-            <p className="font-body text-sm text-text-dim">Попробуйте изменить фильтры</p>
+        )}
+
+        {/* Pagination */}
+        {pages > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-12">
+            {page > 1 && (
+              <Link
+                href={`${basePath}?page=${page - 1}${searchParam}`}
+                className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+              >
+                ← Назад
+              </Link>
+            )}
+            <span className="font-mono text-sm text-text-dim">
+              {page} / {pages}
+            </span>
+            {page < pages && (
+              <Link
+                href={`${basePath}?page=${page + 1}${searchParam}`}
+                className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+              >
+                Вперёд →
+              </Link>
+            )}
           </div>
         )}
       </Container>

@@ -5,28 +5,33 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/ui/SectionHeading'
-import { mockModels, mockCategories } from '@/lib/mock-data'
-import type { MockProduct } from '@/lib/mock-data'
+import { STATIC_CATEGORIES } from '@/lib/categories'
 
-const brandLabels: Record<MockProduct['brand'], string> = {
-  GAZ: 'ГАЗ',
-  VAZ: 'ВАЗ (Лада)',
-  UAZ: 'УАЗ',
-  KAMAZ: 'КАМАЗ',
+type Brand = 'GAZ' | 'VAZ' | 'UAZ' | 'KAMAZ'
+
+const brandLabels: Record<Brand, string> = {
+  GAZ: 'ГАЗ', VAZ: 'ВАЗ (Лада)', UAZ: 'УАЗ', KAMAZ: 'КАМАЗ',
 }
 
-const brands = (Object.keys(mockModels) as MockProduct['brand'][])
+const MODELS: Record<Brand, string[]> = {
+  GAZ:   ['ГАЗель Next', 'ГАЗель Бизнес', 'ГАЗ 3302', 'ГАЗ 2705', 'ГАЗ 3110'],
+  VAZ:   ['ВАЗ 2101–2107 (Классика)', 'ВАЗ 2108–2115', 'Лада Приора', 'Лада Гранта', 'Лада Нива'],
+  UAZ:   ['УАЗ Патриот', 'УАЗ 452 (Буханка)', 'УАЗ 469 / Хантер', 'УАЗ 3151'],
+  KAMAZ: ['КАМАЗ 5320', 'КАМАЗ 65115', 'КАМАЗ 43118', 'КАМАЗ 6520'],
+}
+
+const brands = Object.keys(brandLabels) as Brand[]
 
 const selectCls =
   'w-full bg-bg-page border border-ui-border text-text-base font-body text-sm px-4 py-3 appearance-none focus:outline-none focus:border-[#C8102E] transition-colors duration-200 disabled:text-text-dim disabled:cursor-not-allowed'
 
 export default function PartFinderSection() {
   const router = useRouter()
-  const [brand, setBrand] = useState<MockProduct['brand'] | ''>('')
+  const [brand, setBrand] = useState<Brand | ''>('')
   const [model, setModel] = useState('')
   const [category, setCategory] = useState('')
 
-  function handleBrandChange(val: MockProduct['brand'] | '') {
+  function handleBrandChange(val: Brand | '') {
     setBrand(val)
     setModel('')
   }
@@ -40,7 +45,7 @@ export default function PartFinderSection() {
     router.push(`/catalog?${params.toString()}`)
   }
 
-  const models = brand ? mockModels[brand] : []
+  const models = brand ? MODELS[brand] : []
 
   return (
     <section className="py-20 bg-bg-card">
@@ -65,7 +70,7 @@ export default function PartFinderSection() {
               <div className="relative">
                 <select
                   value={brand}
-                  onChange={(e) => handleBrandChange(e.target.value as MockProduct['brand'] | '')}
+                  onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
                   className={selectCls}
                 >
                   <option value="">Выберите марку</option>
@@ -108,7 +113,7 @@ export default function PartFinderSection() {
                   className={selectCls}
                 >
                   <option value="">Все категории</option>
-                  {mockCategories.map((c) => (
+                  {STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee').map((c) => (
                     <option key={c.id} value={c.slug}>{c.name}</option>
                   ))}
                 </select>

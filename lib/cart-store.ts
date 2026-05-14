@@ -1,16 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { MockProduct } from './mock-data'
+import type { CatalogProduct } from './categories'
 
 export type CartItem = {
-  product: MockProduct
+  product: CatalogProduct
   quantity: number
 }
 
 interface CartStore {
   items: CartItem[]
   isOpen: boolean
-  addItem: (product: MockProduct) => void
+  addItem: (product: CatalogProduct) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void

@@ -1,6 +1,42 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-05-14 (сессия — интеграция с 1С)_
+_Последнее обновление: 2026-05-15 (сессия — каталог из БД + подготовка к 1С)_
+
+---
+
+## Каталог из БД + подготовка к 1С (2026-05-15)
+
+### Реализовано
+
+**Новые файлы:**
+- `lib/categories.ts` — тип `CatalogProduct`, `STATIC_CATEGORIES` (7 категорий), `detectCategorySlug(name)`, `PAGE_SIZE=50`
+- `lib/db-catalog.ts` — Prisma-функции: `getProducts`, `getProductByArticle`, `getFeaturedProducts`, `getOrCreateCategoryId`
+
+**Изменены:**
+- `prisma/schema.prisma` — добавлено поле `brandName String?` на модель Product
+- `app/api/products/route.ts` — категория определяется по названию товара (`detectCategorySlug`), сохраняется `brandName`, кеш categoryId на запрос
+- `app/catalog/page.tsx` — async server component, читает из Prisma, поиск `?q=`, пагинация `?page=`
+- `app/catalog/CatalogView.tsx` — полный рерайт: поиск по артикулу/названию, категории-табы, пагинация 50/стр, пустое состояние
+- `app/catalog/[slug]/page.tsx` — статические slugs из STATIC_CATEGORIES, данные из Prisma
+- `app/catalog/[slug]/[article]/page.tsx` — товар из Prisma, убран `generateStaticParams`
+- `app/catalog/[slug]/[article]/AddToCartButton.tsx` — тип `CatalogProduct`
+- `components/ui/ProductCard.tsx` — принимает `CatalogProduct`, опциональный `href`, ссылка на страницу товара
+- `lib/cart-store.ts` — тип `CatalogProduct` вместо `MockProduct`
+- `components/sections/CategoriesSection.tsx` — статические категории из `STATIC_CATEGORIES`
+- `components/sections/ProductsSection.tsx` — принимает `products: CatalogProduct[]`, скрывается если пусто
+- `components/sections/PartFinderSection.tsx` — убраны импорты mock-data, standalone
+- `app/page.tsx` — async, `getFeaturedProducts(4)` из Prisma
+- `lib/mock-data.ts` — удалены каталожные типы (MockProduct, mockProducts, mockCategories, FeaturedProduct, featuredProducts, mockModels); остались MockService/mockServices, MockReview/mockReviews
+
+**Поведение при пустой БД:** каталог показывает заглушку "Товары появятся после первой синхронизации с 1С"; главная страница скрывает ProductsSection.
+
+### Следующие шаги
+1. **Supabase** — создать проект, получить `DATABASE_URL`
+2. **Netlify env** — добавить `DATABASE_URL`, `SYNC_LOGIN`, `SYNC_PASSWORD`
+3. **Миграция** — `npx prisma migrate deploy`
+4. **Деплой** — задеплоить на Netlify, проверить `/api/products` и `/api/orders`
+5. **Первая синхронизация** — 1С делает POST с реальным прайсом, проверяем каталог
+6. **Фото товаров** — решить как быть без изображений из 1С (Supabase Storage или заглушка)
 
 ---
 

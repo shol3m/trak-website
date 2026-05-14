@@ -5,9 +5,15 @@ import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/ui/SectionHeading'
 import ProductCard from '@/components/ui/ProductCard'
 import Button from '@/components/ui/Button'
-import { featuredProducts } from '@/lib/mock-data'
+import { useCartStore } from '@/lib/cart-store'
+import type { CatalogProduct } from '@/lib/categories'
 
-export default function ProductsSection() {
+export default function ProductsSection({ products }: { products: CatalogProduct[] }) {
+  const addItem = useCartStore((s) => s.addItem)
+  const openCart = useCartStore((s) => s.openCart)
+
+  if (!products.length) return null
+
   return (
     <section className="py-20 bg-bg-muted">
       <Container>
@@ -25,8 +31,16 @@ export default function ProductsSection() {
           transition={{ duration: 0.5 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              href={`/catalog/${product.categorySlug}/${product.article}`}
+              onAddToCart={() => {
+                addItem(product)
+                openCart()
+              }}
+            />
           ))}
         </motion.div>
 
