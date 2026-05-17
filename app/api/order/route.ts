@@ -21,7 +21,7 @@ const schema = z.object({
 })
 
 function sendToChat(token: string, chatId: string, text: string, agent?: HttpsProxyAgent<string>): Promise<boolean> {
-  const payload = JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' })
+  const payload = JSON.stringify({ chat_id: chatId, text })
   return new Promise((resolve) => {
     const options: https.RequestOptions = {
       hostname: 'api.telegram.org',
@@ -51,7 +51,23 @@ export async function POST(req: NextRequest) {
   const { name, phone, comment, honeypot, items } = parsed.data
   if (honeypot) return NextResponse.json({ error: 'bot' }, { status: 400 })
 
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const articles = items.map((i) => i.article)
+  const dbProducts = await prisma.product.findMany({
+    where: { article: { in: articles } },
+    select: { article: true, priceRetail: true, id: true },
+  })
+  const priceMap = new Map(dbProducts.map((p) => [p.article, Number(p.priceRetail)]))
+  const idMap = new Map(dbProducts.map((p) => [p.article, p.id]))
+
+  const resolvedItems = items.map((i) => ({
+    productId: idMap.get(i.article) ?? null,
+    article: i.article,
+    itemName: i.name,
+    quantity: i.quantity,
+    price: priceMap.has(i.article) ? priceMap.get(i.article)! : i.price,
+  }))
+
+  const total = resolvedItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
   await prisma.order.create({
     data: {
@@ -59,15 +75,7 @@ export async function POST(req: NextRequest) {
       phone,
       comment,
       total,
-      items: {
-        create: items.map((i) => ({
-          productId: i.productId ?? null,
-          article: i.article,
-          itemName: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
-      },
+      items: { create: resolvedItems },
     },
   })
 
@@ -78,20 +86,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  const itemLines = items
-    .map((i) => `• ${i.article} — ${i.name} × ${i.quantity} = ${(i.price * i.quantity).toLocaleString('ru-RU')} ₽`)
+  const itemLines = resolvedItems
+    .map((i) => `• ${i.article} — ${i.itemName} x${i.quantity} = ${(i.price * i.quantity).toLocaleString('ru-RU')} руб.`)
     .join('\n')
 
   const text = [
-    '🛒 *Новый заказ — ТРАК*',
-    `👤 Имя: ${name}`,
-    `📞 Телефон: ${phone}`,
-    comment ? `💬 Комментарий: ${comment}` : null,
+    'Новый заказ — ТРАК',
+    `Имя: ${name}`,
+    `Телефон: ${phone}`,
+    comment ? `Комментарий: ${comment}` : null,
     '',
     'Товары:',
     itemLines,
     '──────────────',
-    `💰 Итого: ${total.toLocaleString('ru-RU')} ₽`,
+    `Итого: ${total.toLocaleString('ru-RU')} руб.`,
   ]
     .filter((l) => l !== null)
     .join('\n')

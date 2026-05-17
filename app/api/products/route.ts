@@ -7,7 +7,9 @@ function checkBasicAuth(req: NextRequest): boolean {
   if (!header.startsWith('Basic ')) return false
   const encoded = header.slice(6)
   const decoded = Buffer.from(encoded, 'base64').toString('utf-8')
-  const [login, password] = decoded.split(':')
+  const colonIdx = decoded.indexOf(':')
+  const login = decoded.slice(0, colonIdx)
+  const password = decoded.slice(colonIdx + 1)
   return login === process.env.SYNC_LOGIN && password === process.env.SYNC_PASSWORD && !!login
 }
 

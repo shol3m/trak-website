@@ -11,7 +11,7 @@ const schema = z.object({
 })
 
 function sendToChat(token: string, chatId: string, text: string, agent?: HttpsProxyAgent<string>): Promise<boolean> {
-  const payload = JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' })
+  const payload = JSON.stringify({ chat_id: chatId, text })
   return new Promise((resolve) => {
     const options: https.RequestOptions = {
       hostname: 'api.telegram.org',
@@ -48,10 +48,10 @@ export async function POST(req: NextRequest) {
   }
 
   const text = [
-    '📋 *Новая заявка с сайта ТРАК*',
-    `👤 Имя: ${name}`,
-    `📞 Телефон: ${phone}`,
-    carModel ? `🚛 Авто: ${carModel}` : null,
+    'Новая заявка с сайта ТРАК',
+    `Имя: ${name}`,
+    `Телефон: ${phone}`,
+    carModel ? `Авто: ${carModel}` : null,
   ]
     .filter(Boolean)
     .join('\n')

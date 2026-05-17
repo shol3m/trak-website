@@ -6,8 +6,16 @@ function checkBasicAuth(req: NextRequest): boolean {
   if (!header.startsWith('Basic ')) return false
   const encoded = header.slice(6)
   const decoded = Buffer.from(encoded, 'base64').toString('utf-8')
-  const [login, password] = decoded.split(':')
+  const colonIdx = decoded.indexOf(':')
+  const login = decoded.slice(0, colonIdx)
+  const password = decoded.slice(colonIdx + 1)
   return login === process.env.SYNC_LOGIN && password === process.env.SYNC_PASSWORD && !!login
+}
+
+function escapeCsv(v: string | number | null | undefined): string {
+  const s = String(v ?? '')
+  if (/^[=+\-@\t\r]/.test(s)) return `'${s}`
+  return s.includes(';') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s
 }
 
 export async function GET(req: NextRequest) {
@@ -34,15 +42,15 @@ export async function GET(req: NextRequest) {
     for (const item of order.items) {
       lines.push(
         [
-          order.id,
-          order.createdAt.toISOString(),
-          order.name,
-          order.phone,
-          item.article,
-          item.itemName,
-          item.quantity,
-          item.price,
-          order.comment ?? '',
+          escapeCsv(order.id),
+          escapeCsv(order.createdAt.toISOString()),
+          escapeCsv(order.name),
+          escapeCsv(order.phone),
+          escapeCsv(item.article),
+          escapeCsv(item.itemName),
+          escapeCsv(item.quantity),
+          escapeCsv(Number(item.price)),
+          escapeCsv(order.comment),
         ].join(';')
       )
     }
