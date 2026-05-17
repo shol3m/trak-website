@@ -34,7 +34,7 @@ export default function ContactsSection() {
   return (
     <section className="py-20 bg-bg-page">
       <Container>
-        <SectionHeading title="Контакты" subtitle="Уфа, мы работаем для вас" />
+        <SectionHeading title="Контакты" subtitle="Уфа, ул. Пархоменко, 171" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <motion.div

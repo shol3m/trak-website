@@ -49,6 +49,12 @@ export const metadata: Metadata = {
   title: 'ТРАК — Автозапчасти и сервис в Уфе',
   description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
   icons: { icon: '/logo.png' },
+  openGraph: {
+    title: 'ТРАК — Автозапчасти и сервис в Уфе',
+    description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
+    locale: 'ru_RU',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({
@@ -59,6 +65,29 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning className={`${russoOne.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <body className="font-body antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'AutoPartsStore',
+              name: 'ТРАК',
+              description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ.',
+              url: 'https://trak-ufa.ru',
+              telephone: ['+73472237208', '+79991334973'],
+              email: 'trak.ufa@mail.ru',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'ул. Пархоменко, 171',
+                addressLocality: 'Уфа',
+                addressRegion: 'Республика Башкортостан',
+                addressCountry: 'RU',
+              },
+              openingHours: ['Mo-Fr 09:00-20:00', 'Sa-Su 09:00-17:00'],
+              priceRange: '$$',
+            }),
+          }}
+        />
         <ThemeProvider>
           <Header />
           <div className="pt-16">

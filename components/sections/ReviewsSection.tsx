@@ -22,9 +22,28 @@ export default function ReviewsSection() {
       <Container>
         <SectionHeading
           title="Отзывы клиентов"
-          subtitle="Что говорят наши клиенты на Яндекс.Картах и 2ГИС"
+          subtitle="Что говорят наши клиенты"
           align="center"
         />
+        <div className="flex justify-center gap-4 -mt-6 mb-2">
+          <a
+            href="https://yandex.ru/maps/org/trak/1100951090/reviews/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-body text-sm text-text-dim hover:text-[#C8102E] transition-colors duration-200 underline underline-offset-2"
+          >
+            Яндекс.Карты
+          </a>
+          <span className="text-text-ghost">·</span>
+          <a
+            href="https://2gis.ru/ufa/firm/70000001072054259/tab/reviews"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-body text-sm text-text-dim hover:text-[#C8102E] transition-colors duration-200 underline underline-offset-2"
+          >
+            2ГИС
+          </a>
+        </div>
       </Container>
 
       <div className="relative mt-10">

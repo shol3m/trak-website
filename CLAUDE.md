@@ -115,13 +115,13 @@ mockCategories slug не совпадает с product.category — маппин
 
 ## АУДИТ UX/UI (2026-04-22) — ПРИОРИТЕТЫ
 
-### P1 — Сделать в первую очередь
+### P1 — Выполнено ✓ (2026-05-17)
 1. ~~Hero CTA "Записаться на СТО" → открывать BookingModal~~ ✓ реализовано в HeroSlider (слайд 2)
-2. ContactsSection — добавить реальный адрес улицы и embed Яндекс.Карт
-3. app/layout.tsx — добавить JSON-LD LocalBusiness + OpenGraph meta
-4. globals.css — убрать z-index:9999 с body::before (ломает focus rings)
-5. ReviewsSection subtitle — убрать "500 клиентов за 30 лет" (антидовер), добавить ссылку на Яндекс.Карты
-6. Заменить SVG-заглушки в public/images/ на реальные WebP фото (hero-1..3, gallery-1..6)
+2. ~~ContactsSection — добавить реальный адрес улицы и embed Яндекс.Карт~~ ✓ адрес "ул. Пархоменко, 171", карта через iframe
+3. ~~app/layout.tsx — добавить JSON-LD LocalBusiness + OpenGraph meta~~ ✓ AutoPartsStore JSON-LD + OpenGraph
+4. ~~globals.css — убрать z-index:9999 с body::before~~ ✓ исправлено в сессии 10 (→ 0)
+5. ~~ReviewsSection subtitle — убрать "500 клиентов за 30 лет", добавить ссылку на Яндекс.Карты~~ ✓
+6. Заменить SVG-заглушки в public/images/ на реальные WebP фото (hero-1..3, gallery-1..6) — **ждёт фото**
 
 ### P2 — Выполнено ✓ (2026-04-23)
 - `components/sections/BrandsSection.tsx` — 4 бренда, staggered анимация, hover border-red

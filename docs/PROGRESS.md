@@ -1,6 +1,47 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-05-15 (сессия — каталог из БД + подготовка к 1С)_
+_Последнее обновление: 2026-05-17 (сессия — Supabase + деплой БД)_
+
+---
+
+## Supabase + подключение БД к Netlify (2026-05-17)
+
+### Реализовано
+
+- **Supabase** — создан проект, схема задеплоена через `prisma db push`
+- **Connection pooler** — переключились на Supavisor (Transaction mode, порт 6543) для стабильной работы Prisma в serverless
+- `prisma/schema.prisma` — добавлен `directUrl = env("DIRECT_URL")` и `binaryTargets = ["native", "rhel-openssl-3.0.x"]` для работы на Netlify (Linux)
+- `.env.local` — `DATABASE_URL` (pooler), `DIRECT_URL` (прямое соединение), `SYNC_LOGIN`, `SYNC_PASSWORD`
+- **Netlify env** — добавлены `DATABASE_URL`, `DIRECT_URL`, `SYNC_LOGIN`, `SYNC_PASSWORD`
+- Импорт CSV протестирован локально — 9/9 строк без ошибок
+
+### Данные для специалиста 1С
+- **URL:** `https://trak-website.netlify.app/api/products`
+- **Метод:** POST, тело — CSV с разделителем `;`
+- **Auth:** Basic Auth (логин/пароль — в `.env.local`)
+
+### Следующие шаги
+1. **Первая синхронизация** — 1С делает POST с реальным прайсом, проверяем каталог
+2. **Фото товаров** — решить как быть без изображений из 1С (заглушка или Supabase Storage)
+3. **Заменить SVG-заглушки** в `public/images/` на реальные фото (hero-1..3, gallery-1..6)
+
+---
+
+## SEO + адрес + отзывы (2026-05-17)
+
+### Реализовано
+
+- `app/layout.tsx` — добавлен OpenGraph (`title`, `description`, `locale: ru_RU`, `type: website`); JSON-LD `AutoPartsStore` с адресом, телефонами, email, часами работы
+- `components/sections/ContactsSection.tsx` — subtitle обновлён на реальный адрес: "Уфа, ул. Пархоменко, 171"
+- `components/sections/ReviewsSection.tsx` — subtitle упрощён; добавлены кликабельные ссылки "Яндекс.Карты" и "2ГИС" под заголовком секции
+
+### Закрытые пункты P1
+- ✓ JSON-LD LocalBusiness + OpenGraph в `app/layout.tsx`
+- ✓ z-index:9999 на `body::before` — был исправлен ещё в сессии 10 (→ 0)
+- ✓ ReviewsSection — убрана фраза "500 клиентов за 30 лет", добавлены ссылки на площадки отзывов
+
+### Осталось из P1
+- Заменить SVG-заглушки в `public/images/` на реальные фото (hero-1..3, gallery-1..6)
 
 ---
 
