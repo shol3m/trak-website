@@ -4,6 +4,18 @@ _Последнее обновление: 2026-05-17 (сессия — Supabase 
 
 ---
 
+## Security fixes (2026-05-17)
+
+### Исправлено
+
+- `app/api/orders/route.ts` — CSV injection: все поля экранируются через `escapeCsv()` (защита от формул в Excel)
+- `app/api/order/route.ts` — price tampering: цена берётся из `Product.priceRetail` по артикулу, клиентская цена используется только если товар не найден в БД
+- `app/api/order/route.ts`, `app/api/booking/route.ts` — Telegram injection: убран `parse_mode: 'Markdown'`, сообщения отправляются plain text
+- `app/api/products/route.ts`, `app/api/orders/route.ts` — Basic Auth: `split(':')` заменён на `indexOf(':')` (корректная обработка паролей с двоеточием)
+- `lib/prisma.ts` — query logging отключён в production (утечка PII в логи Netlify)
+
+---
+
 ## Supabase + подключение БД к Netlify (2026-05-17)
 
 ### Реализовано
