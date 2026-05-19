@@ -33,9 +33,10 @@ function parseCSV(text: string): ProductRow[] {
   const rows: ProductRow[] = []
 
   for (const line of lines) {
-    if (line.startsWith('Код;') || line.startsWith('Код ')) continue
+    if (line.startsWith('Код;') || line.startsWith('Код\t') || line.startsWith('Код ')) continue
 
-    const parts = line.split(';').map((p) => p.trim())
+    const sep = line.includes('\t') ? '\t' : ';'
+    const parts = line.split(sep).map((p) => p.trim())
     if (parts.length < 8) continue
 
     const [externalId, , , name, article, brand, priceStr, stockStr] = parts

@@ -220,6 +220,15 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 | next/font/google падает на Netlify с HTTP_PROXY | Шрифты локальные, next/font/local |
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
-- `app/api/products/route.ts` — API каталога (спроектировано, не реализовано)
-- Подключение реальной БД / источника данных поставщика (mock-данные временные)
-- Баги темы (см. P6 выше): разделение секций, рамки, прозрачные модалки, чёрные карточки
+- **FTP-синхронизация** — GitHub Actions workflow: cron → FTP → products.csv → upsert в БД
+- **Категории 1С** — ждём справочник `Код_Каталога → Название` от 1С разработчика (сейчас 7 приблизительных категорий по ключевым словам)
+- **Деплой на Vercel** — добавить env vars: DIRECT_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, SYNC_LOGIN, SYNC_PASSWORD
+- **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
+
+## ИНТЕГРАЦИЯ С 1С (статус)
+- `app/api/products/route.ts` — POST, приём CSV от 1С, Basic Auth, авто-определение разделителя (`\t`/`;`)
+- `app/api/orders/route.ts` — GET, выгрузка заказов в CSV для 1С, Basic Auth
+- `scripts/import-products.mjs` — скрипт прямого импорта (для отладки)
+- `scripts/generate-import-csv.mjs` — генератор CSV для Supabase Dashboard импорта
+- **products.csv** — полный каталог от 1С: 280 072 товара, загружен в БД через Supabase Dashboard
+- **FTP** — 1С кладёт файл на FTP, нужен GitHub Actions worker для автосинхронизации

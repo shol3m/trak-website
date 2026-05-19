@@ -1,6 +1,89 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-05-17 (сессия — Supabase + деплой БД)_
+_Последнее обновление: 2026-05-20 (сессия — загрузка каталога 1С)_
+
+---
+
+## Загрузка каталога + интеграция 1С (2026-05-20)
+
+### Реализовано
+
+- **`products.csv`** — получен от 1С разработчика: 280 072 товара, формат `Код;Код_Каталога;...` (заголовок `;`, данные `\t`)
+- **`scripts/generate-import-csv.mjs`** — генератор CSV для импорта через Supabase Dashboard (трансформирует products.csv → формат таблицы Product)
+- **`scripts/import-products.mjs`** — скрипт прямого импорта через pg/Supabase JS (для будущего использования когда будет стабильное соединение)
+- **`utils/supabase/`** — клиент-хелперы (server.ts, client.ts, middleware.ts) для работы с Supabase JS
+- **`app/api/products/route.ts`** — исправлен парсер CSV: теперь определяет разделитель автоматически (`\t` или `;`)
+- **Категории в БД** — 7 категорий созданы: dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee
+- **Импорт** — 280к товаров загружены через Supabase Dashboard (Table Editor → Import CSV)
+
+### Структура products.csv
+
+| Колонка | Название | Пример |
+|---|---|---|
+| 0 | Код (externalId) | `000086047` |
+| 1 | Код_Каталога | `000000688` |
+| 2 | Код_Поставщика | `50515632` |
+| 3 | Наименование | `Диск тормозной` |
+| 4 | Артикул | `PBD2753` |
+| 5 | Бренд | `PATRON` |
+| 6 | Цена1 | `0` |
+| 7 | Остаток | `0` |
+
+### Известные ограничения
+
+- **Категории** — сейчас 7 (по ключевым словам в названии). Реальных категорий в 1С — 813 `Код_Каталога`, маппящихся на ~15 групп как на trak-ufa.ru. **Ждём от 1С справочник категорий** (`Код_Каталога → Название`).
+- **Подключение к БД локально** — `DATABASE_URL` использует transaction pooler (порт 5432 session mode). Прямое соединение через `pg` нестабильно из-за особенностей локальной сети. Импорт через Supabase Dashboard работает надёжно.
+- **`DIRECT_URL`** — обновлён на прямой URL Supabase (db.scprbpqwugshqbttbowe.supabase.co:5432)
+
+### ID категорий в БД
+
+| Slug | ID |
+|---|---|
+| dvigateli | cmp9tvhvf0000hae5xtc3hkzr |
+| filtry | cmp9tvjdm0003hae5h3nfkkzm |
+| masla-i-zhidkosti | cmpcznfz5047dz0y |
+| podveska | cmp9tvmru000bhae5gz7yrlvg |
+| prochee | cmp9tvkvw0006hae5j9jjx1wo |
+| tormoznaya-sistema | cmpcznfjkfqjxeo4 |
+| transmissiya | cmpczng409hstnkg |
+
+---
+
+## Следующие шаги (приоритет)
+
+### 1. Проверить каталог на сайте
+После завершения импорта: `npm run dev` → `/catalog` — убедиться что товары отображаются.
+
+### 2. Задеплоить на Vercel
+Добавить в Vercel Dashboard → Settings → Environment Variables:
+- `DATABASE_URL` — session pooler URL (уже должен быть)
+- `DIRECT_URL` — прямой URL Supabase
+- `NEXT_PUBLIC_SUPABASE_URL` = `https://scprbpqwugshqbttbowe.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` = `sb_publishable_588VWvqjtvBQoWcqy2aSuQ_We17-S4S`
+- `SYNC_LOGIN`, `SYNC_PASSWORD` — для 1С API
+- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_CHAT_ID_2`
+- **НЕ ставить** `HTTPS_PROXY`, `HTTP_PROXY` — сломают сборку
+
+### 3. FTP-синхронизация (GitHub Actions)
+Текущая интеграция с 1С работает через FTP: 1С выгружает `products.csv` на FTP-сервер.
+Нужно создать `.github/workflows/sync-products.yml`:
+- Запускается по расписанию (cron, раз в сутки или чаще)
+- Скачивает `products.csv` с FTP
+- Прогоняет через логику категоризации
+- Делает upsert в БД через `pg` (на GitHub Actions сеть стабильная)
+- Использует те же env vars что и сайт
+
+### 4. Категории от 1С (ждём)
+Когда придёт справочник `Код_Каталога → Название`:
+- Обновить `lib/categories.ts` — заменить 7 категорий на реальные (~15 как на trak-ufa.ru)
+- Написать SQL для перекатегоризации товаров в БД
+- Обновить UI каталога (вкладки/фильтры)
+
+### 5. Переезд с Vercel на другой хостинг
+Сайт будет переезжать на другой хостинг и домен.
+- GitHub Actions cron не зависит от хостинга — переносить не нужно
+- FTP worker останется рабочим
+- Нужно обновить `NEXTAUTH_URL` и `vercel.json` → конфиг нового хостинга
 
 ---
 
