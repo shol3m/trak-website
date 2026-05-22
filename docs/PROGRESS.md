@@ -4,6 +4,32 @@ _Последнее обновление: 2026-05-22 (сессия — ката�
 
 ---
 
+## Design Review + Emoji → SVG (2026-05-22)
+
+### Реализовано
+
+**Иконки:**
+- `lib/categories.ts` — удалено поле `icon` (было emoji)
+- `lib/mock-data.ts` — удалено поле `icon` из типа `MockService` и всех 17 услуг
+- `components/sections/CategoriesSection.tsx` — emoji заменены на SVG-иконки (карта `ICONS` по slug)
+- `components/sections/ServiceSection.tsx` — emoji → красный SVG checkmark-circle
+- `components/ui/ServiceCard.tsx` — emoji → SVG иконка инструмента
+- `app/about/page.tsx` — emoji в advantages → inline SVG (медаль, склад, ключ, щит)
+
+**Галерея сервиса:**
+- `components/sections/ServiceGallery.tsx` — пути `.svg` → `.jpg`, добавлен стилизованный плейсхолдер (иконка + alt-текст) пока нет реальных фото
+
+**Хедер:**
+- Мобильная строка: убран дублирующий номер телефона `font-mono text-xs` (он есть в бургер-меню)
+
+**SEO/Meta:**
+- `app/layout.tsx` — добавлены `og:url: 'https://trak-ufa.ru'` и `og:siteName: 'ТРАК'`
+
+### Правило на будущее
+Emoji запрещены в UI. Только SVG-иконки (stroke, currentColor, viewBox 0 0 24 24).
+
+---
+
 ## Каталог + Security + Категории из БД (2026-05-22)
 
 ### Реализовано

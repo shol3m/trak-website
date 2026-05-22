@@ -56,6 +56,13 @@ ThemeToggle (Sun/Moon) в Header.
 - HeroSlider overlay: `from-[#0D0D0D]/80` — всегда тёмный (поверх фото)
 - BookingModal, CartDrawer: `bg-white dark:bg-[#111111]` — непрозрачный фон поверх overlay
 
+## Иконки
+Везде только SVG — inline, `stroke="currentColor"`, `fill="none"`, `viewBox="0 0 24 24"`, `strokeWidth="1.5"`.
+Акцентные иконки: `text-[#C8102E]` (красный). Нейтральные: `text-text-dim` / `text-text-base`.
+
+**Emoji запрещены** во всём UI — рендерятся по-разному на разных ОС и выбиваются из дизайн-системы.
+`MockService.icon` не существует — не добавлять. `STATIC_CATEGORIES.icon` не существует — не добавлять.
+
 ## Принципы
 - Тёмная тема везде, без светлых страниц
 - Углы кнопок — прямые (border-radius: 0), не скруглённые

@@ -49,7 +49,7 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `components/ui/Button.tsx` — базовая кнопка
 - `components/ui/SectionHeading.tsx` — заголовок секции (title + subtitle)
 - `components/ui/BookingModal.tsx` — модалка записи (имя + телефон + авто), маска телефона, rate-limit, honeypot
-- `components/ui/ServiceCard.tsx` — карточка услуги с кнопкой "Записаться"
+- `components/ui/ServiceCard.tsx` — карточка услуги с SVG-иконкой и кнопкой "Записаться". Поле `icon` удалено из MockService — не использовать emoji
 - `components/ui/ServiceBookingCTA.tsx` — телефон + кнопка записи (открывает BookingModal)
 - `components/ui/WhatsAppButton.tsx` — fixed floating кнопка, wa.me/79991334973, tooltip при hover
 - `components/ui/ReviewCard.tsx` — карточка отзыва
@@ -60,7 +60,7 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 
 ### Layout
 - `components/layout/Container.tsx` — обёртка с max-width и padding
-- `components/layout/Header.tsx` — fixed хедер с логотипом и кнопкой CTA
+- `components/layout/Header.tsx` — fixed хедер с логотипом и кнопкой CTA. На мобиле: ThemeToggle + корзина + бургер (телефон убран из мобильной строки — дублировал то, что есть в меню)
 - `components/layout/Footer.tsx` — футер с динамическим годом. trustItems: 3 элемента (30+ лет, 50 000+ позиций, Пн–Вс)
 
 ### Sections (порядок на главной странице)
@@ -68,18 +68,18 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `components/sections/HeroSection.tsx` — старый hero (не используется на главной, не удалять)
 - `components/sections/AdvantagesSection.tsx` — преимущества (SVG-иконки)
 - `components/sections/BrandsSection.tsx` — 4 бренда (ГАЗ/УАЗ/ВАЗ/КАМАЗ), staggered анимация. **Закомментирован в page.tsx**
-- `components/sections/ServiceSection.tsx` — виды услуг
-- `components/sections/CategoriesSection.tsx` — категории товаров
+- `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам. SVG checkmark вместо emoji-иконки
+- `components/sections/CategoriesSection.tsx` — категории товаров. SVG-иконки (карта ICONS по slug), не emoji
 - `components/sections/PartFinderSection.tsx` — подбор Марка→Модель→Категория→/catalog
 - `components/sections/ProductsSection.tsx` — список товаров
-- `components/sections/ServiceGallery.tsx` — Embla Carousel, 6 фото сервиса, autoplay 3.5с, адаптивно 1/2/3 колонки. Фото: `public/images/gallery-1..6.jpg` (заглушки .svg, заменить на .jpg)
+- `components/sections/ServiceGallery.tsx` — Embla Carousel, 6 фото сервиса, autoplay 3.5с, адаптивно 1/2/3 колонки. Фото: `public/images/gallery-1..6.jpg`. Пока нет — показывается стилизованный плейсхолдер с иконкой и описанием
 - `components/sections/ReviewsSection.tsx` — Embla Carousel слайдер отзывов, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов из 2ГИС/Яндекс.Карт в mock-data
 - `components/sections/ContactsSection.tsx` — контакты и карта
 
 ### Pages
 - `app/page.tsx` — главная страница
 - `app/service/page.tsx` — страница услуг
-- `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+), flex-горизонталь по центру
+- `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+). Advantages: 4 карточки с inline SVG-иконками (не emoji)
 - `app/catalog/page.tsx` — каталог (фильтры по бренду + категории, URL-params)
 - `app/catalog/CatalogView.tsx` — client-компонент с фильтрами и grid товаров (переиспользуется в [slug])
 - `app/catalog/[slug]/page.tsx` — каталог с предвыбранной категорией
@@ -100,10 +100,17 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `app/api/products/route.ts` — POST для 1С: приём CSV с `;`, upsert по externalId, Basic Auth
 - `app/sitemap.ts` — 4 URL для SEO (/, /service, /catalog, /about)
 
-### Slug ↔ категория (важно)
-mockCategories slug не совпадает с product.category — маппинг в SLUG_TO_CATEGORY в CatalogView и product page:
-- dvigateli → Двигатели, filtry → Фильтры, tormoznaya-sistema → Тормозная система
-- podveska → Подвеска, masla-i-zhidkosti → Масла и жидкости, transmissiya → Трансмиссия
+### Slug ↔ категория
+Категории в CatalogView берутся из БД через `getCategories()`. Slug → название определяется в БД, не хардкодится.
+Известные slugs: dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee
+
+### Правила иконок (важно)
+**Никакого emoji в UI.** Везде SVG-иконки (stroke, currentColor, 24×24 viewBox).
+- `AdvantagesSection` — 4 SVG иконки inline
+- `CategoriesSection` — карта `ICONS` по slug в самом компоненте
+- `ServiceCard`, `ServiceSection` — SVG иконка инструмента / checkmark
+- `app/about/page.tsx` — advantages с inline SVG
+- `MockService` не имеет поля `icon` — не добавлять
 
 ### Не реализовано
 - `app/api/products/route.ts` — API каталога (спроектировано, не реализовано)
