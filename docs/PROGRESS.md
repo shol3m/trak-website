@@ -1,6 +1,42 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-05-20 (сессия — загрузка каталога 1С)_
+_Последнее обновление: 2026-05-22 (сессия — каталог Supabase JS, security, категории из БД)_
+
+---
+
+## Каталог + Security + Категории из БД (2026-05-22)
+
+### Реализовано
+
+**Каталог через Supabase JS клиент:**
+- `lib/supabase.ts` (новый) — `createClient` с кастомным fetch: `cache: no-store`, `connection: close` (предотвращает 15s stale keep-alive таймауты), удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации
+- `lib/db-catalog.ts` — полностью переписан на Supabase JS. Prisma оставлен только для `getOrCreateCategoryId` (используется в import-скриптах). Причина: Prisma + Supavisor (порт 6543) зависал на `DEALLOCATE ALL` при второй транзакции в рамках одного PrismaClient на Windows — нерешаемо без смены хостинга
+- `next.config.mjs` — удаляет proxy env vars при старте; задаёт дефолты для `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `app/catalog/page.tsx` — `getProducts` + `getCategories` через `Promise.all`
+- `app/catalog/[slug]/page.tsx` — то же + allowlist валидация `params.slug` (→ 404 для неизвестных)
+- `app/catalog/CatalogView.tsx` — принимает `categories: DbCategory[]` как prop вместо хардкода `STATIC_CATEGORIES`
+
+**Категории из БД:**
+- `getCategories()` в `lib/db-catalog.ts` — fetches из Supabase с module-level кешем
+- `DbCategory` тип экспортируется из `lib/db-catalog.ts`
+- Отображаются в табах каталога динамически; добавление категории в Supabase → подхватывается автоматически
+
+**Security hardening (коммит d7def04):**
+- `app/api/products/route.ts`, `app/api/orders/route.ts` — `checkBasicAuth`: `===` → `timingSafeEqual` из `node:crypto`
+- `lib/db-catalog.ts` — `sanitizeSearch()`: вырезает `(),"'\` из поискового запроса перед передачей в PostgREST `.or()` фильтр
+- `app/catalog/[slug]/page.tsx` — allowlist `VALID_SLUGS` перед запросом в БД
+- `app/api/orders/route.ts` — исправлен `checkBasicAuth` (тот же паттерн что в products)
+
+**RLS:**
+- `public.Brand` — включён RLS (ранее был единственной незащищённой таблицей)
+
+**Производительность каталога (локально):**
+- Cold start первый запрос: ~5-7s (DNS + TCP handshakes)
+- Последующие: 0.5-1s
+- На Vercel (co-located с Supabase eu-west-2) будет быстрее
+
+### Нерешённые проблемы
+- **`NEXT_PUBLIC_SUPABASE_URL`** и **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`** нужно добавить в `.env.local` (если не заданы — дефолты берутся из `next.config.mjs`, что нормально для локальной разработки)
 
 ---
 
