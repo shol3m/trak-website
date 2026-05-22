@@ -1,4 +1,5 @@
-import { notFound, Suspense } from 'next/navigation'
+import { Suspense } from 'react'
+import { notFound } from 'next/navigation'
 import { getProducts, getCategories } from '@/lib/db-catalog'
 import { STATIC_CATEGORIES } from '@/lib/categories'
 import type { CatalogProduct, DbCategory } from '@/lib/db-catalog'
