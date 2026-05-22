@@ -52,6 +52,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ТРАК — Автозапчасти и сервис в Уфе',
     description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
+    url: 'https://trak-ufa.ru',
+    siteName: 'ТРАК',
     locale: 'ru_RU',
     type: 'website',
   },

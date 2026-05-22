@@ -76,9 +76,6 @@ export default function Header() {
 
             <div className="flex items-center gap-3 md:hidden">
               <ThemeToggle />
-              <a href="tel:+73472237208" className="font-mono text-xs text-text-dim">
-                +7 347 223-72-08
-              </a>
               <button
                 onClick={openCart}
                 className="relative text-text-dim hover:text-text-base transition-colors duration-200"
