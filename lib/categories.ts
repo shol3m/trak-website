@@ -15,13 +15,13 @@ export type CatalogProduct = {
 export const PAGE_SIZE = 50
 
 export const STATIC_CATEGORIES = [
-  { id: '1', slug: 'dvigateli',         name: 'Для двигателя',        icon: '⚙️' },
-  { id: '2', slug: 'filtry',            name: 'Фильтры и расходники', icon: '🔧' },
-  { id: '3', slug: 'tormoznaya-sistema',name: 'Тормозная система',    icon: '🛑' },
-  { id: '4', slug: 'podveska',          name: 'Подвеска',             icon: '🚗' },
-  { id: '5', slug: 'masla-i-zhidkosti', name: 'Масла и жидкости',     icon: '🛢️' },
-  { id: '6', slug: 'transmissiya',      name: 'Трансмиссия',          icon: '⚡' },
-  { id: '7', slug: 'prochee',           name: 'Прочее',               icon: '📦' },
+  { id: '1', slug: 'dvigateli',          name: 'Для двигателя' },
+  { id: '2', slug: 'filtry',             name: 'Фильтры и расходники' },
+  { id: '3', slug: 'tormoznaya-sistema', name: 'Тормозная система' },
+  { id: '4', slug: 'podveska',           name: 'Подвеска' },
+  { id: '5', slug: 'masla-i-zhidkosti',  name: 'Масла и жидкости' },
+  { id: '6', slug: 'transmissiya',       name: 'Трансмиссия' },
+  { id: '7', slug: 'prochee',            name: 'Прочее' },
 ]
 
 const CATEGORY_KEYWORDS: [string, string[]][] = [

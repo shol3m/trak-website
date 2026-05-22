@@ -62,22 +62,38 @@ const stats = [
 
 const advantages = [
   {
-    icon: '🏆',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+      </svg>
+    ),
     title: 'Официальный представитель',
     desc: 'Торговый представитель ОАО «ГАЗ» и субдилер ТД «Соллерс» — ЗМЗ и УАЗ. Оригинальные запчасти с гарантией производителя.',
   },
   {
-    icon: '📦',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+    ),
     title: '50 000+ позиций',
     desc: 'Один из крупнейших складов запчастей в Уфе. ГАЗ, УАЗ, ВАЗ — в наличии или под заказ в кратчайшие сроки.',
   },
   {
-    icon: '🔧',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+    ),
     title: 'Собственный сервис',
     desc: 'Профессиональный автосервис с опытными мастерами. Гарантия на все виды работ. Диагностика, ТО, ремонт.',
   },
   {
-    icon: '✅',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
     title: 'Гарантия качества',
     desc: 'Работаем только с проверенными поставщиками. Сертифицированные запчасти и расходники с документами.',
   },
@@ -217,7 +233,7 @@ export default function AboutPage() {
                 variants={fadeUp}
                 className="bg-bg-card border border-ui-border p-6 hover:border-[#1A3A6B] transition-colors duration-300"
               >
-                <div className="text-3xl mb-4">{a.icon}</div>
+                <div className="text-[#C8102E] mb-4">{a.icon}</div>
                 <h3 className="font-heading text-base text-text-base uppercase tracking-wide mb-3">
                   {a.title}
                 </h3>
