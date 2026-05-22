@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { detectCategorySlug, STATIC_CATEGORIES } from '@/lib/categories'
+
+function safeEq(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b))
+}
 
 function checkBasicAuth(req: NextRequest): boolean {
   const header = req.headers.get('authorization') ?? ''
@@ -10,7 +16,11 @@ function checkBasicAuth(req: NextRequest): boolean {
   const colonIdx = decoded.indexOf(':')
   const login = decoded.slice(0, colonIdx)
   const password = decoded.slice(colonIdx + 1)
-  return login === process.env.SYNC_LOGIN && password === process.env.SYNC_PASSWORD && !!login
+  if (!login) return false
+  return (
+    safeEq(login, process.env.SYNC_LOGIN ?? '') &&
+    safeEq(password, process.env.SYNC_PASSWORD ?? '')
+  )
 }
 
 function decodeBody(buffer: Buffer): string {

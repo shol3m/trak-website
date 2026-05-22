@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { getProducts } from '@/lib/db-catalog'
-import type { CatalogProduct } from '@/lib/categories'
+import { getProducts, getCategories } from '@/lib/db-catalog'
+import type { CatalogProduct, DbCategory } from '@/lib/db-catalog'
 import CatalogView from './CatalogView'
 
 export const metadata = {
@@ -17,16 +17,22 @@ export default async function CatalogPage({
   const search = searchParams.q ?? ''
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
+  let categories: DbCategory[] = []
+
   try {
-    result = await getProducts({ search, page })
-  } catch {
-    // DB not connected yet
+    ;[result, categories] = await Promise.all([
+      getProducts({ search, page }),
+      getCategories(),
+    ])
+  } catch (e) {
+    console.error('[catalog] error:', e)
   }
 
   return (
     <Suspense>
       <CatalogView
         products={result.products}
+        categories={categories}
         total={result.total}
         pages={result.pages}
         page={result.page}

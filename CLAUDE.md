@@ -88,6 +88,8 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `app/catalog/[slug]/[article]/ProductImage.tsx` — client-компонент изображения товара с onError fallback
 
 ### Lib
+- `lib/supabase.ts` — Supabase JS клиент (читает `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Кастомный fetch: `cache: no-store` + `connection: close` (предотвращает 15s stale keep-alive таймауты). Удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации — прокси нужен только для Telegram.
+- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()`, `getProductByArticle()`, `getFeaturedProducts()`, `getCategories()` с module-level кешем. `getOrCreateCategoryId()` — Prisma, только для import-скриптов.
 - `lib/cart-store.ts` — Zustand store: items, isOpen, add/remove/update/clear. Persist localStorage 'trak-cart'. Экспортирует useCartTotal, useCartCount
 - `lib/phone-utils.ts` — formatPhone, normalizePhone, isPhoneValid (переиспользуются в BookingModal и CartDrawer)
 
@@ -206,9 +208,13 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 - НЕ использовать `next/font/google` — падает на Netlify если выставлен HTTP_PROXY
 
 ## ENV
-- `HTTP_PROXY` / `HTTPS_PROXY` — только для локальной разработки (Telegram через прокси)
-- На Netlify эти переменные НЕ ставить — ломают сборку
+- `NEXT_PUBLIC_SUPABASE_URL` — URL Supabase проекта (обязательно, в т.ч. локально)
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — публичный ключ Supabase (обязательно)
+- `HTTP_PROXY` / `HTTPS_PROXY` — только для локальной разработки (Telegram через прокси). `next.config.mjs` удаляет их при старте чтобы не мешали Supabase HTTP-запросам.
+- На Vercel эти переменные НЕ ставить — ломают сборку
 - `SYNC_LOGIN` / `SYNC_PASSWORD` — Basic Auth для эндпоинтов 1С (`/api/products`, `/api/orders`)
+- `DATABASE_URL` — Prisma pooler URL (только для import-скриптов и миграций, каталог использует Supabase JS)
+- `DIRECT_URL` — Prisma direct URL (только для миграций)
 
 ## ИЗВЕСТНЫЕ ФИКСЫ ВЕРСИЙ (не менять без причины)
 | Проблема | Решение |
@@ -218,11 +224,14 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 | next.config.ts не поддерживается Next.js 14 | Файл называется next.config.mjs |
 | TypeScript ошибка при импорте CSS | Есть types/css.d.ts |
 | next/font/google падает на Netlify с HTTP_PROXY | Шрифты локальные, next/font/local |
+| Prisma + Supavisor (порт 6543) зависает на `DEALLOCATE ALL` второй транзакции | Каталог переведён на Supabase JS клиент (HTTP/REST). Prisma остался только для import-скриптов. |
+| Stale TCP keep-alive соединения → 15s таймаут на повторных запросах к Supabase | `connection: close` заголовок в кастомном fetch `lib/supabase.ts` |
+| `HTTPS_PROXY` из `.env.local` тормозит Supabase HTTP-запросы | `next.config.mjs` удаляет proxy env vars при старте сервера |
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 - **FTP-синхронизация** — GitHub Actions workflow: cron → FTP → products.csv → upsert в БД
 - **Категории 1С** — ждём справочник `Код_Каталога → Название` от 1С разработчика (сейчас 7 приблизительных категорий по ключевым словам)
-- **Деплой на Vercel** — добавить env vars: DIRECT_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, SYNC_LOGIN, SYNC_PASSWORD
+- **Реальные фото** — заменить SVG-заглушки `public/images/` (hero-1..3, gallery-1..6) на WebP
 - **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
 
 ## ИНТЕГРАЦИЯ С 1С (статус)

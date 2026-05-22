@@ -1,15 +1,18 @@
-import { Suspense } from 'react'
-import { getProducts } from '@/lib/db-catalog'
+import { notFound, Suspense } from 'next/navigation'
+import { getProducts, getCategories } from '@/lib/db-catalog'
 import { STATIC_CATEGORIES } from '@/lib/categories'
-import type { CatalogProduct } from '@/lib/categories'
+import type { CatalogProduct, DbCategory } from '@/lib/db-catalog'
 import CatalogView from '../CatalogView'
+
+const VALID_SLUGS = new Set(STATIC_CATEGORIES.map((c) => c.slug))
 
 export function generateStaticParams() {
   return STATIC_CATEGORIES.map((c) => ({ slug: c.slug }))
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const cat = STATIC_CATEGORIES.find((c) => c.slug === params.slug)
+  const categories = await getCategories()
+  const cat = categories.find((c) => c.slug === params.slug)
   return {
     title: `${cat?.name ?? 'Категория'} — ТРАК`,
     description: `Запчасти — ${cat?.name ?? ''} для ГАЗ, ВАЗ, УАЗ, КАМАЗ`,
@@ -23,20 +26,33 @@ export default async function CategoryPage({
   params: { slug: string }
   searchParams: { q?: string; page?: string }
 }) {
+  if (!VALID_SLUGS.has(params.slug)) return notFound()
+
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''
 
-  let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
+  let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = {
+    products: [],
+    total: 0,
+    pages: 0,
+    page,
+  }
+  let categories: DbCategory[] = []
+
   try {
-    result = await getProducts({ search, categorySlug: params.slug, page })
+    ;[result, categories] = await Promise.all([
+      getProducts({ search, categorySlug: params.slug, page }),
+      getCategories(),
+    ])
   } catch {
-    // DB not connected yet
+    // DB not available
   }
 
   return (
     <Suspense>
       <CatalogView
         products={result.products}
+        categories={categories}
         total={result.total}
         pages={result.pages}
         page={result.page}

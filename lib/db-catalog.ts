@@ -1,11 +1,29 @@
 import { prisma } from '@/lib/prisma'
+import { supabase } from '@/lib/supabase'
 import { detectCategorySlug, STATIC_CATEGORIES, PAGE_SIZE } from '@/lib/categories'
 import type { CatalogProduct } from '@/lib/categories'
 
 export type { CatalogProduct }
 export { PAGE_SIZE, STATIC_CATEGORIES, detectCategorySlug }
 
-// ── Category helpers ─────────────────────────────────────────────────────────
+export type DbCategory = { id: string; slug: string; name: string }
+
+// Module-level cache — categories rarely change
+let _catCache: DbCategory[] | null = null
+
+export async function getCategories(): Promise<DbCategory[]> {
+  if (_catCache) return _catCache
+  const { data, error } = await supabase
+    .from('Category')
+    .select('id, slug, name')
+    .neq('slug', 'prochee')
+    .order('name', { ascending: true })
+  if (error) return []
+  _catCache = (data as DbCategory[]) ?? []
+  return _catCache
+}
+
+// Category helpers — Prisma, used by import scripts only
 
 export async function getOrCreateCategoryId(productName: string): Promise<string> {
   const slug = detectCategorySlug(productName)
@@ -20,51 +38,45 @@ export async function getOrCreateCategoryId(productName: string): Promise<string
   return created.id
 }
 
-// ── Prisma row shape ─────────────────────────────────────────────────────────
+// Supabase row shape
 
-type DbProduct = {
+type SupabaseProduct = {
   id: string
   name: string
   article: string
-  priceRetail: { toString(): string }
+  priceRetail: number
   stock: number
   brandName: string | null
   externalId: string | null
   description: string | null
-  images: { url: string; isPrimary: boolean; sortOrder: number }[]
-  category: { slug: string; name: string }
+  Category: { slug: string; name: string } | null
 }
 
-function adapt(p: DbProduct): CatalogProduct {
+function adapt(p: SupabaseProduct): CatalogProduct {
   return {
     id: p.id,
     name: p.name,
     article: p.article,
     brand: p.brandName ?? '',
-    category: p.category.name,
-    categorySlug: p.category.slug,
+    category: p.Category?.name ?? '',
+    categorySlug: p.Category?.slug ?? '',
     price: Number(p.priceRetail),
     stock: p.stock,
-    images: p.images.sort((a, b) => a.sortOrder - b.sortOrder).map((i) => i.url),
+    images: [],
     description: p.description ?? '',
     externalId: p.externalId,
   }
 }
 
-const select = {
-  id: true,
-  name: true,
-  article: true,
-  priceRetail: true,
-  stock: true,
-  brandName: true,
-  externalId: true,
-  description: true,
-  images: { select: { url: true, isPrimary: true, sortOrder: true } },
-  category: { select: { slug: true, name: true } },
+const PRODUCT_COLUMNS =
+  'id, name, article, priceRetail, stock, brandName, externalId, description, Category!inner(slug, name)'
+
+// Strip characters that have special meaning in PostgREST filter syntax
+function sanitizeSearch(raw: string): string {
+  return raw.trim().replace(/[(),"'\\]/g, '')
 }
 
-// ── Query functions ──────────────────────────────────────────────────────────
+// Query functions
 
 export async function getProducts({
   search,
@@ -75,36 +87,33 @@ export async function getProducts({
   categorySlug?: string
   page?: number
 } = {}) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { isActive: true }
+  const skip = (page - 1) * PAGE_SIZE
 
-  if (search?.trim()) {
-    where.OR = [
-      { name: { contains: search.trim(), mode: 'insensitive' } },
-      { article: { contains: search.trim(), mode: 'insensitive' } },
-    ]
-  }
+  let query = supabase
+    .from('Product')
+    .select(PRODUCT_COLUMNS, { count: 'exact' })
+    .eq('isActive', true)
+    .order('id', { ascending: true })
+    .range(skip, skip + PAGE_SIZE - 1)
 
   if (categorySlug) {
-    const cat = await prisma.category.findFirst({ where: { slug: categorySlug } })
-    if (!cat) return { products: [], total: 0, pages: 0, page }
-    where.categoryId = cat.id
+    query = query.eq('Category.slug', categorySlug)
   }
 
-  const [rows, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      select: select as any,
-      orderBy: { name: 'asc' },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.product.count({ where }),
-  ])
+  if (search?.trim()) {
+    const q = sanitizeSearch(search)
+    if (q) {
+      query = query.or(`name.ilike.%${q}%,article.ilike.%${q}%`)
+    }
+  }
 
+  const { data, count, error } = await query
+
+  if (error) throw new Error(error.message)
+
+  const total = count ?? 0
   return {
-    products: (rows as unknown as DbProduct[]).map(adapt),
+    products: (data as unknown as SupabaseProduct[]).map(adapt),
     total,
     pages: Math.ceil(total / PAGE_SIZE),
     page,
@@ -112,21 +121,28 @@ export async function getProducts({
 }
 
 export async function getProductByArticle(article: string): Promise<CatalogProduct | null> {
-  const p = await prisma.product.findFirst({
-    where: { article, isActive: true },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    select: select as any,
-  })
-  return p ? adapt(p as unknown as DbProduct) : null
+  const { data, error } = await supabase
+    .from('Product')
+    .select(PRODUCT_COLUMNS)
+    .eq('isActive', true)
+    .eq('article', article)
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  if (!data) return null
+  return adapt(data as unknown as SupabaseProduct)
 }
 
 export async function getFeaturedProducts(limit = 4): Promise<CatalogProduct[]> {
-  const rows = await prisma.product.findMany({
-    where: { isActive: true, stock: { gt: 0 } },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    select: select as any,
-    orderBy: { syncedAt: 'desc' },
-    take: limit,
-  })
-  return (rows as unknown as DbProduct[]).map(adapt)
+  const { data, error } = await supabase
+    .from('Product')
+    .select(PRODUCT_COLUMNS)
+    .eq('isActive', true)
+    .gt('stock', 0)
+    .order('syncedAt', { ascending: false })
+    .limit(limit)
+
+  if (error) throw new Error(error.message)
+  return (data as unknown as SupabaseProduct[]).map(adapt)
 }

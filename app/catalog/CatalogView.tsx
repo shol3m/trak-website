@@ -5,13 +5,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { CatalogProduct } from '@/lib/categories'
-import { STATIC_CATEGORIES } from '@/lib/categories'
+import type { DbCategory } from '@/lib/db-catalog'
 import { useCartStore } from '@/lib/cart-store'
 import ProductCard from '@/components/ui/ProductCard'
 import Container from '@/components/layout/Container'
 
 interface CatalogViewProps {
   products: CatalogProduct[]
+  categories: DbCategory[]
   total: number
   pages: number
   page: number
@@ -19,10 +20,9 @@ interface CatalogViewProps {
   activeSlug?: string
 }
 
-const DISPLAY_CATS = STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee')
-
 export default function CatalogView({
   products,
+  categories,
   total,
   pages,
   page,
@@ -34,7 +34,7 @@ export default function CatalogView({
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
 
-  const activeCategory = STATIC_CATEGORIES.find((c) => c.slug === activeSlug)
+  const activeCategory = categories.find((c) => c.slug === activeSlug)
   const basePath = activeSlug ? `/catalog/${activeSlug}` : '/catalog'
   const searchParam = search ? `&q=${encodeURIComponent(search)}` : ''
 
@@ -102,7 +102,7 @@ export default function CatalogView({
           >
             Все
           </Link>
-          {DISPLAY_CATS.map((cat) => (
+          {categories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/catalog/${cat.slug}`}
