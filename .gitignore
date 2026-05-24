@@ -15,5 +15,18 @@ out
 # misc
 .DS_Store
 
+# MCP config with tokens — never commit
+.mcp.json
+.claude/settings.local.json
+
 # Local Netlify folder
 .netlify
+
+# Playwright MCP logs and snapshots
+.playwright-mcp/
+
+# Dev screenshots (audit, search tests, font comparisons)
+screenshots/
+
+# Root-level woff2 font files (belong in public/fonts/)
+*.woff2

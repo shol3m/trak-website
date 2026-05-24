@@ -22,7 +22,7 @@ export default function ServiceSection() {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.6 }}
             >
               <span className="font-body text-xs text-[#C8102E] uppercase tracking-[0.2em] mb-4 block">
@@ -31,21 +31,39 @@ export default function ServiceSection() {
               <h2 className="font-heading text-4xl md:text-5xl text-text-base uppercase leading-tight mb-4">
                 Профессиональный<br />ремонт и ТО
               </h2>
-              <p className="font-body text-text-dim text-base leading-relaxed mb-8">
-                Опытные мастера, современное оборудование. Работаем с ВАЗ, ГАЗ, УАЗ и КАМАЗ. Гарантия на все виды работ.
+              <p className="font-body text-text-dim text-base leading-relaxed mb-6">
+                Ремонт ходовой, двигателя и электрики. 3D развал-схождение, установка фаркопа. Работаем с ГАЗ, УАЗ, Лада и КАМАЗ. Зал ожидания с Wi‑Fi.
               </p>
+              <div className="flex flex-col gap-2 mb-8">
+                {[
+                  '3D развал-схождение',
+                  'Гарантия на все виды работ',
+                  'Без выходных · 9:00–20:00',
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-2.5">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0 text-[#C8102E]">
+                      <circle cx="7" cy="7" r="6.25" stroke="currentColor" strokeWidth="1.25"/>
+                      <path d="M4.5 7l1.75 1.75 3-3.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="font-body text-sm text-text-dim">{item}</span>
+                  </div>
+                ))}
+              </div>
               <button
                 onClick={() => setModalOpen(true)}
-                className="bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-base px-8 py-4 transition-colors duration-200"
+                className="group inline-flex items-center gap-3 bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-base px-8 py-4 transition-colors duration-200"
               >
                 Записаться на СТО
+                <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </button>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <div className="flex flex-wrap gap-2 mb-4">
@@ -84,7 +102,7 @@ export default function ServiceSection() {
                         </svg>
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-heading text-sm uppercase tracking-wide text-text-base">{service.name}</p>
+                        <p className="font-heading text-sm text-text-base">{service.name}</p>
                         <p className="font-body text-text-dim text-xs mt-1">{service.description}</p>
                       </div>
                       <div className="text-right shrink-0 flex flex-col items-end gap-2">

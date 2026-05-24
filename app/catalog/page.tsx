@@ -5,23 +5,24 @@ import CatalogView from './CatalogView'
 
 export const metadata = {
   title: 'Каталог запчастей — ТРАК',
-  description: 'Запчасти для ГАЗ, ВАЗ, УАЗ, КАМАЗ в наличии и под заказ',
+  description: 'Запчасти для ГАЗ, Лада, УАЗ, КАМАЗ в наличии и под заказ',
 }
 
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: { q?: string; page?: string }
+  searchParams: { q?: string; page?: string; sort?: string }
 }) {
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''
+  const sort = searchParams.sort ?? ''
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
   let categories: DbCategory[] = []
 
   try {
     ;[result, categories] = await Promise.all([
-      getProducts({ search, page }),
+      getProducts({ search, page, sort }),
       getCategories(),
     ])
   } catch (e) {
@@ -37,6 +38,7 @@ export default async function CatalogPage({
         pages={result.pages}
         page={result.page}
         search={search}
+        sort={sort}
       />
     </Suspense>
   )

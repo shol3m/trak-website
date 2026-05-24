@@ -12,13 +12,14 @@
 --gold:       #C4922A   /* акцент для статусов "официальный дилер" */
 
 ## Типографика
-Заголовки H1-H3: Russo One
-Текст body:       IBM Plex Sans
-Моно/артикулы:    IBM Plex Mono
+Заголовки H1-H3: Roboto Condensed (700, 900) — переменная `--font-russo` / Tailwind класс `font-heading`
+Текст body:       IBM Plex Sans (400, 500, 600, 700)
+Моно/артикулы:    IBM Plex Mono (400, 500)
 Подключение:      next/font/local — локальные файлы из public/fonts/ (без сетевых запросов при сборке)
 
 Файлы шрифтов (public/fonts/):
-- russo-one-latin.woff2, russo-one-cyrillic.woff2
+- roboto-condensed-{700,900}-{latin,cyrillic}.woff2  ← используется как font-heading
+- russo-one-{latin,cyrillic}.woff2  ← файлы есть, но НЕ подключены в layout.tsx
 - ibm-plex-sans-{400,500,600,700}-{latin,cyrillic}.woff2
 - ibm-plex-sans-400i-{latin,cyrillic}.woff2
 - ibm-plex-mono-{400,500}-{latin,cyrillic}.woff2
@@ -64,7 +65,7 @@ ThemeToggle (Sun/Moon) в Header.
 `MockService.icon` не существует — не добавлять. `STATIC_CATEGORIES.icon` не существует — не добавлять.
 
 ## Принципы
-- Тёмная тема везде, без светлых страниц
+- Поддержка light/dark темы через `next-themes`. Default: system preference. Все цвета через семантические токены
 - Углы кнопок — прямые (border-radius: 0), не скруглённые
 - Красный — только для CTA и акцентов, не для фонов секций
 - Шум/текстура фона — тонкий noise overlay на hero секции

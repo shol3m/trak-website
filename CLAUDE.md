@@ -63,25 +63,28 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `components/layout/Header.tsx` — fixed хедер с логотипом и кнопкой CTA. На мобиле: ThemeToggle + корзина + бургер (телефон убран из мобильной строки — дублировал то, что есть в меню)
 - `components/layout/Footer.tsx` — футер с динамическим годом. trustItems: 3 элемента (30+ лет, 50 000+ позиций, Пн–Вс)
 
-### Sections (порядок на главной странице)
-- `components/sections/HeroSlider.tsx` — Swiper-слайдер (3 слайда, fade, autoplay 5с, navigation, pagination). Заменяет HeroSection на главной. Слайд 2 открывает BookingModal.
-- `components/sections/HeroSection.tsx` — старый hero (не используется на главной, не удалять)
-- `components/sections/AdvantagesSection.tsx` — преимущества (SVG-иконки)
-- `components/sections/BrandsSection.tsx` — 4 бренда (ГАЗ/УАЗ/ВАЗ/КАМАЗ), staggered анимация. **Закомментирован в page.tsx**
-- `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам. SVG checkmark вместо emoji-иконки
-- `components/sections/CategoriesSection.tsx` — категории товаров. SVG-иконки (карта ICONS по slug), не emoji
-- `components/sections/PartFinderSection.tsx` — подбор Марка→Модель→Категория→/catalog
-- `components/sections/ProductsSection.tsx` — список товаров
-- `components/sections/ServiceGallery.tsx` — Embla Carousel, 6 фото сервиса, autoplay 3.5с, адаптивно 1/2/3 колонки. Фото: `public/images/gallery-1..6.jpg`. Пока нет — показывается стилизованный плейсхолдер с иконкой и описанием
-- `components/sections/ReviewsSection.tsx` — Embla Carousel слайдер отзывов, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов из 2ГИС/Яндекс.Карт в mock-data
-- `components/sections/ContactsSection.tsx` — контакты и карта
+### Sections (активные на главной странице — в порядке рендера)
+- `components/sections/HeroSlider.tsx` — Swiper-слайдер (3 слайда, fade, autoplay 8с, navigation, pagination). Слайд 2 открывает BookingModal. Фото: `public/images/hero-1..3.webp` (реальные WebP)
+- `components/sections/AdvantagesSection.tsx` — преимущества (4 SVG-иконки inline)
+- `components/sections/CategoriesSection.tsx` — категории товаров горизонтальными строками (icon + name + chevron). SVG-иконки (карта ICONS по slug)
+- `components/sections/ProductsSection.tsx` — 4 featured товара из БД (getFeaturedProducts)
+- `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам. 3 feature-пункта с SVG checkmark
+- `components/sections/ReviewsSection.tsx` — Embla Carousel, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов. Карточки `h-full` для одинаковой высоты
+
+### Sections (не используются на главной)
+- `components/sections/HeroSection.tsx` — старый hero, не удалять
+- `components/sections/BrandsSection.tsx` — 4 бренда (ГАЗ/УАЗ/ВАЗ/КАМАЗ), убран с главной
+- `components/sections/PartFinderSection.tsx` — подбор Марка→Модель→Категория→/catalog, убран с главной
+- `components/sections/ServiceGallery.tsx` — Embla Carousel галерея сервиса, 6 фото. Ждёт реальные фото `gallery-1..6.jpg` (сейчас SVG-заглушки). Не подключён нигде
+- `components/sections/ContactsSection.tsx` — не используется, заменён страницей `app/contacts/page.tsx`
 
 ### Pages
 - `app/page.tsx` — главная страница
 - `app/service/page.tsx` — страница услуг
 - `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+). Advantages: 4 карточки с inline SVG-иконками (не emoji)
-- `app/catalog/page.tsx` — каталог (фильтры по бренду + категории, URL-params)
-- `app/catalog/CatalogView.tsx` — client-компонент с фильтрами и grid товаров (переиспользуется в [slug])
+- `app/contacts/page.tsx` — контакты: два отдела с цветными left-border (Магазин #C8102E, Автосервис #1A3A6B, Оптовый #C4922A), Яндекс.Карты embed (320px), email/WhatsApp в bg-bg-muted
+- `app/catalog/page.tsx` — каталог с URL-params: q (поиск), sort (price_asc/price_desc), page
+- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список, категории-табы. Переиспользуется в [slug]
 - `app/catalog/[slug]/page.tsx` — каталог с предвыбранной категорией
 - `app/catalog/[slug]/[article]/page.tsx` — страница товара (галерея, артикул, цена)
 - `app/catalog/[slug]/[article]/AddToCartButton.tsx` — client-кнопка "Добавить в корзину"
@@ -98,7 +101,7 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `app/api/order/route.ts` — POST, zod-валидация (name, phone, items[], comment), сохранение в БД + отправка в Telegram
 - `app/api/orders/route.ts` — GET для 1С: CSV-выгрузка PENDING заказов, Basic Auth, после выдачи → PROCESSING
 - `app/api/products/route.ts` — POST для 1С: приём CSV с `;`, upsert по externalId, Basic Auth
-- `app/sitemap.ts` — 4 URL для SEO (/, /service, /catalog, /about)
+- `app/sitemap.ts` — 5 URL для SEO (/, /service, /catalog, /about, /contacts)
 
 ### Slug ↔ категория
 Категории в CatalogView берутся из БД через `getCategories()`. Slug → название определяется в БД, не хардкодится.
@@ -112,8 +115,10 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `app/about/page.tsx` — advantages с inline SVG
 - `MockService` не имеет поля `icon` — не добавлять
 
-### Не реализовано
-- `app/api/products/route.ts` — API каталога (спроектировано, не реализовано)
+### Не реализовано / ожидает
+- Реальные фото галереи: `public/images/gallery-1..6.jpg` — пока SVG-заглушки (ServiceGallery не подключён)
+- FTP-синхронизация: GitHub Actions workflow для автосинхронизации CSV из 1С
+- Fuzzy-поиск: нужен GIN-индекс на pg_trgm в БД — сейчас поиск по подстроке (ilike)
 
 ## ОГРАНИЧЕНИЯ СЕРВИСА (важно для контента)
 - Шиномонтаж — НЕТ
@@ -130,7 +135,8 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 3. ~~app/layout.tsx — добавить JSON-LD LocalBusiness + OpenGraph meta~~ ✓ AutoPartsStore JSON-LD + OpenGraph
 4. ~~globals.css — убрать z-index:9999 с body::before~~ ✓ исправлено в сессии 10 (→ 0)
 5. ~~ReviewsSection subtitle — убрать "500 клиентов за 30 лет", добавить ссылку на Яндекс.Карты~~ ✓
-6. Заменить SVG-заглушки в public/images/ на реальные WebP фото (hero-1..3, gallery-1..6) — **ждёт фото**
+6. ~~Заменить SVG-заглушки hero-1..3 на реальные WebP~~ ✓ `hero-1..3.webp` загружены в `public/images/`
+   Заменить SVG-заглушки gallery-1..6 на реальные JPG — **ждёт фото**
 
 ### P2 — Выполнено ✓ (2026-04-23)
 - `components/sections/BrandsSection.tsx` — 4 бренда, staggered анимация, hover border-red
@@ -213,6 +219,10 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 - Шрифты локальные: `public/fonts/` (woff2, latin + cyrillic)
 - `app/layout.tsx` использует `next/font/local` — нет сетевых запросов при сборке
 - НЕ использовать `next/font/google` — падает на Netlify если выставлен HTTP_PROXY
+- **Заголовки (`font-heading`):** Roboto Condensed 700/900 — файлы `roboto-condensed-{700,900}-*.woff2`, переменная `--font-russo`
+- **Body (`font-body`):** IBM Plex Sans 400–700 — файлы `ibm-plex-sans-*.woff2`
+- **Mono (`font-mono`):** IBM Plex Mono 400/500 — файлы `ibm-plex-mono-*.woff2`
+- Файлы `russo-one-*.woff2` есть в `public/fonts/` но НЕ подключены — не удалять
 
 ## ENV
 - `NEXT_PUBLIC_SUPABASE_URL` — URL Supabase проекта (обязательно, в т.ч. локально)

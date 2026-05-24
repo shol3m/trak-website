@@ -8,7 +8,7 @@ export default function ReviewCard({ review }: { review: MockReview }) {
   })
 
   return (
-    <div className="bg-bg-card border border-ui-border p-6 flex flex-col gap-3">
+    <div className="h-full bg-bg-card border border-ui-border p-6 flex flex-col gap-3">
       <div className="flex items-center gap-1">
         {Array.from({ length: 5 }).map((_, i) => (
           <span key={i} className={i < review.rating ? 'text-[#C4922A]' : 'text-ui-border'}>

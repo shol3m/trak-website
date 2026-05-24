@@ -52,7 +52,7 @@ export default function ReviewsSection() {
             {mockReviews.map((review) => (
               <div
                 key={review.id}
-                className="flex-none basis-full sm:basis-1/2 lg:basis-1/3 px-2 first:pl-4 last:pr-4 sm:first:pl-6 sm:last:pr-6 lg:first:pl-8 lg:last:pr-8"
+                className="flex-none basis-full sm:basis-1/2 lg:basis-1/3 px-2 first:pl-4 last:pr-4 sm:first:pl-6 sm:last:pr-6 lg:first:pl-8 lg:last:pr-8 h-full"
               >
                 <ReviewCard review={review} />
               </div>

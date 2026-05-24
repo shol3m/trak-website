@@ -38,7 +38,7 @@ export async function getOrCreateCategoryId(productName: string): Promise<string
   return created.id
 }
 
-// Supabase row shape
+// Supabase row shape (used by getProductByArticle and getFeaturedProducts)
 
 type SupabaseProduct = {
   id: string
@@ -68,6 +68,7 @@ function adapt(p: SupabaseProduct): CatalogProduct {
   }
 }
 
+
 const PRODUCT_COLUMNS =
   'id, name, article, priceRetail, stock, brandName, externalId, description, Category!inner(slug, name)'
 
@@ -82,10 +83,12 @@ export async function getProducts({
   search,
   categorySlug,
   page = 1,
+  sort,
 }: {
   search?: string
   categorySlug?: string
   page?: number
+  sort?: string
 } = {}) {
   const skip = (page - 1) * PAGE_SIZE
 
@@ -93,8 +96,15 @@ export async function getProducts({
     .from('Product')
     .select(PRODUCT_COLUMNS, { count: 'exact' })
     .eq('isActive', true)
-    .order('id', { ascending: true })
     .range(skip, skip + PAGE_SIZE - 1)
+
+  if (sort === 'price_asc') {
+    query = query.order('priceRetail', { ascending: true })
+  } else if (sort === 'price_desc') {
+    query = query.order('priceRetail', { ascending: false })
+  } else {
+    query = query.order('id', { ascending: true })
+  }
 
   if (categorySlug) {
     query = query.eq('Category.slug', categorySlug)
@@ -103,7 +113,11 @@ export async function getProducts({
   if (search?.trim()) {
     const q = sanitizeSearch(search)
     if (q) {
-      query = query.or(`name.ilike.%${q}%,article.ilike.%${q}%`)
+      // Each word must appear somewhere in name or article (AND logic)
+      const words = q.split(/\s+/).filter(Boolean)
+      for (const word of words) {
+        query = query.or(`name.ilike.%${word}%,article.ilike.%${word}%`)
+      }
     }
   }
 

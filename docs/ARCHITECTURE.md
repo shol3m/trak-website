@@ -1,6 +1,6 @@
 # Архитектура сайта ТРАК
 
-_Последнее обновление: 2026-05-22_
+_Последнее обновление: 2026-05-25_
 
 ---
 
@@ -8,13 +8,14 @@ _Последнее обновление: 2026-05-22_
 
 | Путь | Описание |
 |---|---|
-| `/` | Главная: HeroSlider, Advantages, Service, Categories, Products, ServiceGallery, Reviews, Contacts |
-| `/catalog` | Каталог запчастей: поиск, категории-табы, пагинация (50/стр) |
+| `/` | Главная: HeroSlider → AdvantagesSection → CategoriesSection → ProductsSection → ServiceSection → ReviewsSection |
+| `/catalog` | Каталог: поиск (debounce 350ms, мультислово AND), сортировка (цена ↑↓), переключатель сетка/список, категории-табы, пагинация (50/стр) |
 | `/catalog/[slug]` | Каталог по категории (slug = dvigateli, filtry, podveska, tormoznaya-sistema, masla-i-zhidkosti, transmissiya) |
 | `/catalog/[slug]/[article]` | Карточка товара: галерея, артикул, цена, кнопка в корзину |
 | `/service` | Услуги автосервиса по вкладкам (mock-данные) |
 | `/about` | О компании: stats, сертификаты с lightbox |
-| `/` (layout) | ContactsSection + Footer на всех страницах |
+| `/contacts` | Контакты: отделы с цветными бордерами, Яндекс.Карты embed |
+| `/` (layout) | Header + Footer на всех страницах |
 
 ## Страницы (не реализованы)
 - `/portfolio`, `/reviews`, `/articles` — нет дизайна, не приоритет

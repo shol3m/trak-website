@@ -1,6 +1,52 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-05-22 (сессия — каталог Supabase JS, security, категории из БД)_
+_Последнее обновление: 2026-05-25_
+
+---
+
+## Наведение порядка + документация (2026-05-25)
+
+### Реализовано
+
+- Убраны ~25 скриншотов из корня → перемещены в `screenshots/` (добавлен в `.gitignore`)
+- Удалены: `logo.png` в корне (дубль), `utils/supabase/` (не использовался), `app/font-compare/` (dev-страница)
+- Удалён мёртвый код `SearchRow` / `adaptSearch` из `lib/db-catalog.ts`
+- `.gitignore` обновлён: добавлены `.playwright-mcp/`, `screenshots/`, `*.woff2`
+- `app/sitemap.ts` — добавлен `/contacts` (был пропущен)
+- Документация приведена в соответствие: `CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`, `docs/BRIEF.md`
+
+---
+
+## Каталог UX + Контакты + UX-фиксы (2026-05-23 – 2026-05-25)
+
+### Реализовано
+
+**Страница `/contacts` (полный редизайн):**
+- `app/contacts/page.tsx` — два отдела в левой колонке, карта + адрес в правой (grid 2 колонки)
+- Каждый отдел с цветным left-border strip: Магазин `#C8102E`, Автосервис `#1A3A6B`, Оптовый `#C4922A`
+- Яндекс.Карты embed `map-widget/v1/org/trak/1100951090`, высота 320px
+- Email / WhatsApp в блоке `bg-bg-muted` (визуально отличается от карточек отделов)
+- `ContactsSection.tsx` более не используется — заменён страницей
+
+**CatalogView — полная переработка UX (`app/catalog/CatalogView.tsx`):**
+- Debounced поиск 350ms (useEffect с setTimeout). Sync от server props через отдельный useEffect
+- Сортировка: `price_asc` / `price_desc` (сортировка по имени убрана — вызывала таймауты)
+- Переключатель вид: сетка / список. Список — компонент `ProductListRow` (артикул + название + статус + цена + кнопка)
+- `buildUrl()` — централизованный билдер URL с q/sort/page параметрами
+- Кнопка «Все» захардкожена как `/catalog` (не через `buildUrl`) — исправляет баг с категорией на `basePath`
+- `lib/db-catalog.ts` — параметр `sort`, поиск мультислово AND через цепочку `.or()`:
+  ```ts
+  for (const word of words) query = query.or(`name.ilike.%${word}%,article.ilike.%${word}%`)
+  ```
+
+**UX-фиксы главной страницы:**
+- `CategoriesSection.tsx` — карточки категорий переделаны в горизонтальные строки (icon + name + chevron) вместо вертикальных карточек
+- `ServiceSection.tsx` — добавлены 3 feature-пункта (checkmark-circle SVG) перед CTA: «3D развал-схождение», «Гарантия», «Без выходных»
+- `ReviewsSection.tsx` + `ReviewCard.tsx` — добавлен `h-full` для выравнивания высот карточек в Embla Carousel
+- `SectionHeading.tsx` — добавлен `mx-auto` для центрирования subtitle при `align="center"`
+
+### Известные ограничения поиска
+Поиск работает как substring ilike — «фильтр» найдёт «фильтры», но опечатки не обрабатываются. Fuzzy-поиск требует GIN-индекс в БД (pg_trgm) — не реализован из-за statement timeout на 280k строках без индекса.
 
 ---
 
