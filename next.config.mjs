@@ -7,7 +7,25 @@ delete process.env.HTTP_PROXY
 process.env.NEXT_PUBLIC_SUPABASE_URL ??= 'https://scprbpqwugshqbttbowe.supabase.co'
 process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??= 'sb_publishable_588VWvqjtvBQoWcqy2aSuQ_We17-S4S'
 
+const DEAD_FLAT_CATEGORIES = [
+  'dvigateli',
+  'filtry',
+  'tormoznaya-sistema',
+  'podveska',
+  'masla-i-zhidkosti',
+  'transmissiya',
+  'prochee',
+]
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  async redirects() {
+    return DEAD_FLAT_CATEGORIES.map((slug) => ({
+      source: `/catalog/${slug}`,
+      destination: '/catalog',
+      permanent: true,
+    }))
+  },
+}
 
 export default nextConfig

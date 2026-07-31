@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { invalidateCategoryTree } from '@/lib/db-catalog'
 
 function safeEq(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -144,6 +145,8 @@ export async function POST(req: NextRequest) {
       errors++
     }
   }
+
+  if (upserted > 0) invalidateCategoryTree()
 
   return NextResponse.json({ ok: true, upserted, errors, total: rows.length })
 }

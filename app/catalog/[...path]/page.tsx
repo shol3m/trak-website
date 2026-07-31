@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { getProducts, getCategoryNode } from '@/lib/db-catalog'
+import { notFound, redirect } from 'next/navigation'
+import { getProducts, getProductByArticle, getCategoryNode } from '@/lib/db-catalog'
 import type { CatalogProduct } from '@/lib/db-catalog'
 import CatalogView from '../CatalogView'
 import CategoryTiles from '../CategoryTiles'
@@ -30,7 +30,16 @@ export default async function CategoryPage({
   searchParams: { q?: string; page?: string; sort?: string }
 }) {
   const node = await getCategoryNode(lastSlug(params.path))
-  if (!node) return notFound()
+  if (!node) {
+    // Old URL shape was /catalog/[categorySlug]/[article] — if the last
+    // segment is a real product article, forward to its new /product page
+    // instead of 404ing on every stale inbound/bookmarked link.
+    if (params.path.length >= 2) {
+      const product = await getProductByArticle(lastSlug(params.path)).catch(() => null)
+      if (product) redirect(`/product/${product.article}`)
+    }
+    return notFound()
+  }
 
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''

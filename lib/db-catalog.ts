@@ -1,9 +1,19 @@
+import { unstable_cache, revalidateTag } from 'next/cache'
 import { supabase } from '@/lib/supabase'
 import { PAGE_SIZE } from '@/lib/categories'
 import type { CatalogProduct } from '@/lib/categories'
 
 export type { CatalogProduct }
 export { PAGE_SIZE }
+
+const CATEGORY_TAG = 'categories'
+
+// Call after any write that changes which categories have active products
+// (currently: POST /api/products) — invalidates across all instances/edge,
+// unlike a plain module-level variable which only clears the process that runs it.
+export function invalidateCategoryTree() {
+  revalidateTag(CATEGORY_TAG)
+}
 
 export type TreeCategory = {
   id: string
@@ -33,32 +43,57 @@ type Tree = {
   roots: TreeCategory[]
 }
 
-// Module-level cache — categories rarely change
-let _treeCache: Tree | null = null
+// Category count as of 2026-08-01: 927. Explicit ceiling well above that so
+// growth from future 1С syncs can't silently truncate the tree — PostgREST
+// defaults to capping unbounded selects at 1000 rows.
+const CATEGORY_FETCH_LIMIT = 5000
+
+// Cached via Next's Data Cache (not a plain module variable) so a sync on one
+// serverless instance can invalidate the tree everywhere via invalidateCategoryTree().
+const fetchCategoryRows = unstable_cache(
+  async (): Promise<{ cats: CategoryRow[]; productCategoryIds: string[] }> => {
+    const [{ data: cats, error: catsError }, { data: withProducts, error: prodError }] = await Promise.all([
+      supabase
+        .from('Category')
+        .select('id, parentId, slug, name, level, path, sortOrder')
+        .order('sortOrder', { ascending: true })
+        .limit(CATEGORY_FETCH_LIMIT),
+      supabase
+        .from('Category')
+        .select('id, Product!inner(id)')
+        .eq('Product.isActive', true)
+        .limit(CATEGORY_FETCH_LIMIT),
+    ])
+
+    // Throw (not return-empty) on error — unstable_cache only caches a
+    // successful return, so a transient DB blip gets retried next request
+    // instead of permanently caching an empty tree.
+    if (catsError || prodError) {
+      throw catsError ?? prodError
+    }
+
+    return {
+      cats: (cats ?? []) as CategoryRow[],
+      productCategoryIds: ((withProducts ?? []) as { id: string }[]).map((c) => c.id),
+    }
+  },
+  ['category-tree-data'],
+  { tags: [CATEGORY_TAG] }
+)
 
 async function loadTree(): Promise<Tree> {
-  if (_treeCache) return _treeCache
-
-  const [{ data: cats, error: catsError }, { data: withProducts, error: prodError }] = await Promise.all([
-    supabase
-      .from('Category')
-      .select('id, parentId, slug, name, level, path, sortOrder')
-      .order('sortOrder', { ascending: true }),
-    supabase
-      .from('Category')
-      .select('id, Product!inner(id)')
-      .eq('Product.isActive', true),
-  ])
-
-  if (catsError || prodError) {
+  let cats: CategoryRow[] = []
+  let productCategoryIds: string[] = []
+  try {
+    ;({ cats, productCategoryIds } = await fetchCategoryRows())
+  } catch {
     return { byId: new Map(), bySlug: new Map(), roots: [] }
   }
-
-  const productCategoryIds = new Set(((withProducts ?? []) as { id: string }[]).map((c) => c.id))
+  const productCategoryIdSet = new Set(productCategoryIds)
 
   const byId = new Map<string, TreeCategory>()
-  for (const c of (cats ?? []) as CategoryRow[]) {
-    byId.set(c.id, { ...c, hasProducts: productCategoryIds.has(c.id), children: [] })
+  for (const c of cats) {
+    byId.set(c.id, { ...c, hasProducts: productCategoryIdSet.has(c.id), children: [] })
   }
   for (const node of byId.values()) {
     if (node.parentId) byId.get(node.parentId)?.children.push(node)
@@ -79,8 +114,7 @@ async function loadTree(): Promise<Tree> {
     .sort((a, b) => a.sortOrder - b.sortOrder)
   const bySlug = new Map([...byId.values()].map((n) => [n.slug, n]))
 
-  _treeCache = { byId, bySlug, roots }
-  return _treeCache
+  return { byId, bySlug, roots }
 }
 
 export async function getCategoryTree(): Promise<TreeCategory[]> {
