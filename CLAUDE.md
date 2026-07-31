@@ -26,6 +26,7 @@
 Next.js 14 · App Router · TypeScript · Tailwind CSS · Framer Motion
 Prisma · PostgreSQL · Zustand · react-hook-form · zod · NextAuth.js
 Swiper · embla-carousel-react · embla-carousel-autoplay
+Vitest (тесты) · ESLint (`next/core-web-vitals`)
 
 ## СТРУКТУРА
 /app           — страницы (App Router)
@@ -247,9 +248,23 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 | `HTTPS_PROXY` из `.env.local` тормозит Supabase HTTP-запросы | `next.config.mjs` удаляет proxy env vars при старте сервера |
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
+
+### Приоритет 1 — безопасность и надёжность
+- **Rate-limit на `/api/order` и `/api/booking`** — публичные POST-роуты без всякой защиты от флуда. Client-side "rate-limit" в `BookingModal` — это просто UI-стейт, тривиально обходится прямым запросом
+- **Тесты на `/api/order` и `/api/booking`** — самые критичные пути (деньги/заказы), нужны моки Prisma + Telegram-запроса. Тесты на `lib/phone-utils.ts` уже есть (`npm run test`) — это следующий, более тяжёлый шаг
+
+### Приоритет 2 — продуктовые решения (не код, нужно решить)
+- **9 из 18 таблиц в схеме пустые**: `User`/`Account`/`Session` (под `next-auth`, задекларирован в стеке, не реализован), `Brand`, `CarModel`, `ProductCompatibility`, `AttributeDefinition`, `ProductAttribute`, `ProductBrand`, `Review`. Либо реализовывать (проще всего начать с `Review` — контент уже есть в `lib/mock-data.ts`), либо явно выпиливать неиспользуемое
 - **FTP-синхронизация** — GitHub Actions workflow: cron → FTP → products.csv → upsert в БД
+
+### Приоритет 3 — производительность/SEO
+- **`nextjs-seo-performance` skill ещё не применён к каталогу** — `/catalog` и `/catalog/[...path]` сейчас `force-dynamic`, кеширования нет. При 920 категориях самое время прогнать skill на этом участке (ISR/`revalidate`, JSON-LD на уровне товара)
+- **`app/sitemap.ts`** — всего 5 статичных URL, не включает ни один из 280k товаров или 920 категорий
+
+### Мелкое
 - **Реальные фото** — заменить SVG-заглушки `public/images/` (hero-1..3, gallery-1..6) на WebP
 - **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
+- Дублирование логики хлебных крошек (`/product/[article]/page.tsx` и `/catalog/[...path]/page.tsx`) и создания fallback-категории «Прочее» (`app/api/products/route.ts` и `scripts/import-products.mjs`) — низкий приоритет, DRY, ничего не ломает
 
 ## ИНТЕГРАЦИЯ С 1С (статус)
 - `app/api/products/route.ts` — POST, приём CSV от 1С, Basic Auth, авто-определение разделителя (`\t`/`;`). Категория определяется по `Код_Каталога` → `Category.externalId`
