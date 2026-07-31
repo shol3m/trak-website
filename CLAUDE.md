@@ -106,7 +106,7 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 
 ### Slug ↔ категория
 Категории в CatalogView берутся из БД через `getCategories()`. Slug → название определяется в БД, не хардкодится.
-Реальное дерево категорий от 1С (920 категорий, до 4 уровней) залито в `Category` из `КаталогиСайт.txt` (`scripts/import-categories.mjs`), поле `Category.externalId` = `Код` из справочника. Старые 7 slug (dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee) остаются — на них пока висят все существующие 280k товаров (см. `docs/PROGRESS.md`, раздел от 2026-08-01).
+Реальное дерево категорий от 1С (920 категорий, до 4 уровней) залито в `Category` из `КаталогиСайт.txt` (`scripts/import-categories.mjs`), поле `Category.externalId` = `Код` из справочника. Все 280k товаров перекатегоризированы по реальным кодам (813 категорий сейчас используются). Старые 7 slug (dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee) больше не используются товарами, но записи в БД не удалялись — `prochee` остаётся fallback-категорией для будущих товаров с неизвестным кодом (см. `docs/PROGRESS.md`, раздел от 2026-08-01).
 
 ### Правила иконок (важно)
 **Никакого emoji в UI.** Везде SVG-иконки (stroke, currentColor, 24×24 viewBox).
@@ -248,7 +248,6 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 - **FTP-синхронизация** — GitHub Actions workflow: cron → FTP → products.csv → upsert в БД
-- **Перекатегоризация существующих 280k товаров** — справочник категорий от 1С уже залит (см. ниже), но у существующих товаров нет сохранённого `Код_Каталога` — обновятся на следующей синхронизации от 1С автоматически
 - **Реальные фото** — заменить SVG-заглушки `public/images/` (hero-1..3, gallery-1..6) на WebP
 - **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
 
