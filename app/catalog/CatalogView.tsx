@@ -132,7 +132,7 @@ export default function CatalogView({
           <p className="font-mono text-sm text-text-dim">
             {total > 0
               ? `${total.toLocaleString('ru-RU')} товаров`
-              : 'Товары появятся после первой синхронизации с 1С'}
+              : 'Товары не найдены'}
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export default function CatalogView({
             <p className="font-mono text-sm text-text-dim">
               {search
                 ? `По запросу «${search}» ничего не найдено`
-                : 'Товары появятся после первой синхронизации с 1С'}
+                : 'Товары не найдены'}
             </p>
             {search && (
               <button
