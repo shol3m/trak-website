@@ -1,11 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { CatalogProduct } from '@/lib/categories'
-import type { DbCategory } from '@/lib/db-catalog'
+import type { ReactNode } from 'react'
 import { useCartStore } from '@/lib/cart-store'
 import ProductCard from '@/components/ui/ProductCard'
 import Container from '@/components/layout/Container'
@@ -18,13 +18,14 @@ const SORT_OPTIONS = [
 
 interface CatalogViewProps {
   products: CatalogProduct[]
-  categories: DbCategory[]
   total: number
   pages: number
   page: number
   search: string
   sort: string
-  activeSlug?: string
+  title: string
+  basePath: string
+  topSlot?: ReactNode
 }
 
 function ProductListRow({
@@ -72,22 +73,20 @@ function ProductListRow({
 
 export default function CatalogView({
   products,
-  categories,
   total,
   pages,
   page,
   search,
   sort,
-  activeSlug,
+  title,
+  basePath,
+  topSlot,
 }: CatalogViewProps) {
   const router = useRouter()
   const [query, setQuery] = useState(search)
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
-
-  const activeCategory = categories.find((c) => c.slug === activeSlug)
-  const basePath = activeSlug ? `/catalog/${activeSlug}` : '/catalog'
 
   // Sync query when search prop changes (after navigation)
   useEffect(() => {
@@ -123,10 +122,12 @@ export default function CatalogView({
   return (
     <div className="min-h-screen bg-bg-page pt-24 pb-20">
       <Container>
+        {topSlot}
+
         {/* Header */}
         <div className="mb-6">
           <h1 className="font-heading text-2xl md:text-3xl text-text-base uppercase mb-1">
-            {activeCategory ? activeCategory.name : 'Каталог запчастей'}
+            {title}
           </h1>
           <p className="font-mono text-sm text-text-dim">
             {total > 0
@@ -196,33 +197,6 @@ export default function CatalogView({
           </div>
         </div>
 
-        {/* Category tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          <Link
-            href={sort ? `/catalog?sort=${sort}` : '/catalog'}
-            className={`flex-shrink-0 px-4 py-2 font-mono text-xs uppercase border transition-colors whitespace-nowrap ${
-              !activeSlug
-                ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                : 'bg-bg-card border-ui-border text-text-dim hover:border-[#C8102E] hover:text-text-base'
-            }`}
-          >
-            Все
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/catalog/${cat.slug}${sort ? `?sort=${sort}` : ''}`}
-              className={`flex-shrink-0 px-4 py-2 font-mono text-xs uppercase border transition-colors whitespace-nowrap ${
-                activeSlug === cat.slug
-                  ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                  : 'bg-bg-card border-ui-border text-text-dim hover:border-[#C8102E] hover:text-text-base'
-              }`}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-
         {/* Products */}
         {products.length === 0 ? (
           <div className="py-20 text-center">
@@ -252,7 +226,7 @@ export default function CatalogView({
               <ProductCard
                 key={product.id}
                 product={product}
-                href={`/catalog/${product.categorySlug}/${product.article}`}
+                href={`/product/${product.article}`}
                 onAddToCart={() => { addItem(product); openCart() }}
               />
             ))}
@@ -269,7 +243,7 @@ export default function CatalogView({
               <ProductListRow
                 key={product.id}
                 product={product}
-                href={`/catalog/${product.categorySlug}/${product.article}`}
+                href={`/product/${product.article}`}
                 onAddToCart={() => { addItem(product); openCart() }}
               />
             ))}

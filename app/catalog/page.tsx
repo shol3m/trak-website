@@ -1,7 +1,8 @@
 import { Suspense } from 'react'
-import { getProducts, getCategories } from '@/lib/db-catalog'
-import type { CatalogProduct, DbCategory } from '@/lib/db-catalog'
+import { getProducts, getCategoryTree } from '@/lib/db-catalog'
+import type { CatalogProduct, TreeCategory } from '@/lib/db-catalog'
 import CatalogView from './CatalogView'
+import CategoryTiles from './CategoryTiles'
 
 export const metadata = {
   title: 'Каталог запчастей — ТРАК',
@@ -18,12 +19,12 @@ export default async function CatalogPage({
   const sort = searchParams.sort ?? ''
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
-  let categories: DbCategory[] = []
+  let roots: TreeCategory[] = []
 
   try {
-    ;[result, categories] = await Promise.all([
+    ;[result, roots] = await Promise.all([
       getProducts({ search, page, sort }),
-      getCategories(),
+      getCategoryTree(),
     ])
   } catch (e) {
     console.error('[catalog] error:', e)
@@ -33,12 +34,14 @@ export default async function CatalogPage({
     <Suspense>
       <CatalogView
         products={result.products}
-        categories={categories}
         total={result.total}
         pages={result.pages}
         page={result.page}
         search={search}
         sort={sort}
+        title="Каталог запчастей"
+        basePath="/catalog"
+        topSlot={<CategoryTiles categories={roots} basePath="/catalog" />}
       />
     </Suspense>
   )

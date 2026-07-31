@@ -48,6 +48,7 @@ model Category {
   description String?
   image       String?
   sortOrder   Int     @default(0)
+  externalId  String? @unique // Код_Каталога из справочника 1С
 
   parent     Category?           @relation("CategoryTree", fields: [parentId], references: [id])
   children   Category[]          @relation("CategoryTree")

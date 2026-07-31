@@ -24,19 +24,3 @@ export const STATIC_CATEGORIES = [
   { id: '7', slug: 'prochee',            name: 'Прочее' },
 ]
 
-const CATEGORY_KEYWORDS: [string, string[]][] = [
-  ['filtry',              ['фильтр']],
-  ['masla-i-zhidkosti',   ['масло', 'жидкост', 'антифриз', 'охлаждающ', 'тосол']],
-  ['tormoznaya-sistema',  ['тормоз', 'колодк', 'суппорт']],
-  ['podveska',            ['амортизатор', 'пружин', 'рычаг', 'шаровая', 'сайлент', 'втулк', 'подшипник', 'стойк']],
-  ['transmissiya',        ['сцепл', 'коробк', 'карданн', 'полуось', 'редуктор']],
-  ['dvigateli',           ['двигатель', 'мотор', 'поршн', 'клапан', 'вкладыш', 'распредвал', 'коленвал', 'шатун', 'турбо', 'прокладк', 'ремень']],
-]
-
-export function detectCategorySlug(name: string): string {
-  const lower = name.toLowerCase()
-  for (const [slug, keywords] of CATEGORY_KEYWORDS) {
-    if (keywords.some((kw) => lower.includes(kw))) return slug
-  }
-  return 'prochee'
-}

@@ -83,16 +83,17 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 - `app/service/page.tsx` — страница услуг
 - `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+). Advantages: 4 карточки с inline SVG-иконками (не emoji)
 - `app/contacts/page.tsx` — контакты: два отдела с цветными left-border (Магазин #C8102E, Автосервис #1A3A6B, Оптовый #C4922A), Яндекс.Карты embed (320px), email/WhatsApp в bg-bg-muted
-- `app/catalog/page.tsx` — каталог с URL-params: q (поиск), sort (price_asc/price_desc), page
-- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список, категории-табы. Переиспользуется в [slug]
-- `app/catalog/[slug]/page.tsx` — каталог с предвыбранной категорией
-- `app/catalog/[slug]/[article]/page.tsx` — страница товара (галерея, артикул, цена)
-- `app/catalog/[slug]/[article]/AddToCartButton.tsx` — client-кнопка "Добавить в корзину"
-- `app/catalog/[slug]/[article]/ProductImage.tsx` — client-компонент изображения товара с onError fallback
+- `app/catalog/page.tsx` — корень каталога: плитки корневых категорий (`getCategoryTree()`) + общий поиск по всем товарам. URL-params: q (поиск), sort (price_asc/price_desc), page
+- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список. Табов категорий больше нет — берётся `title`/`basePath`/`topSlot` пропсами от вызывающей страницы. Переиспользуется в `[...path]`
+- `app/catalog/CategoryTiles.tsx` — плитки подкатегорий (переиспользуется в `page.tsx` и `[...path]/page.tsx`)
+- `app/catalog/[...path]/page.tsx` — catch-all для дерева категорий любой глубины. Определяет категорию по последнему сегменту URL (слаги глобально уникальны), товары фильтруются по `Category.path` (вся ветка целиком, не только точная категория). 404 если категория не найдена или в ней нет товаров
+- `app/product/[article]/page.tsx` — страница товара (галерея, артикул, цена, полный breadcrumb через `getCategoryNode()`). Раньше жила на `/catalog/[slug]/[article]`, переехала на верхний уровень — артикул глобально уникален, слаг категории в URL не нужен
+- `app/product/[article]/AddToCartButton.tsx` — client-кнопка "Добавить в корзину"
+- `app/product/[article]/ProductImage.tsx` — client-компонент изображения товара с onError fallback
 
 ### Lib
 - `lib/supabase.ts` — Supabase JS клиент (читает `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Кастомный fetch: `cache: no-store` + `connection: close` (предотвращает 15s stale keep-alive таймауты). Удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации — прокси нужен только для Telegram.
-- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()`, `getProductByArticle()`, `getFeaturedProducts()`, `getCategories()` с module-level кешем. `getOrCreateCategoryId()` — Prisma, только для import-скриптов.
+- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из 2 запросов и кешируется в памяти модуля (`_treeCache`), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
 - `lib/cart-store.ts` — Zustand store: items, isOpen, add/remove/update/clear. Persist localStorage 'trak-cart'. Экспортирует useCartTotal, useCartCount
 - `lib/phone-utils.ts` — formatPhone, normalizePhone, isPhoneValid (переиспользуются в BookingModal и CartDrawer)
 
@@ -105,7 +106,7 @@ Swiper · embla-carousel-react · embla-carousel-autoplay
 
 ### Slug ↔ категория
 Категории в CatalogView берутся из БД через `getCategories()`. Slug → название определяется в БД, не хардкодится.
-Известные slugs: dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee
+Реальное дерево категорий от 1С (920 категорий, до 4 уровней) залито в `Category` из `КаталогиСайт.txt` (`scripts/import-categories.mjs`), поле `Category.externalId` = `Код` из справочника. Старые 7 slug (dvigateli, filtry, tormoznaya-sistema, podveska, masla-i-zhidkosti, transmissiya, prochee) остаются — на них пока висят все существующие 280k товаров (см. `docs/PROGRESS.md`, раздел от 2026-08-01).
 
 ### Правила иконок (важно)
 **Никакого emoji в UI.** Везде SVG-иконки (stroke, currentColor, 24×24 viewBox).
@@ -247,14 +248,15 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 - **FTP-синхронизация** — GitHub Actions workflow: cron → FTP → products.csv → upsert в БД
-- **Категории 1С** — ждём справочник `Код_Каталога → Название` от 1С разработчика (сейчас 7 приблизительных категорий по ключевым словам)
+- **Перекатегоризация существующих 280k товаров** — справочник категорий от 1С уже залит (см. ниже), но у существующих товаров нет сохранённого `Код_Каталога` — обновятся на следующей синхронизации от 1С автоматически
 - **Реальные фото** — заменить SVG-заглушки `public/images/` (hero-1..3, gallery-1..6) на WebP
 - **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
 
 ## ИНТЕГРАЦИЯ С 1С (статус)
-- `app/api/products/route.ts` — POST, приём CSV от 1С, Basic Auth, авто-определение разделителя (`\t`/`;`)
+- `app/api/products/route.ts` — POST, приём CSV от 1С, Basic Auth, авто-определение разделителя (`\t`/`;`). Категория определяется по `Код_Каталога` → `Category.externalId`
 - `app/api/orders/route.ts` — GET, выгрузка заказов в CSV для 1С, Basic Auth
 - `scripts/import-products.mjs` — скрипт прямого импорта (для отладки)
+- `scripts/import-categories.mjs` — импорт дерева категорий из `КаталогиСайт.txt` (920 категорий, справочник 1С). Идемпотентен, безопасно перезапускать
 - `scripts/generate-import-csv.mjs` — генератор CSV для Supabase Dashboard импорта
 - **products.csv** — полный каталог от 1С: 280 072 товара, загружен в БД через Supabase Dashboard
 - **FTP** — 1С кладёт файл на FTP, нужен GitHub Actions worker для автосинхронизации

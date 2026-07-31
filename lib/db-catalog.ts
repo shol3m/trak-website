@@ -1,41 +1,114 @@
-import { prisma } from '@/lib/prisma'
 import { supabase } from '@/lib/supabase'
-import { detectCategorySlug, STATIC_CATEGORIES, PAGE_SIZE } from '@/lib/categories'
+import { PAGE_SIZE } from '@/lib/categories'
 import type { CatalogProduct } from '@/lib/categories'
 
 export type { CatalogProduct }
-export { PAGE_SIZE, STATIC_CATEGORIES, detectCategorySlug }
+export { PAGE_SIZE }
 
-export type DbCategory = { id: string; slug: string; name: string }
-
-// Module-level cache — categories rarely change
-let _catCache: DbCategory[] | null = null
-
-export async function getCategories(): Promise<DbCategory[]> {
-  if (_catCache) return _catCache
-  const { data, error } = await supabase
-    .from('Category')
-    .select('id, slug, name')
-    .neq('slug', 'prochee')
-    .order('name', { ascending: true })
-  if (error) return []
-  _catCache = (data as DbCategory[]) ?? []
-  return _catCache
+export type TreeCategory = {
+  id: string
+  slug: string
+  name: string
+  parentId: string | null
+  level: number
+  path: string
+  sortOrder: number
+  hasProducts: boolean
+  children: TreeCategory[]
 }
 
-// Category helpers — Prisma, used by import scripts only
+type CategoryRow = {
+  id: string
+  parentId: string | null
+  slug: string
+  name: string
+  level: number
+  path: string
+  sortOrder: number
+}
 
-export async function getOrCreateCategoryId(productName: string): Promise<string> {
-  const slug = detectCategorySlug(productName)
-  const info = STATIC_CATEGORIES.find((c) => c.slug === slug)!
+type Tree = {
+  byId: Map<string, TreeCategory>
+  bySlug: Map<string, TreeCategory>
+  roots: TreeCategory[]
+}
 
-  const existing = await prisma.category.findFirst({ where: { slug } })
-  if (existing) return existing.id
+// Module-level cache — categories rarely change
+let _treeCache: Tree | null = null
 
-  const created = await prisma.category.create({
-    data: { name: info.name, slug, path: `/${slug}`, level: 1 },
-  })
-  return created.id
+async function loadTree(): Promise<Tree> {
+  if (_treeCache) return _treeCache
+
+  const [{ data: cats, error: catsError }, { data: withProducts, error: prodError }] = await Promise.all([
+    supabase
+      .from('Category')
+      .select('id, parentId, slug, name, level, path, sortOrder')
+      .order('sortOrder', { ascending: true }),
+    supabase
+      .from('Category')
+      .select('id, Product!inner(id)')
+      .eq('Product.isActive', true),
+  ])
+
+  if (catsError || prodError) {
+    return { byId: new Map(), bySlug: new Map(), roots: [] }
+  }
+
+  const productCategoryIds = new Set(((withProducts ?? []) as { id: string }[]).map((c) => c.id))
+
+  const byId = new Map<string, TreeCategory>()
+  for (const c of (cats ?? []) as CategoryRow[]) {
+    byId.set(c.id, { ...c, hasProducts: productCategoryIds.has(c.id), children: [] })
+  }
+  for (const node of byId.values()) {
+    if (node.parentId) byId.get(node.parentId)?.children.push(node)
+  }
+
+  // Propagate hasProducts up the tree — deepest levels first so each parent
+  // sees its children's final state in a single pass.
+  const byLevelDesc = [...byId.values()].sort((a, b) => b.level - a.level)
+  for (const node of byLevelDesc) {
+    if (node.hasProducts && node.parentId) {
+      const parent = byId.get(node.parentId)
+      if (parent) parent.hasProducts = true
+    }
+  }
+
+  const roots = [...byId.values()]
+    .filter((n) => !n.parentId && n.hasProducts)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+  const bySlug = new Map([...byId.values()].map((n) => [n.slug, n]))
+
+  _treeCache = { byId, bySlug, roots }
+  return _treeCache
+}
+
+export async function getCategoryTree(): Promise<TreeCategory[]> {
+  const tree = await loadTree()
+  return tree.roots
+}
+
+export async function getCategoryNode(slug: string): Promise<{
+  category: TreeCategory
+  ancestors: TreeCategory[]
+  children: TreeCategory[]
+} | null> {
+  const tree = await loadTree()
+  const node = tree.bySlug.get(slug)
+  if (!node || !node.hasProducts) return null
+
+  const ancestors: TreeCategory[] = []
+  let p = node.parentId ? tree.byId.get(node.parentId) : undefined
+  while (p) {
+    ancestors.unshift(p)
+    p = p.parentId ? tree.byId.get(p.parentId) : undefined
+  }
+
+  const children = node.children
+    .filter((c) => c.hasProducts)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+
+  return { category: node, ancestors, children }
 }
 
 // Supabase row shape (used by getProductByArticle and getFeaturedProducts)
@@ -81,12 +154,12 @@ function sanitizeSearch(raw: string): string {
 
 export async function getProducts({
   search,
-  categorySlug,
+  categoryPath,
   page = 1,
   sort,
 }: {
   search?: string
-  categorySlug?: string
+  categoryPath?: string
   page?: number
   sort?: string
 } = {}) {
@@ -106,8 +179,9 @@ export async function getProducts({
     query = query.order('id', { ascending: true })
   }
 
-  if (categorySlug) {
-    query = query.eq('Category.slug', categorySlug)
+  // Matches this category and every category nested under it (materialized path prefix)
+  if (categoryPath) {
+    query = query.like('Category.path', `${categoryPath}%`)
   }
 
   if (search?.trim()) {

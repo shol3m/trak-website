@@ -8,6 +8,17 @@ import { STATIC_CATEGORIES } from '@/lib/categories'
 
 const DISPLAY = STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee')
 
+// 1С делит каталог по маркам, а не по типу детали — эти плитки остаются
+// тематическим быстрым доступом через поиск, а не ссылкой на категорию.
+const SEARCH_TERM: Record<string, string> = {
+  dvigateli: 'двигатель',
+  filtry: 'фильтр',
+  'tormoznaya-sistema': 'тормоз',
+  podveska: 'амортизатор',
+  'masla-i-zhidkosti': 'масло',
+  transmissiya: 'сцепление',
+}
+
 const ICONS: Record<string, React.ReactNode> = {
   dvigateli: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -72,7 +83,7 @@ export default function CategoriesSection() {
               transition={{ duration: 0.35, delay: i * 0.06 }}
             >
               <Link
-                href={`/catalog/${cat.slug}`}
+                href={`/catalog?q=${encodeURIComponent(SEARCH_TERM[cat.slug] ?? cat.name)}`}
                 className="group relative flex items-center gap-4 bg-bg-card border border-ui-border hover:border-[#C8102E] p-4 transition-all duration-200 overflow-hidden"
               >
                 <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#C8102E] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />

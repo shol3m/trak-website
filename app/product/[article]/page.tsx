@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { getProductByArticle } from '@/lib/db-catalog'
-import { STATIC_CATEGORIES } from '@/lib/categories'
+import { getProductByArticle, getCategoryNode } from '@/lib/db-catalog'
 import Container from '@/components/layout/Container'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 import AddToCartButton from './AddToCartButton'
 import ProductImage from './ProductImage'
 
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: { params: { article: string }
   }
 }
 
-export default async function ProductPage({ params }: { params: { slug: string; article: string } }) {
+export default async function ProductPage({ params }: { params: { article: string } }) {
   let product
   try {
     product = await getProductByArticle(params.article)
@@ -30,28 +29,24 @@ export default async function ProductPage({ params }: { params: { slug: string; 
   }
   if (!product) notFound()
 
-  const category = STATIC_CATEGORIES.find((c) => c.slug === product!.categorySlug)
+  const node = product!.categorySlug ? await getCategoryNode(product!.categorySlug) : null
   const inStock = product!.stock > 0
+
+  const categoryChain = node ? [...node.ancestors, node.category] : []
+  const breadcrumbItems = [
+    { name: 'Главная', href: '/' },
+    { name: 'Каталог', href: '/catalog' },
+    ...categoryChain.map((c, i) => ({
+      name: c.name,
+      href: `/catalog/${categoryChain.slice(0, i + 1).map((a) => a.slug).join('/')}`,
+    })),
+    { name: product!.name },
+  ]
 
   return (
     <div className="min-h-screen bg-bg-page pt-24 pb-20">
       <Container>
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-mono text-xs text-text-dim mb-8 flex-wrap">
-          <Link href="/" className="hover:text-[#C8102E] transition-colors">Главная</Link>
-          <span>/</span>
-          <Link href="/catalog" className="hover:text-[#C8102E] transition-colors">Каталог</Link>
-          {category && (
-            <>
-              <span>/</span>
-              <Link href={`/catalog/${category.slug}`} className="hover:text-[#C8102E] transition-colors">
-                {category.name}
-              </Link>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-text-base truncate max-w-[200px]">{product!.name}</span>
-        </nav>
+        <Breadcrumb items={breadcrumbItems} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
           {/* Image */}
@@ -67,9 +62,9 @@ export default async function ProductPage({ params }: { params: { slug: string; 
                   {product!.brand}
                 </span>
               )}
-              {category && (
+              {node && (
                 <span className="font-mono text-xs px-2 py-0.5 bg-bg-muted text-text-dim">
-                  {category.name}
+                  {node.category.name}
                 </span>
               )}
             </div>

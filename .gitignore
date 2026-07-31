@@ -30,3 +30,9 @@ screenshots/
 
 # Root-level woff2 font files (belong in public/fonts/)
 *.woff2
+.vercel
+.env*
+
+# Сырые дампы от 1С — большие, не для истории git
+products.csv
+products-supabase.csv

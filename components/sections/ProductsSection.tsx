@@ -35,7 +35,7 @@ export default function ProductsSection({ products }: { products: CatalogProduct
             <ProductCard
               key={product.id}
               product={product}
-              href={`/catalog/${product.categorySlug}/${product.article}`}
+              href={`/product/${product.article}`}
               onAddToCart={() => {
                 addItem(product)
                 openCart()

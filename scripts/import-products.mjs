@@ -21,33 +21,6 @@ function cuid() {
   return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
 }
 
-const CATEGORY_KEYWORDS = [
-  ['filtry',             ['фильтр']],
-  ['masla-i-zhidkosti',  ['масло', 'жидкост', 'антифриз', 'охлаждающ', 'тосол']],
-  ['tormoznaya-sistema', ['тормоз', 'колодк', 'суппорт']],
-  ['podveska',           ['амортизатор', 'пружин', 'рычаг', 'шаровая', 'сайлент', 'втулк', 'подшипник', 'стойк']],
-  ['transmissiya',       ['сцепл', 'коробк', 'карданн', 'полуось', 'редуктор']],
-  ['dvigateli',          ['двигатель', 'мотор', 'поршн', 'клапан', 'вкладыш', 'распредвал', 'коленвал', 'шатун', 'турбо', 'прокладк', 'ремень']],
-]
-
-const STATIC_CATEGORIES = [
-  { slug: 'dvigateli',          name: 'Для двигателя' },
-  { slug: 'filtry',             name: 'Фильтры и расходники' },
-  { slug: 'tormoznaya-sistema', name: 'Тормозная система' },
-  { slug: 'podveska',           name: 'Подвеска' },
-  { slug: 'masla-i-zhidkosti',  name: 'Масла и жидкости' },
-  { slug: 'transmissiya',       name: 'Трансмиссия' },
-  { slug: 'prochee',            name: 'Прочее' },
-]
-
-function detectCategorySlug(name) {
-  const lower = name.toLowerCase()
-  for (const [slug, keywords] of CATEGORY_KEYWORDS) {
-    if (keywords.some(kw => lower.includes(kw))) return slug
-  }
-  return 'prochee'
-}
-
 async function connect() {
   const client = new Client({
     connectionString: DATABASE_URL,
@@ -65,24 +38,28 @@ async function main() {
   await db.query('SELECT 1')
   console.log('Подключение OK\n')
 
-  // Категории
-  console.log('Подготовка категорий...')
-  const catMap = new Map()
-  for (const cat of STATIC_CATEGORIES) {
-    const { rows } = await db.query('SELECT id FROM "Category" WHERE slug=$1', [cat.slug])
+  // Категории — маппинг по Код_Каталога (externalId) из справочника 1С,
+  // с фолбэком в "Прочее" для товаров без кода или с неизвестным кодом
+  console.log('Загрузка справочника категорий...')
+  const catByCode = new Map()
+  {
+    const { rows } = await db.query('SELECT id, "externalId" FROM "Category" WHERE "externalId" IS NOT NULL')
+    for (const r of rows) catByCode.set(r.externalId, r.id)
+  }
+  let fallbackCategoryId
+  {
+    const { rows } = await db.query('SELECT id FROM "Category" WHERE slug=$1', ['prochee'])
     if (rows.length > 0) {
-      catMap.set(cat.slug, rows[0].id)
+      fallbackCategoryId = rows[0].id
     } else {
-      const id = cuid()
+      fallbackCategoryId = cuid()
       await db.query(
         'INSERT INTO "Category"(id,"parentId",path,level,name,slug,"sortOrder") VALUES($1,NULL,$2,1,$3,$4,0)',
-        [id, `/${cat.slug}`, cat.name, cat.slug]
+        [fallbackCategoryId, '/prochee', 'Прочее', 'prochee', 0]
       )
-      catMap.set(cat.slug, id)
-      console.log(`  Создана категория: ${cat.name}`)
     }
   }
-  console.log(`Категорий готово: ${catMap.size}\n`)
+  console.log(`Категорий с кодом: ${catByCode.size}\n`)
 
   const csvPath = resolve(process.cwd(), 'products.csv')
   const now = new Date().toISOString()
@@ -121,6 +98,7 @@ async function main() {
       ON CONFLICT ("externalId") DO UPDATE SET
         name          = EXCLUDED.name,
         article       = EXCLUDED.article,
+        "categoryId"  = EXCLUDED."categoryId",
         "priceRetail" = EXCLUDED."priceRetail",
         stock         = EXCLUDED.stock,
         "brandName"   = EXCLUDED."brandName",
@@ -157,7 +135,7 @@ async function main() {
     const parts = line.split('\t')
     if (parts.length < 8) continue
 
-    const [externalId, , , name, articleRaw, brand, priceStr, stockStr] = parts
+    const [externalId, categoryCode, , name, articleRaw, brand, priceStr, stockStr] = parts
     if (!externalId || !name || !articleRaw) continue
     if (seenExternalIds.has(externalId)) continue
     seenExternalIds.add(externalId)
@@ -169,8 +147,7 @@ async function main() {
     if (seenArticles.has(article)) article = `${article}-${externalId}`
     seenArticles.add(article)
 
-    const categorySlug = detectCategorySlug(name)
-    const categoryId = catMap.get(categorySlug)
+    const categoryId = catByCode.get(categoryCode) ?? fallbackCategoryId
     const slugBase = article.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '-').slice(0, 80)
 
     batch.push({

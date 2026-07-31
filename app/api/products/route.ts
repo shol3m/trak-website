@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '@/lib/prisma'
-import { detectCategorySlug, STATIC_CATEGORIES } from '@/lib/categories'
 
 function safeEq(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -31,6 +30,7 @@ function decodeBody(buffer: Buffer): string {
 
 interface ProductRow {
   externalId: string
+  categoryCode: string
   name: string
   article: string
   brand: string
@@ -49,14 +49,14 @@ function parseCSV(text: string): ProductRow[] {
     const parts = line.split(sep).map((p) => p.trim())
     if (parts.length < 8) continue
 
-    const [externalId, , , name, article, brand, priceStr, stockStr] = parts
+    const [externalId, categoryCode, , name, article, brand, priceStr, stockStr] = parts
 
     const price = parseFloat(priceStr.replace(',', '.')) || 0
     const stock = parseInt(stockStr, 10) || 0
 
     if (!externalId || !name || !article) continue
 
-    rows.push({ externalId, name, article, brand, price, stock })
+    rows.push({ externalId, categoryCode, name, article, brand, price, stock })
   }
 
   return rows
@@ -75,22 +75,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Нет данных для импорта' }, { status: 400 })
   }
 
-  // Cache category IDs for the duration of this request (max 7 lookups total)
+  // Cache category IDs for the duration of this request
   const categoryCache = new Map<string, string>()
+  let fallbackCategoryId: string | null = null
 
-  async function getCategoryId(productName: string): Promise<string> {
-    const slug = detectCategorySlug(productName)
-    if (categoryCache.has(slug)) return categoryCache.get(slug)!
-
-    let cat = await prisma.category.findFirst({ where: { slug } })
+  async function getFallbackCategoryId(): Promise<string> {
+    if (fallbackCategoryId) return fallbackCategoryId
+    let cat = await prisma.category.findFirst({ where: { slug: 'prochee' } })
     if (!cat) {
-      const info = STATIC_CATEGORIES.find((c) => c.slug === slug)!
       cat = await prisma.category.create({
-        data: { name: info.name, slug, path: `/${slug}`, level: 1 },
+        data: { name: 'Прочее', slug: 'prochee', path: '/prochee', level: 1 },
       })
     }
-    categoryCache.set(slug, cat.id)
+    fallbackCategoryId = cat.id
     return cat.id
+  }
+
+  async function getCategoryId(categoryCode: string): Promise<string> {
+    if (categoryCode) {
+      if (categoryCache.has(categoryCode)) return categoryCache.get(categoryCode)!
+      const cat = await prisma.category.findUnique({ where: { externalId: categoryCode } })
+      if (cat) {
+        categoryCache.set(categoryCode, cat.id)
+        return cat.id
+      }
+    }
+    return getFallbackCategoryId()
   }
 
   const now = new Date()
@@ -99,7 +109,7 @@ export async function POST(req: NextRequest) {
 
   for (const row of rows) {
     try {
-      const categoryId = await getCategoryId(row.name)
+      const categoryId = await getCategoryId(row.categoryCode)
       const slugBase = row.article.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '-').slice(0, 80)
 
       await prisma.product.upsert({
