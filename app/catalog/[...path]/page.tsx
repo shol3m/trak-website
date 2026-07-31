@@ -5,6 +5,7 @@ import type { CatalogProduct } from '@/lib/db-catalog'
 import CatalogView from '../CatalogView'
 import CategoryTiles from '../CategoryTiles'
 import Breadcrumb from '@/components/ui/Breadcrumb'
+import Container from '@/components/layout/Container'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,7 @@ function lastSlug(path: string[]) {
 }
 
 export async function generateMetadata({ params }: { params: { path: string[] } }) {
-  const node = await getCategoryNode(lastSlug(params.path))
+  const node = await getCategoryNode(lastSlug(params.path)).catch(() => null)
   return {
     title: `${node?.category.name ?? 'Категория'} — ТРАК`,
     description: `Запчасти — ${node?.category.name ?? ''} для ГАЗ, Лада, УАЗ, КАМАЗ`,
@@ -29,7 +30,23 @@ export default async function CategoryPage({
   params: { path: string[] }
   searchParams: { q?: string; page?: string; sort?: string }
 }) {
-  const node = await getCategoryNode(lastSlug(params.path))
+  let node
+  try {
+    node = await getCategoryNode(lastSlug(params.path))
+  } catch {
+    // DB temporarily unreachable — this category may well be valid, so don't
+    // hard-404 it (that's a real 404 to search engines and stale bookmarks).
+    return (
+      <div className="min-h-screen bg-bg-page pt-24 pb-20">
+        <Container>
+          <p className="font-mono text-sm text-text-dim py-20 text-center">
+            Каталог временно недоступен, попробуйте обновить страницу через минуту
+          </p>
+        </Container>
+      </div>
+    )
+  }
+
   if (!node) {
     // Old URL shape was /catalog/[categorySlug]/[article] — if the last
     // segment is a real product article, forward to its new /product page

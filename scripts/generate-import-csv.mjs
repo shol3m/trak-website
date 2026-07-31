@@ -1,34 +1,20 @@
 import { createReadStream, createWriteStream, readFileSync } from 'fs'
 import { createInterface } from 'readline'
 import { resolve } from 'path'
+import pkg from 'pg'
+const { Client } = pkg
 
-// Category IDs из БД (получены заранее)
-const CAT_IDS = {
-  'dvigateli':          'cmp9tvhvf0000hae5xtc3hkzr',
-  'filtry':             'cmp9tvjdm0003hae5h3nfkkzm',
-  'masla-i-zhidkosti':  'cmpcznfz5047dz0y',
-  'podveska':           'cmp9tvmru000bhae5gz7yrlvg',
-  'prochee':            'cmp9tvkvw0006hae5j9jjx1wo',
-  'tormoznaya-sistema': 'cmpcznfjkfqjxeo4',
-  'transmissiya':       'cmpczng409hstnkg',
+const envContent = readFileSync(resolve(process.cwd(), '.env.local'), 'utf-8')
+for (const line of envContent.split('\n')) {
+  const trimmed = line.trim()
+  if (!trimmed || trimmed.startsWith('#')) continue
+  const idx = trimmed.indexOf('=')
+  if (idx === -1) continue
+  process.env[trimmed.slice(0, idx).trim()] = trimmed.slice(idx + 1).trim().replace(/^["']|["']$/g, '')
 }
 
-const CATEGORY_KEYWORDS = [
-  ['filtry',             ['фильтр']],
-  ['masla-i-zhidkosti',  ['масло', 'жидкост', 'антифриз', 'охлаждающ', 'тосол']],
-  ['tormoznaya-sistema', ['тормоз', 'колодк', 'суппорт']],
-  ['podveska',           ['амортизатор', 'пружин', 'рычаг', 'шаровая', 'сайлент', 'втулк', 'подшипник', 'стойк']],
-  ['transmissiya',       ['сцепл', 'коробк', 'карданн', 'полуось', 'редуктор']],
-  ['dvigateli',          ['двигатель', 'мотор', 'поршн', 'клапан', 'вкладыш', 'распредвал', 'коленвал', 'шатун', 'турбо', 'прокладк', 'ремень']],
-]
-
-function detectCategorySlug(name) {
-  const lower = name.toLowerCase()
-  for (const [slug, keywords] of CATEGORY_KEYWORDS) {
-    if (keywords.some(kw => lower.includes(kw))) return slug
-  }
-  return 'prochee'
-}
+const DATABASE_URL = process.env.DATABASE_URL
+if (!DATABASE_URL) { console.error('DATABASE_URL не найден'); process.exit(1) }
 
 function cuid() {
   return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9)
@@ -43,7 +29,22 @@ function csvEscape(val) {
   return s
 }
 
+async function loadCategoryMap() {
+  const client = new Client({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  await client.connect()
+  const { rows } = await client.query(`SELECT id, "externalId" FROM "Category" WHERE "externalId" IS NOT NULL`)
+  const { rows: fallbackRows } = await client.query(`SELECT id FROM "Category" WHERE slug = 'prochee'`)
+  await client.end()
+  const byCode = new Map(rows.map((r) => [r.externalId, r.id]))
+  const fallbackId = fallbackRows[0]?.id
+  if (!fallbackId) throw new Error('Категория "prochee" не найдена в БД — запустите scripts/import-categories.mjs сначала')
+  return { byCode, fallbackId }
+}
+
 async function main() {
+  const { byCode, fallbackId } = await loadCategoryMap()
+  console.log(`Категорий с кодом: ${byCode.size}`)
+
   const outPath = resolve(process.cwd(), 'products-supabase.csv')
   const out = createWriteStream(outPath, { encoding: 'utf8' })
 
@@ -66,7 +67,7 @@ async function main() {
     const parts = line.split('\t')
     if (parts.length < 8) continue
 
-    const [externalId, , , name, articleRaw, brand, priceStr, stockStr] = parts
+    const [externalId, categoryCode, , name, articleRaw, brand, priceStr, stockStr] = parts
     if (!externalId || !name || !articleRaw) continue
     if (seenExternalIds.has(externalId)) continue
     seenExternalIds.add(externalId)
@@ -77,8 +78,7 @@ async function main() {
 
     const price = parseFloat((priceStr || '').replace(',', '.')) || 0
     const stock = parseInt(stockStr) || 0
-    const categorySlug = detectCategorySlug(name)
-    const categoryId = CAT_IDS[categorySlug]
+    const categoryId = byCode.get(categoryCode) ?? fallbackId
     const slugBase = article.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '-').slice(0, 80)
 
     const row = [

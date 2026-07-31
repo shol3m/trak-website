@@ -93,15 +93,13 @@ export async function POST(req: NextRequest) {
   }
 
   async function getCategoryId(categoryCode: string): Promise<string> {
-    if (categoryCode) {
-      if (categoryCache.has(categoryCode)) return categoryCache.get(categoryCode)!
-      const cat = await prisma.category.findUnique({ where: { externalId: categoryCode } })
-      if (cat) {
-        categoryCache.set(categoryCode, cat.id)
-        return cat.id
-      }
-    }
-    return getFallbackCategoryId()
+    if (!categoryCode) return getFallbackCategoryId()
+    if (categoryCache.has(categoryCode)) return categoryCache.get(categoryCode)!
+
+    const cat = await prisma.category.findUnique({ where: { externalId: categoryCode } })
+    const id = cat?.id ?? (await getFallbackCategoryId())
+    categoryCache.set(categoryCode, id)
+    return id
   }
 
   const now = new Date()

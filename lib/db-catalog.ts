@@ -81,14 +81,11 @@ const fetchCategoryRows = unstable_cache(
   { tags: [CATEGORY_TAG] }
 )
 
+// Throws if the underlying fetch fails — callers decide whether that should
+// degrade gracefully (root page: hide tiles) or surface as "temporarily
+// unavailable" (category page: a DB hiccup shouldn't look like a 404).
 async function loadTree(): Promise<Tree> {
-  let cats: CategoryRow[] = []
-  let productCategoryIds: string[] = []
-  try {
-    ;({ cats, productCategoryIds } = await fetchCategoryRows())
-  } catch {
-    return { byId: new Map(), bySlug: new Map(), roots: [] }
-  }
+  const { cats, productCategoryIds } = await fetchCategoryRows()
   const productCategoryIdSet = new Set(productCategoryIds)
 
   const byId = new Map<string, TreeCategory>()
@@ -118,10 +115,16 @@ async function loadTree(): Promise<Tree> {
 }
 
 export async function getCategoryTree(): Promise<TreeCategory[]> {
-  const tree = await loadTree()
-  return tree.roots
+  try {
+    const tree = await loadTree()
+    return tree.roots
+  } catch {
+    return []
+  }
 }
 
+// Throws on DB failure (see loadTree) — caller must distinguish that from a
+// null return, which means the tree loaded fine and the slug just doesn't exist.
 export async function getCategoryNode(slug: string): Promise<{
   category: TreeCategory
   ancestors: TreeCategory[]
@@ -213,9 +216,11 @@ export async function getProducts({
     query = query.order('id', { ascending: true })
   }
 
-  // Matches this category and every category nested under it (materialized path prefix)
+  // Matches this category and every category nested under it (materialized path).
+  // Boundary-safe: plain `path LIKE 'X%'` would also match an unrelated sibling
+  // whose own id happens to start with this category's id string.
   if (categoryPath) {
-    query = query.like('Category.path', `${categoryPath}%`)
+    query = query.or(`path.eq.${categoryPath},path.like.${categoryPath}/*`, { foreignTable: 'Category' })
   }
 
   if (search?.trim()) {

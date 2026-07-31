@@ -102,7 +102,9 @@ export default function CatalogView({
     return str ? `${basePath}?${str}` : basePath
   }
 
-  // Debounced search
+  // Debounced search — intentionally keyed only on `query`. Including
+  // router/sort/search/buildUrl would reset or refire the timer on every
+  // unrelated render and break the debounce.
   useEffect(() => {
     const trimmed = query.trim()
     if (trimmed === search) return
@@ -110,6 +112,7 @@ export default function CatalogView({
       router.push(buildUrl({ q: trimmed || undefined, sort: sort || undefined }))
     }, 350)
     return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
   function handleSortChange(newSort: string) {
