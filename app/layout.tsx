@@ -5,7 +5,6 @@ import ThemeProvider from '@/components/providers/ThemeProvider'
 import TopBar from '@/components/layout/TopBar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import ContactsSection from '@/components/sections/ContactsSection'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import CartDrawer from '@/components/ui/CartDrawer'
 
@@ -97,7 +96,6 @@ export default function RootLayout({
           <div className="pt-[100px]">
             {children}
           </div>
-          <ContactsSection />
           <Footer />
           <WhatsAppButton />
           <CartDrawer />

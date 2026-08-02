@@ -32,11 +32,11 @@ function TrustCounter({ raw }: { raw: string }) {
   }, [inView, numeric])
 
   if (!numeric) {
-    return <p className="font-heading font-bold text-2xl text-[#C8102E]">{raw}</p>
+    return <p className="font-heading font-bold text-2xl text-white">{raw}</p>
   }
 
   return (
-    <p ref={ref} className="font-heading text-2xl text-[#C8102E]">
+    <p ref={ref} className="font-heading text-2xl text-white">
       {display}{suffix}
     </p>
   )
@@ -44,14 +44,14 @@ function TrustCounter({ raw }: { raw: string }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-bg-card border-t border-ui-border">
-      <div className="border-b border-ui-border py-8">
+    <footer className="bg-[#1A3A6B]">
+      <div className="border-b border-white/15 py-8">
         <Container>
           <div className="grid grid-cols-3 gap-6">
             {trustItems.map((item) => (
               <div key={item.value} className="text-center">
                 <TrustCounter raw={item.value} />
-                <p className="font-body text-xs text-text-dim mt-1">{item.label}</p>
+                <p className="font-body text-xs text-white/60 mt-1">{item.label}</p>
               </div>
             ))}
           </div>
@@ -62,19 +62,19 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
             <Link href="/" className="block mb-3">
-              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:brightness-0 dark:invert" />
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto brightness-0 invert" />
             </Link>
-            <p className="font-body text-text-dim text-sm leading-relaxed mb-4">
+            <p className="font-body text-white/60 text-sm leading-relaxed mb-4">
               Торгово-сервисный комплекс. Официальный торговый представитель ОАО «ГАЗ». Субдилер ТД «Соллерс» (УАЗ, ЗМЗ).
             </p>
           </div>
 
           <div>
-            <h4 className="font-heading text-sm uppercase tracking-widest text-text-base mb-4">Каталог</h4>
+            <h4 className="font-heading text-sm uppercase tracking-widest text-white mb-4">Каталог</h4>
             <ul className="flex flex-col gap-2">
               {['Двигатели', 'Фильтры', 'Тормоза', 'Подвеска', 'Масла'].map((cat) => (
                 <li key={cat}>
-                  <Link href="/catalog" className="font-body text-text-dim hover:text-text-base text-sm transition-colors duration-200">
+                  <Link href="/catalog" className="font-body text-white/60 hover:text-white text-sm transition-colors duration-200">
                     {cat}
                   </Link>
                 </li>
@@ -83,11 +83,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-heading text-sm uppercase tracking-widest text-text-base mb-4">Сервис</h4>
+            <h4 className="font-heading text-sm uppercase tracking-widest text-white mb-4">Сервис</h4>
             <ul className="flex flex-col gap-2">
               {['Замена масла', 'Диагностика', 'Развал-схождение', 'Ремонт двигателя', 'Ремонт КПП'].map((s) => (
                 <li key={s}>
-                  <Link href="/service" className="font-body text-text-dim hover:text-text-base text-sm transition-colors duration-200">
+                  <Link href="/service" className="font-body text-white/60 hover:text-white text-sm transition-colors duration-200">
                     {s}
                   </Link>
                 </li>
@@ -96,18 +96,18 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-heading text-sm uppercase tracking-widest text-text-base mb-4">Контакты</h4>
-            <ul className="flex flex-col gap-2 font-body text-sm text-text-dim">
+            <h4 className="font-heading text-sm uppercase tracking-widest text-white mb-4">Контакты</h4>
+            <ul className="flex flex-col gap-2 font-body text-sm text-white/60">
               <li>
-                <span className="text-text-base">Магазин:</span><br />
-                <a href="tel:+73472237208" className="hover:text-text-base transition-colors duration-200">+7 347 223-72-08</a><br />
-                <a href="tel:+79991334973" className="hover:text-text-base transition-colors duration-200">+7 999 133-49-73</a><br />
+                <span className="text-white">Магазин:</span><br />
+                <a href="tel:+73472237208" className="hover:text-white transition-colors duration-200">+7 347 223-72-08</a><br />
+                <a href="tel:+79991334973" className="hover:text-white transition-colors duration-200">+7 999 133-49-73</a><br />
                 Пн–Пт 9:00–20:00, Сб–Вс 9:00–17:00
               </li>
               <li className="mt-2">
-                <span className="text-text-base">Сервис:</span><br />
-                <a href="tel:+73472981645" className="hover:text-text-base transition-colors duration-200">+7 347 298-16-45</a><br />
-                <a href="tel:+79033111645" className="hover:text-text-base transition-colors duration-200">+7 903 311-16-45</a><br />
+                <span className="text-white">Сервис:</span><br />
+                <a href="tel:+73472981645" className="hover:text-white transition-colors duration-200">+7 347 298-16-45</a><br />
+                <a href="tel:+79033111645" className="hover:text-white transition-colors duration-200">+7 903 311-16-45</a><br />
                 Пн–Вс 9:00–20:00
               </li>
               <li className="mt-3">
@@ -122,9 +122,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-ui-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="font-body text-text-dim text-xs">© {new Date().getFullYear()} ТРАК. Все права защищены.</p>
-          <p className="font-body text-text-dim text-xs">Уфа · trak-ufa.ru</p>
+        <div className="border-t border-white/15 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="font-body text-white/60 text-xs">© {new Date().getFullYear()} ТРАК. Все права защищены.</p>
+          <p className="font-body text-white/60 text-xs">Уфа · trak-ufa.ru</p>
         </div>
       </Container>
     </footer>

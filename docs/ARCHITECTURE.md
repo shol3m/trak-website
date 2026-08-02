@@ -1,6 +1,6 @@
 # Архитектура сайта ТРАК
 
-_Последнее обновление: 2026-08-01_
+_Последнее обновление: 2026-08-03_
 
 ---
 
@@ -8,14 +8,14 @@ _Последнее обновление: 2026-08-01_
 
 | Путь | Описание |
 |---|---|
-| `/` | Главная: HeroSlider → AdvantagesSection → CategoriesSection → ProductsSection → ServiceSection → ReviewsSection |
+| `/` | Главная: CategoryNavTabs → HeroSlider → StatsBrandsRow → PartFinderCTA → ServiceSection → ReviewsSection |
 | `/catalog` | Корень каталога: плитки 15 корневых категорий (`getCategoryTree()`) + общий поиск по всем товарам (debounce 350ms, мультислово AND), сортировка (цена ↑↓), переключатель сетка/список, пагинация (50/стр) |
 | `/catalog/[...path]` | Catch-all для дерева категорий 1С (920 категорий, до 4 уровней). Категория определяется по последнему сегменту URL (слаги глобально уникальны). Хлебные крошки + плитки подкатегорий + товары всей ветки (фильтр по префиксу `Category.path`, не только точная категория) |
 | `/product/[article]` | Карточка товара: галерея, артикул, цена, кнопка в корзину, полный breadcrumb через `getCategoryNode()` |
 | `/service` | Услуги автосервиса по вкладкам (mock-данные) |
 | `/about` | О компании: stats, сертификаты с lightbox |
 | `/contacts` | Контакты: отделы с цветными бордерами, Яндекс.Карты embed |
-| `/` (layout) | Header + Footer на всех страницах |
+| `/` (layout) | TopBar + Header + Footer на всех страницах |
 
 **Редиректы старых URL** (`next.config.mjs` + логика в `[...path]/page.tsx`):
 - 7 старых плоских категорий (`dvigateli`, `filtry`...) → `/catalog` (308, статический редирект)

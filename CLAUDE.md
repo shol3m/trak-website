@@ -49,7 +49,8 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 ### UI
 - `components/ui/Button.tsx` — базовая кнопка
 - `components/ui/SectionHeading.tsx` — заголовок секции (title + subtitle)
-- `components/ui/BookingModal.tsx` — модалка записи (имя + телефон + авто), маска телефона, rate-limit, honeypot
+- `components/ui/BookingModal.tsx` — модалка записи на СТО (имя + телефон + авто), маска телефона, rate-limit, honeypot
+- `components/ui/PartRequestModal.tsx` — модалка подбора запчасти (какая деталь нужна + телефон + опционально авто), тот же паттерн маски/rate-limit/honeypot, шлёт в тот же `/api/booking`
 - `components/ui/ServiceCard.tsx` — карточка услуги с SVG-иконкой и кнопкой "Записаться". Поле `icon` удалено из MockService — не использовать emoji
 - `components/ui/ServiceBookingCTA.tsx` — телефон + кнопка записи (открывает BookingModal)
 - `components/ui/WhatsAppButton.tsx` — fixed floating кнопка, wa.me/79991334973, tooltip при hover
@@ -57,6 +58,7 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - `components/ui/ProductCard.tsx` — карточка товара, поддержка FeaturedProduct и MockProduct, onAddToCart. Prop `theme` удалён — цвета через семантические токены
 - `components/ui/CartDrawer.tsx` — корзина (слайд справа), два вида: cart и checkout, POST /api/order
 - `components/ui/ThemeToggle.tsx` — Sun/Moon кнопка переключения темы (в Header)
+- `components/ui/Breadcrumb.tsx` — хлебные крошки, используется в `app/catalog/[...path]/page.tsx` и `app/product/[article]/page.tsx`
 - `components/providers/ThemeProvider.tsx` — обёртка next-themes (attribute="class", defaultTheme="system")
 
 ### Layout
@@ -71,19 +73,19 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - `components/sections/CategoryNavTabs.tsx` — вкладки быстрого перехода по 15 реальным корневым категориям (`getCategoryTree()`, дерево передаётся пропом из `app/page.tsx`), ссылки `/catalog/${slug}`. `'use client'`, `embla-carousel-react` (`dragFree`) со стрелками-кнопками (`hidden sm:flex`, дизейблятся на краях). Только на главной, сразу под Header
 - `components/sections/HeroSlider.tsx` — Swiper-слайдер (3 слайда, fade, autoplay 8с, navigation, pagination). Слайд 2 открывает BookingModal. Фото: `public/images/hero-1..3.webp` (реальные WebP)
 - `components/sections/StatsBrandsRow.tsx` — реальные цифры (30+ лет / 50 000+ позиций / Пн–Вс) + трастовая строка. Бейджи марок авто (ГАЗ/УАЗ/ВАЗ/КАМАЗ) и брендов запчастей (BOSCH/FEBEST/MANN/TRW/TRIALLI/FENOX, подобраны по частоте в `products.csv`) — рабочие ссылки на `/catalog?brand=...`, каждая запись имеет `label` (витринная кириллица) и `dbBrand` (точное значение `Product.brandName`, для UAZ/LADA/KAMAZ — латиницей)
-- `components/sections/CategoriesSection.tsx` — сетка плиток (иконка сверху, название снизу). SVG-иконки (карта `ICONS` по slug), `SEARCH_TERM` теперь в `lib/categories.ts`
-- `components/sections/ProductsSection.tsx` — 4 featured товара из БД (getFeaturedProducts)
+- `components/sections/PartFinderCTA.tsx` — тёмный баннер «Не знаете артикул нужной детали?» (стиль rossko.ru): фото эксперта слева (`public/images/partfinder-expert.png`, реальное фото, blend-градиент убирает шов с фоном карточки), текст + телефон + кнопка `PartRequestModal` справа. Заменил `ProductsSection` (2026-08-03)
 - `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам, строка-услуга (иконка · название · длительность · цена · кнопка)
 - `components/sections/ReviewsSection.tsx` — Embla Carousel, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов. Карточки `h-full` для одинаковой высоты
 
 ### Sections (не используются на главной)
+- `components/sections/CategoriesSection.tsx` — сетка плиток (иконка сверху, название снизу). SVG-иконки (карта `ICONS` по slug), `SEARCH_TERM` в `lib/categories.ts`. Убрана с главной (2026-08-03) — дублировала категории из `CategoryNavTabs`
+- `components/sections/ProductsSection.tsx` — 4 featured товара из БД (getFeaturedProducts). Убрана с главной (2026-08-03), заменена на `PartFinderCTA` — `getFeaturedProducts` не «популярное», а просто последние засинканные товары, фото пока плейсхолдеры
 - `components/sections/HeroSection.tsx` — старый hero, не удалять
 - `components/sections/HeroBanner.tsx` / `components/sections/HeroBannerIcon.tsx` — черновые варианты статичного hero-баннера (фото-инсет / контурная иконка машины), заказчику не понравились — вернули `HeroSlider`. Не удалять, вдруг пригодятся
 - `components/sections/AdvantagesSection.tsx` — преимущества (4 SVG-иконки inline), убран с главной (дублировал `StatsBrandsRow`)
 - `components/sections/BrandsSection.tsx` — 4 бренда (ГАЗ/УАЗ/ВАЗ/КАМАЗ), убран с главной
 - `components/sections/PartFinderSection.tsx` — подбор Марка→Модель→Категория→/catalog, убран с главной
 - `components/sections/ServiceGallery.tsx` — Embla Carousel галерея сервиса, 6 фото. Ждёт реальные фото `gallery-1..6.jpg` (сейчас SVG-заглушки). Не подключён нигде
-- `components/sections/ContactsSection.tsx` — **рендерится глобально в `app/layout.tsx`** (между контентом и Footer, на каждой странице сайта) — дублирует `app/contacts/page.tsx`. Решение оставлено на потом, заказчик в курсе
 
 ### Pages
 - `app/page.tsx` — главная страница
@@ -100,16 +102,17 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 
 ### Lib
 - `lib/supabase.ts` — Supabase JS клиент (читает `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Кастомный fetch: `cache: no-store` + `connection: close` (предотвращает 15s stale keep-alive таймауты). Удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации — прокси нужен только для Telegram.
-- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком; `brand` — точный фильтр по `Product.brandName`), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из 2 запросов и кешируется в памяти модуля (`_treeCache`), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
+- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком; `brand` — точный фильтр по `Product.brandName`), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из закешированных строк (`unstable_cache`, тег `categories`, не голая module-level переменная — инвалидация работает на всех serverless-инстансах через `invalidateCategoryTree()`, вызывается из `/api/products` после успешного синка), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
 - `lib/cart-store.ts` — Zustand store: items, isOpen, add/remove/update/clear. Persist localStorage 'trak-cart'. Экспортирует useCartTotal, useCartCount
 - `lib/phone-utils.ts` — formatPhone, normalizePhone, isPhoneValid (переиспользуются в BookingModal и CartDrawer)
 - `lib/categories.ts` — `VEHICLE_MAKE_BRANDS` — Set значений `Product.brandName`, которые считаются маркой авто, а не брендом запчасти (используется для подписи бейджа в `CatalogView.tsx`)
+- `lib/prisma.ts` — Prisma-клиент через Supavisor pooler (порт 6543). Только для write-операций (`/api/order`, `/api/orders`, `/api/products`) и import-скриптов — каталог на чтение использует Supabase JS (см. выше)
 
 ### API & SEO
-- `app/api/booking/route.ts` — POST, zod-валидация, отправка в два Telegram-чата, поддержка HTTPS_PROXY (runtime only)
+- `app/api/booking/route.ts` — POST, zod-валидация, отправка в два Telegram-чата, поддержка HTTPS_PROXY (runtime only). Обслуживает и `BookingModal` (запись на СТО), и `PartRequestModal` (подбор запчасти) — `name` опционален, есть опциональное поле `part`, текст сообщения в Telegram зависит от того, что заполнено
 - `app/api/order/route.ts` — POST, zod-валидация (name, phone, items[], comment), сохранение в БД + отправка в Telegram
 - `app/api/orders/route.ts` — GET для 1С: CSV-выгрузка PENDING заказов, Basic Auth, после выдачи → PROCESSING
-- `app/api/products/route.ts` — POST для 1С: приём CSV с `;`, upsert по externalId, Basic Auth
+- `app/api/products/route.ts` — POST для 1С: приём CSV с `;`, upsert по externalId, Basic Auth. После успешного синка — `invalidateCategoryTree()` (сбрасывает кеш дерева категорий на всех serverless-инстансах)
 - `app/sitemap.ts` — 5 URL для SEO (/, /service, /catalog, /about, /contacts)
 
 ### Slug ↔ категория
@@ -253,15 +256,12 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 | Prisma + Supavisor (порт 6543) зависает на `DEALLOCATE ALL` второй транзакции | Каталог переведён на Supabase JS клиент (HTTP/REST). Prisma остался только для import-скриптов. |
 | Stale TCP keep-alive соединения → 15s таймаут на повторных запросах к Supabase | `connection: close` заголовок в кастомном fetch `lib/supabase.ts` |
 | `HTTPS_PROXY` из `.env.local` тормозит Supabase HTTP-запросы | `next.config.mjs` удаляет proxy env vars при старте сервера |
+| `/api/booking`/`/api/order` возвращают 502 «Ошибка отправки» локально | Локальный прокси-клиент на `HTTPS_PROXY` (`127.0.0.1:12334`) не запущен — Telegram заблокирован напрямую в РФ. Если прямой доступ временно доступен (проверить `curl https://api.telegram.org/`), можно закомментировать `HTTPS_PROXY`/`HTTP_PROXY` в `.env.local` и перезапустить дев-сервер; иначе — запустить прокси-клиент |
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 
-### Приоритет 0 — продолжить с прошлой сессии (2026-08-01, редизайн главной)
-См. `docs/PROGRESS.md`, раздел «Hero сузили + Playwright MCP — TODO на следующую сессию»:
-- Перепроверить в браузере hero-слайдер на `/` после рестарта дев-сервера (был баг с неинициализацией Swiper)
-- Playwright MCP зарегистрирован (`claude mcp list` → `playwright ✔ Connected`) — использовать вместо Claude in Chrome
-- Мобильная адаптивность нового Header/TopBar/CategoryNavTabs не проверена
-- `ContactsSection` дублируется глобально в `app/layout.tsx` — решить с заказчиком, убирать или оставить
+### Приоритет 0 — план реконструкции главной закрыт (2026-08-03)
+Очередь из `docs/PROGRESS.md` (Header, CategoryNavTabs, StatsBrandsRow, CategoriesSection, PartFinderCTA, ServiceSection, ContactsSection duplicate) пройдена полностью, п.1–7. Hero-слайдер и мобильная адаптивность (Header/TopBar/CategoryNavTabs/PartFinderCTA) неоднократно проверены Playwright MCP на 375/1440px в течение сессий.
 - Дождаться от заказчика точный график работы (пока в футере заглушка)
 
 ### Приоритет 1 — безопасность и надёжность

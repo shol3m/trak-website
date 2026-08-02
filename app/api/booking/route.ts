@@ -4,9 +4,10 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import https from 'https'
 
 const schema = z.object({
-  name: z.string().regex(/^[а-яёА-ЯЁa-zA-Z\s\-']{2,50}$/, 'Некорректное имя'),
+  name: z.string().regex(/^[а-яёА-ЯЁa-zA-Z\s\-']{2,50}$/, 'Некорректное имя').optional(),
   phone: z.string().regex(/^\+?[0-9]{10,15}$/, 'Некорректный телефон'),
   carModel: z.string().max(100).optional(),
+  part: z.string().max(300).optional(),
   honeypot: z.string().max(0).optional(),
 })
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
   }
 
-  const { name, phone, carModel, honeypot } = parsed.data
+  const { name, phone, carModel, part, honeypot } = parsed.data
   if (honeypot) return NextResponse.json({ error: 'bot' }, { status: 400 })
   const token = process.env.TELEGRAM_BOT_TOKEN
   const chatIds = [process.env.TELEGRAM_CHAT_ID, process.env.TELEGRAM_CHAT_ID_2].filter(Boolean) as string[]
@@ -48,10 +49,11 @@ export async function POST(req: NextRequest) {
   }
 
   const text = [
-    'Новая заявка с сайта ТРАК',
-    `Имя: ${name}`,
+    part ? 'Заявка на подбор запчасти с сайта ТРАК' : 'Новая заявка с сайта ТРАК',
+    name ? `Имя: ${name}` : null,
     `Телефон: ${phone}`,
     carModel ? `Авто: ${carModel}` : null,
+    part ? `Деталь: ${part}` : null,
   ]
     .filter(Boolean)
     .join('\n')

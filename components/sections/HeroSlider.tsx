@@ -55,6 +55,8 @@ export default function HeroSlider() {
   return (
     <>
       <section className="relative">
+        <Container className="py-6 md:py-8">
+        <div className="relative rounded-xl overflow-hidden">
         <Swiper
           modules={[Autoplay, Navigation, Pagination, EffectFade]}
           effect="fade"
@@ -157,6 +159,8 @@ export default function HeroSlider() {
 
         {/* Pagination */}
         <div className="hero-pagination absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2" />
+        </div>
+        </Container>
       </section>
 
       <style jsx global>{`

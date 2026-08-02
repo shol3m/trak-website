@@ -1,6 +1,6 @@
 # Интеграции
 
-_Последнее обновление: 2026-08-01_
+_Последнее обновление: 2026-08-03_
 
 ---
 
@@ -106,7 +106,7 @@ Env: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_CHAT_ID_2`
 
 ## Яндекс Карты (реализовано)
 
-Embed через `map-widget/v1/org/trak/1100951090` в `ContactsSection.tsx`.
+Embed через `map-widget/v1/org/trak/1100951090` в `app/contacts/page.tsx` (`components/sections/ContactsSection.tsx` удалён 2026-08-03 — рендерился глобально в `app/layout.tsx` и дублировал эту страницу).
 Без API-ключа — используется публичный виджет организации.
 
 ---
