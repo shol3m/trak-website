@@ -184,8 +184,8 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - ProductCard/FeaturedProduct: токены корректны, чёрного фона нет
 
 ### P8 — Выполнено ✓ (2026-04-30)
-- `Header.tsx`: логотип (`/logo.png`) вместо текста, `dark:brightness-0 dark:invert` в тёмной теме
-- `Footer.tsx`: логотип вместо текста, аналогичный фильтр
+- `Header.tsx`: логотип (`/logo.png`) вместо текста, в тёмной теме — `dark:brightness-0 dark:invert` (заменено в сессии 2026-08-03, см. P9)
+- `Footer.tsx`: логотип вместо текста, аналогичный фильтр (заменено в сессии 2026-08-03, см. P9)
 - `ThemeToggle`: вынесен на мобильную панель хедера (не в бургер-меню)
 - `HeroSlider`: текст адаптивный `text-4xl→7xl`, autoplay замедлен до 8с
 - `ServiceSection`: вкладки по группам услуг вместо длинного списка
@@ -201,6 +201,11 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - `Footer.tsx` trustItems: убран «2 направления», добавлен «Пн–Вс / без выходных», осталось 3 элемента
 - `BrandsSection`: закомментирован в `app/page.tsx`
 - `about/page.tsx` stats: убраны «4 бренда» и «1 представитель», осталось 2 элемента в flex-строке
+
+### P9 — Выполнено ✓ (2026-08-03)
+- `public/logo-dark.png` — новый полноцветный логотип (синий/красный «T» + белый «ТРАК»), фон вырезан в прозрачность (был чёрный PNG без альфа-канала). Для тёмных/синих фонов — не CSS-фильтр
+- `Header.tsx`: `dark:brightness-0 dark:invert` убран. Теперь два `<Image>` (`/logo.png` + `/logo-dark.png`), переключение классами `dark:hidden` / `hidden dark:block`
+- `Footer.tsx`: `brightness-0 invert` убран (футер всегда на синем `#1A3A6B`), логотип — `/logo-dark.png` напрямую, без фильтра
 
 ## ТЕМА
 

@@ -37,7 +37,8 @@ export default function Header() {
         <Container>
           <div className="flex items-center justify-between h-16 gap-4 md:gap-6">
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:brightness-0 dark:invert" priority />
+              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:hidden" priority />
+              <Image src="/logo-dark.png" alt="ТРАК" width={90} height={36} className="hidden object-contain h-9 w-auto dark:block" priority />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 shrink-0">
