@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,34 +14,59 @@ const navLinks = [
   { label: 'Каталог', href: '/catalog' },
   { label: 'Сервис', href: '/service' },
   { label: 'О нас', href: '/about' },
+  { label: 'Контакты', href: '/contacts' },
 ]
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const router = useRouter()
   const openCart = useCartStore((s) => s.openCart)
   const cartCount = useCartCount()
 
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const q = query.trim()
+    if (q) router.push(`/catalog?q=${encodeURIComponent(q)}`)
+  }
+
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-50 bg-bg-card/90 backdrop-blur-md border-b border-ui-border">
+      <header className="fixed top-9 left-0 w-full z-50 bg-bg-card/90 backdrop-blur-md border-b border-ui-border">
         <Container>
-          <div className="flex items-center justify-between h-16 gap-6">
+          <div className="flex items-center justify-between h-16 gap-4 md:gap-6">
             <Link href="/" className="shrink-0">
               <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:brightness-0 dark:invert" priority />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 flex-1">
+            <nav className="hidden lg:flex items-center gap-5 shrink-0">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-body text-text-dim hover:text-[#2563EB] transition-colors duration-200 text-sm whitespace-nowrap"
+                  className="font-body text-sm text-text-dim hover:text-[#2563EB] transition-colors duration-200 whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
+
+            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
+              <div className="relative w-full">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Найти запчасть по артикулу или названию"
+                  className="w-full bg-bg-muted border border-ui-border focus:border-[#2563EB] outline-none text-sm text-text-base placeholder:text-text-dim pl-9 pr-3 py-2.5 transition-colors duration-200"
+                />
+              </div>
+            </form>
 
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <a
@@ -123,6 +149,22 @@ export default function Header() {
               className="md:hidden border-t border-ui-border bg-bg-card overflow-hidden"
             >
               <Container>
+                <form onSubmit={handleSearch} className="pt-4">
+                  <div className="relative w-full">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="11" cy="11" r="7" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Найти запчасть"
+                      className="w-full bg-bg-muted border border-ui-border focus:border-[#2563EB] outline-none text-sm text-text-base placeholder:text-text-dim pl-9 pr-3 py-2.5 transition-colors duration-200"
+                    />
+                  </div>
+                </form>
+
                 <nav className="flex flex-col py-4 gap-4">
                   {navLinks.map((link) => (
                     <Link

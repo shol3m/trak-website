@@ -32,7 +32,7 @@ export default function ServiceSection() {
                 Профессиональный<br />ремонт и ТО
               </h2>
               <p className="font-body text-text-dim text-base leading-relaxed mb-6">
-                Ремонт ходовой, двигателя и электрики. 3D развал-схождение, установка фаркопа. Работаем с ГАЗ, УАЗ, Лада и КАМАЗ. Зал ожидания с Wi‑Fi.
+                Ремонт ходовой, двигателя и электрики. 3D развал-схождение, установка фаркопа. Работаем с ГАЗ, УАЗ, ВАЗ, КАМАЗ и иномарками. Зал ожидания с Wi‑Fi.
               </p>
               <div className="flex flex-col gap-2 mb-8">
                 {[
@@ -94,27 +94,22 @@ export default function ServiceSection() {
                   {filtered.map((service) => (
                     <div
                       key={service.id}
-                      className="group flex items-start gap-4 bg-bg-card border border-ui-border hover:border-[#C8102E]/40 p-4 transition-colors duration-200"
+                      className="group flex items-center gap-4 bg-bg-card border border-ui-border hover:border-[#C8102E]/40 px-4 py-3.5 transition-colors duration-200"
                     >
-                      <span className="mt-1 shrink-0 text-[#C8102E]">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                          <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.78 4.78a.75.75 0 0 0-1.06-1.06L6.75 9.69 5.28 8.22a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0l4.5-4.5z"/>
+                      <span className="shrink-0 text-[#C8102E]">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                         </svg>
                       </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading text-sm text-text-base">{service.name}</p>
-                        <p className="font-body text-text-dim text-xs mt-1">{service.description}</p>
-                      </div>
-                      <div className="text-right shrink-0 flex flex-col items-end gap-2">
-                        <p className="font-heading text-sm text-[#C8102E]">{service.price}</p>
-                        <p className="font-mono text-xs text-text-dim">{service.duration}</p>
-                        <button
-                          onClick={() => setModalOpen(true)}
-                          className="font-body text-xs text-text-dim hover:text-[#C8102E] underline transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                        >
-                          Записаться
-                        </button>
-                      </div>
+                      <p className="flex-1 min-w-0 font-heading text-sm text-text-base">{service.name}</p>
+                      <p className="hidden sm:block font-mono text-xs text-text-dim shrink-0">{service.duration}</p>
+                      <p className="font-heading text-sm text-[#C8102E] shrink-0">{service.price}</p>
+                      <button
+                        onClick={() => setModalOpen(true)}
+                        className="shrink-0 bg-transparent border border-ui-border hover:border-[#C8102E] text-text-dim hover:text-text-base font-body text-xs px-3 py-1.5 transition-colors duration-200"
+                      >
+                        Записаться
+                      </button>
                     </div>
                   ))}
                 </motion.div>

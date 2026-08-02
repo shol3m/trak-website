@@ -61,31 +61,37 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 
 ### Layout
 - `components/layout/Container.tsx` — обёртка с max-width и padding
-- `components/layout/Header.tsx` — fixed хедер с логотипом и кнопкой CTA. На мобиле: ThemeToggle + корзина + бургер (телефон убран из мобильной строки — дублировал то, что есть в меню)
+- `components/layout/TopBar.tsx` — тонкая fixed-полоса над Header (доставка + телефон), `top-0`, высота 36px. Есть на всех страницах
+- `components/layout/Header.tsx` — fixed хедер (`top-9`, под TopBar), логотип, десктоп-навигация (Каталог/Сервис/О нас/Контакты, `hidden lg:flex`, между логотипом и поиском), строка поиска (десктоп: инлайн; мобилка: в выпадающем меню) → `/catalog?q=...`, телефон, кнопка CTA. На мобиле: ThemeToggle + корзина + бургер (меню включает те же nav-ссылки)
 - `components/layout/Footer.tsx` — футер с динамическим годом. trustItems: 3 элемента (30+ лет, 50 000+ позиций, Пн–Вс)
 
+Глобальный отступ под контент — `app/layout.tsx`, `pt-[100px]` (36px TopBar + 64px Header). Страницы `catalog/[...path]` и `product/[article]` добавляют свой `pt-24` поверх этого.
+
 ### Sections (активные на главной странице — в порядке рендера)
+- `components/sections/CategoryNavTabs.tsx` — вкладки быстрого перехода по 15 реальным корневым категориям (`getCategoryTree()`, дерево передаётся пропом из `app/page.tsx`), ссылки `/catalog/${slug}`. `'use client'`, `embla-carousel-react` (`dragFree`) со стрелками-кнопками (`hidden sm:flex`, дизейблятся на краях). Только на главной, сразу под Header
 - `components/sections/HeroSlider.tsx` — Swiper-слайдер (3 слайда, fade, autoplay 8с, navigation, pagination). Слайд 2 открывает BookingModal. Фото: `public/images/hero-1..3.webp` (реальные WebP)
-- `components/sections/AdvantagesSection.tsx` — преимущества (4 SVG-иконки inline)
-- `components/sections/CategoriesSection.tsx` — категории товаров горизонтальными строками (icon + name + chevron). SVG-иконки (карта ICONS по slug)
+- `components/sections/StatsBrandsRow.tsx` — реальные цифры (30+ лет / 50 000+ позиций / Пн–Вс) + трастовая строка. Бейджи марок авто (ГАЗ/УАЗ/ВАЗ/КАМАЗ) и брендов запчастей (BOSCH/FEBEST/MANN/TRW/TRIALLI/FENOX, подобраны по частоте в `products.csv`) — рабочие ссылки на `/catalog?brand=...`, каждая запись имеет `label` (витринная кириллица) и `dbBrand` (точное значение `Product.brandName`, для UAZ/LADA/KAMAZ — латиницей)
+- `components/sections/CategoriesSection.tsx` — сетка плиток (иконка сверху, название снизу). SVG-иконки (карта `ICONS` по slug), `SEARCH_TERM` теперь в `lib/categories.ts`
 - `components/sections/ProductsSection.tsx` — 4 featured товара из БД (getFeaturedProducts)
-- `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам. 3 feature-пункта с SVG checkmark
+- `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам, строка-услуга (иконка · название · длительность · цена · кнопка)
 - `components/sections/ReviewsSection.tsx` — Embla Carousel, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов. Карточки `h-full` для одинаковой высоты
 
 ### Sections (не используются на главной)
 - `components/sections/HeroSection.tsx` — старый hero, не удалять
+- `components/sections/HeroBanner.tsx` / `components/sections/HeroBannerIcon.tsx` — черновые варианты статичного hero-баннера (фото-инсет / контурная иконка машины), заказчику не понравились — вернули `HeroSlider`. Не удалять, вдруг пригодятся
+- `components/sections/AdvantagesSection.tsx` — преимущества (4 SVG-иконки inline), убран с главной (дублировал `StatsBrandsRow`)
 - `components/sections/BrandsSection.tsx` — 4 бренда (ГАЗ/УАЗ/ВАЗ/КАМАЗ), убран с главной
 - `components/sections/PartFinderSection.tsx` — подбор Марка→Модель→Категория→/catalog, убран с главной
 - `components/sections/ServiceGallery.tsx` — Embla Carousel галерея сервиса, 6 фото. Ждёт реальные фото `gallery-1..6.jpg` (сейчас SVG-заглушки). Не подключён нигде
-- `components/sections/ContactsSection.tsx` — не используется, заменён страницей `app/contacts/page.tsx`
+- `components/sections/ContactsSection.tsx` — **рендерится глобально в `app/layout.tsx`** (между контентом и Footer, на каждой странице сайта) — дублирует `app/contacts/page.tsx`. Решение оставлено на потом, заказчик в курсе
 
 ### Pages
 - `app/page.tsx` — главная страница
 - `app/service/page.tsx` — страница услуг
 - `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+). Advantages: 4 карточки с inline SVG-иконками (не emoji)
 - `app/contacts/page.tsx` — контакты: два отдела с цветными left-border (Магазин #C8102E, Автосервис #1A3A6B, Оптовый #C4922A), Яндекс.Карты embed (320px), email/WhatsApp в bg-bg-muted
-- `app/catalog/page.tsx` — корень каталога: плитки корневых категорий (`getCategoryTree()`) + общий поиск по всем товарам. URL-params: q (поиск), sort (price_asc/price_desc), page
-- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список. Табов категорий больше нет — берётся `title`/`basePath`/`topSlot` пропсами от вызывающей страницы. Переиспользуется в `[...path]`
+- `app/catalog/page.tsx` — корень каталога: плитки корневых категорий (`getCategoryTree()`) + общий поиск по всем товарам. URL-params: q (поиск), sort (price_asc/price_desc), page, brand (точный фильтр по `Product.brandName`). `generateMetadata()` — при `?brand=X` отдаёт уникальные title/description для SEO
+- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список, проп `brand` (заголовок «Запчасти {brand}», снимаемый бейдж-фильтр — подпись «Марка»/«Бренд» определяется по `VEHICLE_MAKE_BRANDS` из `lib/categories.ts`, сохраняется в URL при пагинации). Табов категорий больше нет — берётся `title`/`basePath`/`topSlot` пропсами от вызывающей страницы. Переиспользуется в `[...path]`
 - `app/catalog/CategoryTiles.tsx` — плитки подкатегорий (переиспользуется в `page.tsx` и `[...path]/page.tsx`)
 - `app/catalog/[...path]/page.tsx` — catch-all для дерева категорий любой глубины. Определяет категорию по последнему сегменту URL (слаги глобально уникальны), товары фильтруются по `Category.path` (вся ветка целиком, не только точная категория). 404 если категория не найдена или в ней нет товаров
 - `app/product/[article]/page.tsx` — страница товара (галерея, артикул, цена, полный breadcrumb через `getCategoryNode()`). Раньше жила на `/catalog/[slug]/[article]`, переехала на верхний уровень — артикул глобально уникален, слаг категории в URL не нужен
@@ -94,9 +100,10 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 
 ### Lib
 - `lib/supabase.ts` — Supabase JS клиент (читает `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Кастомный fetch: `cache: no-store` + `connection: close` (предотвращает 15s stale keep-alive таймауты). Удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации — прокси нужен только для Telegram.
-- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из 2 запросов и кешируется в памяти модуля (`_treeCache`), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
+- `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком; `brand` — точный фильтр по `Product.brandName`), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из 2 запросов и кешируется в памяти модуля (`_treeCache`), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
 - `lib/cart-store.ts` — Zustand store: items, isOpen, add/remove/update/clear. Persist localStorage 'trak-cart'. Экспортирует useCartTotal, useCartCount
 - `lib/phone-utils.ts` — formatPhone, normalizePhone, isPhoneValid (переиспользуются в BookingModal и CartDrawer)
+- `lib/categories.ts` — `VEHICLE_MAKE_BRANDS` — Set значений `Product.brandName`, которые считаются маркой авто, а не брендом запчасти (используется для подписи бейджа в `CatalogView.tsx`)
 
 ### API & SEO
 - `app/api/booking/route.ts` — POST, zod-валидация, отправка в два Telegram-чата, поддержка HTTPS_PROXY (runtime only)
@@ -126,7 +133,7 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - Шиномонтаж — НЕТ
 - Кузовной ремонт — НЕТ
 - Все остальные виды ремонта — ЕСТЬ (3D развал-схождение, ремонт двигателя, КПП, ходовой, электрики)
-- Магазин: запчасти только ГАЗ, ВАЗ, УАЗ, КАМАЗ
+- Магазин: НЕ только ГАЗ/ВАЗ/УАЗ/КАМАЗ — проверено по реальным данным БД (2026-08-01): МАЗ, ПАЗ, УРАЛ, тракторы/спецтехника, грузовые иномарки + сторонние бренды запчастей (BOSCH, FEBEST, TRW, MANN, FENOX, LUZAR и др.), плюс масла/автохимия/лампы/коврики/чехлы. Не сужать копирайт до 4 марок
 - Сервис: ГАЗ, ВАЗ, УАЗ + иномарки
 
 ## АУДИТ UX/UI (2026-04-22) — ПРИОРИТЕТЫ
@@ -249,6 +256,14 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 
+### Приоритет 0 — продолжить с прошлой сессии (2026-08-01, редизайн главной)
+См. `docs/PROGRESS.md`, раздел «Hero сузили + Playwright MCP — TODO на следующую сессию»:
+- Перепроверить в браузере hero-слайдер на `/` после рестарта дев-сервера (был баг с неинициализацией Swiper)
+- Playwright MCP зарегистрирован (`claude mcp list` → `playwright ✔ Connected`) — использовать вместо Claude in Chrome
+- Мобильная адаптивность нового Header/TopBar/CategoryNavTabs не проверена
+- `ContactsSection` дублируется глобально в `app/layout.tsx` — решить с заказчиком, убирать или оставить
+- Дождаться от заказчика точный график работы (пока в футере заглушка)
+
 ### Приоритет 1 — безопасность и надёжность
 - **Rate-limit на `/api/order` и `/api/booking`** — публичные POST-роуты без всякой защиты от флуда. Client-side "rate-limit" в `BookingModal` — это просто UI-стейт, тривиально обходится прямым запросом
 - **Тесты на `/api/order` и `/api/booking`** — самые критичные пути (деньги/заказы), нужны моки Prisma + Telegram-запроса. Тесты на `lib/phone-utils.ts` уже есть (`npm run test`) — это следующий, более тяжёлый шаг
@@ -262,7 +277,7 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 - **`app/sitemap.ts`** — всего 5 статичных URL, не включает ни один из 280k товаров или 920 категорий
 
 ### Мелкое
-- **Реальные фото** — заменить SVG-заглушки `public/images/` (hero-1..3, gallery-1..6) на WebP
+- **Реальные фото галереи** — заменить SVG-заглушки `public/images/gallery-1..6` на WebP/JPG (hero-1..3 уже реальные WebP, см. `Sections`)
 - **Переезд хостинга** — сайт будет переезжать с Vercel на другой хостинг/домен
 - Дублирование логики хлебных крошек (`/product/[article]/page.tsx` и `/catalog/[...path]/page.tsx`) и создания fallback-категории «Прочее» (`app/api/products/route.ts` и `scripts/import-products.mjs`) — низкий приоритет, DRY, ничего не ломает
 

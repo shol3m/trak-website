@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { CatalogProduct } from '@/lib/categories'
+import { VEHICLE_MAKE_BRANDS } from '@/lib/categories'
 import type { ReactNode } from 'react'
 import { useCartStore } from '@/lib/cart-store'
 import ProductCard from '@/components/ui/ProductCard'
@@ -23,6 +24,7 @@ interface CatalogViewProps {
   page: number
   search: string
   sort: string
+  brand?: string
   title: string
   basePath: string
   topSlot?: ReactNode
@@ -78,6 +80,7 @@ export default function CatalogView({
   page,
   search,
   sort,
+  brand,
   title,
   basePath,
   topSlot,
@@ -98,6 +101,7 @@ export default function CatalogView({
     if (params.q) qs.set('q', params.q)
     if (params.sort) qs.set('sort', params.sort)
     if (params.page && params.page > 1) qs.set('page', String(params.page))
+    if (brand) qs.set('brand', brand)
     const str = qs.toString()
     return str ? `${basePath}?${str}` : basePath
   }
@@ -121,6 +125,7 @@ export default function CatalogView({
 
   const searchParam = search ? `&q=${encodeURIComponent(search)}` : ''
   const sortParam = sort ? `&sort=${sort}` : ''
+  const brandParam = brand ? `&brand=${encodeURIComponent(brand)}` : ''
 
   return (
     <div className="min-h-screen bg-bg-page pt-24 pb-20">
@@ -137,6 +142,15 @@ export default function CatalogView({
               ? `${total.toLocaleString('ru-RU')} товаров`
               : 'Товары не найдены'}
           </p>
+          {brand && (
+            <Link
+              href={basePath}
+              className="inline-flex items-center gap-1.5 mt-2 font-mono text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors"
+            >
+              {VEHICLE_MAKE_BRANDS.has(brand) ? 'Марка' : 'Бренд'}: {brand}
+              <span aria-hidden="true">×</span>
+            </Link>
+          )}
         </div>
 
         {/* Toolbar: search + sort + view toggle */}
@@ -258,7 +272,7 @@ export default function CatalogView({
           <div className="flex items-center justify-center gap-3 mt-12">
             {page > 1 && (
               <Link
-                href={`${basePath}?page=${page - 1}${searchParam}${sortParam}`}
+                href={`${basePath}?page=${page - 1}${searchParam}${sortParam}${brandParam}`}
                 className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 ← Назад
@@ -269,7 +283,7 @@ export default function CatalogView({
             </span>
             {page < pages && (
               <Link
-                href={`${basePath}?page=${page + 1}${searchParam}${sortParam}`}
+                href={`${basePath}?page=${page + 1}${searchParam}${sortParam}${brandParam}`}
                 className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 Вперёд →

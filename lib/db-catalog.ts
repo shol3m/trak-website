@@ -192,11 +192,13 @@ function sanitizeSearch(raw: string): string {
 export async function getProducts({
   search,
   categoryPath,
+  brand,
   page = 1,
   sort,
 }: {
   search?: string
   categoryPath?: string
+  brand?: string
   page?: number
   sort?: string
 } = {}) {
@@ -221,6 +223,10 @@ export async function getProducts({
   // whose own id happens to start with this category's id string.
   if (categoryPath) {
     query = query.or(`path.eq.${categoryPath},path.like.${categoryPath}/*`, { foreignTable: 'Category' })
+  }
+
+  if (brand?.trim()) {
+    query = query.eq('brandName', brand.trim())
   }
 
   if (search?.trim()) {

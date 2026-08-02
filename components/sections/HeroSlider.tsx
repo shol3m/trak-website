@@ -66,11 +66,11 @@ export default function HeroSlider() {
           pagination={{ clickable: true, el: '.hero-pagination' }}
           loop
           className="hero-swiper"
-          style={{ minHeight: '90vh' }}
+          style={{ height: '420px' }}
         >
           {slides.map((slide) => (
             <SwiperSlide key={slide.id}>
-              <div className="relative min-h-[90vh] flex items-center bg-[#0D0D0D]">
+              <div className="relative h-[420px] flex items-center bg-[#0D0D0D]">
                 {/* Background image */}
                 <div className="absolute inset-0">
                   <Image
@@ -92,15 +92,15 @@ export default function HeroSlider() {
                   }}
                 />
 
-                <Container className="relative z-10 py-24">
+                <Container className="relative z-10 py-10 md:py-12">
                   <div className="max-w-2xl">
-                    <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-[0.2em] mb-6 border border-[#C4922A]/40 px-3 py-1 bg-[#0D0D0D]/50">
+                    <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-[0.2em] mb-3 border border-[#C4922A]/40 px-3 py-1 bg-[#0D0D0D]/50">
                       {slide.badge}
                     </span>
-                    <div className="w-12 h-0.5 bg-[#1A3A6B] mb-6" />
+                    <div className="w-12 h-0.5 bg-[#1A3A6B] mb-3" />
 
                     <h1
-                      className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-6"
+                      className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-3"
                       style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.9)' }}
                     >
                       {slide.title}<br />
@@ -109,7 +109,7 @@ export default function HeroSlider() {
                     </h1>
 
                     <p
-                      className="font-body text-[#CCCCCC] text-lg mb-10 max-w-md"
+                      className="font-body text-[#CCCCCC] text-sm md:text-base mb-6 max-w-md"
                       style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}
                     >
                       {slide.subtitle}
@@ -118,14 +118,14 @@ export default function HeroSlider() {
                     {slide.cta.modal ? (
                       <button
                         onClick={() => setModalOpen(true)}
-                        className="inline-block bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-base px-8 py-4 transition-colors duration-200"
+                        className="inline-block bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-6 py-3 transition-colors duration-200"
                       >
                         {slide.cta.label}
                       </button>
                     ) : (
                       <Link
                         href={slide.cta.href}
-                        className="inline-block bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-base px-8 py-4 transition-colors duration-200"
+                        className="inline-block bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-6 py-3 transition-colors duration-200"
                       >
                         {slide.cta.label}
                       </Link>
@@ -139,7 +139,7 @@ export default function HeroSlider() {
 
         {/* Navigation */}
         <button
-          className="hero-prev absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0D0D0D]/60 hover:bg-[#C8102E] border border-[#2A2A2A] hover:border-[#C8102E] transition-colors duration-200"
+          className="hero-prev hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-[#0D0D0D]/60 hover:bg-[#C8102E] border border-[#2A2A2A] hover:border-[#C8102E] transition-colors duration-200"
           aria-label="Предыдущий слайд"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -147,7 +147,7 @@ export default function HeroSlider() {
           </svg>
         </button>
         <button
-          className="hero-next absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0D0D0D]/60 hover:bg-[#C8102E] border border-[#2A2A2A] hover:border-[#C8102E] transition-colors duration-200"
+          className="hero-next hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-[#0D0D0D]/60 hover:bg-[#C8102E] border border-[#2A2A2A] hover:border-[#C8102E] transition-colors duration-200"
           aria-label="Следующий слайд"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

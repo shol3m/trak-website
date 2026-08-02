@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import ThemeProvider from '@/components/providers/ThemeProvider'
+import TopBar from '@/components/layout/TopBar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ContactsSection from '@/components/sections/ContactsSection'
@@ -91,8 +92,9 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider>
+          <TopBar />
           <Header />
-          <div className="pt-16">
+          <div className="pt-[100px]">
             {children}
           </div>
           <ContactsSection />

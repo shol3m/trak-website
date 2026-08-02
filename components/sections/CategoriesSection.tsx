@@ -4,20 +4,9 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/ui/SectionHeading'
-import { STATIC_CATEGORIES } from '@/lib/categories'
+import { STATIC_CATEGORIES, SEARCH_TERM } from '@/lib/categories'
 
 const DISPLAY = STATIC_CATEGORIES.filter((c) => c.slug !== 'prochee')
-
-// 1С делит каталог по маркам, а не по типу детали — эти плитки остаются
-// тематическим быстрым доступом через поиск, а не ссылкой на категорию.
-const SEARCH_TERM: Record<string, string> = {
-  dvigateli: 'двигатель',
-  filtry: 'фильтр',
-  'tormoznaya-sistema': 'тормоз',
-  podveska: 'амортизатор',
-  'masla-i-zhidkosti': 'масло',
-  transmissiya: 'сцепление',
-}
 
 const ICONS: Record<string, React.ReactNode> = {
   dvigateli: (
@@ -71,9 +60,9 @@ export default function CategoriesSection() {
       <Container>
         <SectionHeading
           title="Категории товаров"
-          subtitle="Широкий ассортимент для ГАЗ, УАЗ, Лада и КАМАЗ"
+          subtitle="Более 50 000 позиций: ГАЗ, УАЗ, ВАЗ, КАМАЗ и другие марки, а также масла и автохимия"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {DISPLAY.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -84,18 +73,14 @@ export default function CategoriesSection() {
             >
               <Link
                 href={`/catalog?q=${encodeURIComponent(SEARCH_TERM[cat.slug] ?? cat.name)}`}
-                className="group relative flex items-center gap-4 bg-bg-card border border-ui-border hover:border-[#C8102E] p-4 transition-all duration-200 overflow-hidden"
+                className="group flex flex-col items-center text-center gap-3 bg-bg-card border border-ui-border hover:border-[#C8102E] px-3 py-6 transition-colors duration-200"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#C8102E] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
-                <span className="shrink-0 text-[#C8102E]">
+                <span className="text-[#C8102E]">
                   {ICONS[cat.slug] ?? ICONS['filtry']}
                 </span>
-                <span className="flex-1 font-heading text-sm text-text-base group-hover:text-[#C8102E] transition-colors duration-200">
+                <span className="font-heading text-sm text-text-base group-hover:text-[#C8102E] transition-colors duration-200">
                   {cat.name}
                 </span>
-                <svg className="shrink-0 text-text-dim group-hover:text-[#C8102E] group-hover:translate-x-0.5 transition-all duration-200" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
               </Link>
             </motion.div>
           ))}
