@@ -33,12 +33,11 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-9 left-0 w-full z-50 bg-bg-card/90 backdrop-blur-md border-b border-ui-border">
+      <header className="fixed top-0 left-0 w-full z-50 bg-[#1A3A6B] border-b border-white/10">
         <Container>
           <div className="flex items-center justify-between h-16 gap-4 md:gap-6">
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto dark:hidden" priority />
-              <Image src="/logo-dark.png" alt="ТРАК" width={90} height={36} className="hidden object-contain h-9 w-auto dark:block" priority />
+              <Image src="/logo-dark.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" priority />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 shrink-0">
@@ -46,7 +45,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-body text-sm text-text-dim hover:text-[#2563EB] transition-colors duration-200 whitespace-nowrap"
+                  className="font-body text-sm text-white/70 hover:text-white transition-colors duration-200 whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
@@ -55,7 +54,7 @@ export default function Header() {
 
             <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
               <div className="relative w-full">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="11" cy="11" r="7" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -64,7 +63,7 @@ export default function Header() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Найти запчасть по артикулу или названию"
-                  className="w-full bg-bg-muted border border-ui-border focus:border-[#2563EB] outline-none text-sm text-text-base placeholder:text-text-dim pl-9 pr-3 py-2.5 transition-colors duration-200"
+                  className="w-full bg-white/10 border border-white/15 focus:border-white/40 outline-none text-sm text-white placeholder:text-white/40 pl-9 pr-3 py-2.5 transition-colors duration-200"
                 />
               </div>
             </form>
@@ -72,20 +71,20 @@ export default function Header() {
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <a
                 href="tel:+73472237208"
-                className="font-body text-sm text-text-base hover:text-[#C8102E] transition-colors duration-200 whitespace-nowrap"
+                className="font-body text-sm text-white hover:text-white/70 transition-colors duration-200 whitespace-nowrap"
               >
                 +7 347 223-72-08
               </a>
               <button
                 onClick={() => setModalOpen(true)}
-                className="bg-[#1A3A6B] hover:bg-[#2563EB] text-white font-body text-sm px-4 py-2 transition-colors duration-200 whitespace-nowrap"
+                className="bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-4 py-2 transition-colors duration-200 whitespace-nowrap"
               >
                 Записаться на СТО
               </button>
               <ThemeToggle />
               <button
                 onClick={openCart}
-                className="relative text-text-dim hover:text-text-base transition-colors duration-200"
+                className="relative text-white/70 hover:text-white transition-colors duration-200"
                 aria-label={`Корзина: ${cartCount} товаров`}
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -105,7 +104,7 @@ export default function Header() {
               <ThemeToggle />
               <button
                 onClick={openCart}
-                className="relative text-text-dim hover:text-text-base transition-colors duration-200"
+                className="relative text-white/70 hover:text-white transition-colors duration-200"
                 aria-label={`Корзина: ${cartCount} товаров`}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -120,7 +119,7 @@ export default function Header() {
                 )}
               </button>
               <button
-                className="text-text-dim hover:text-text-base transition-colors duration-200"
+                className="text-white/70 hover:text-white transition-colors duration-200"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-label="Меню"
               >
@@ -179,14 +178,14 @@ export default function Header() {
                   ))}
                   <button
                     onClick={() => { setMenuOpen(false); setModalOpen(true) }}
-                    className="bg-[#1A3A6B] hover:bg-[#2563EB] text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"
+                    className="bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"
                   >
                     Записаться на СТО
                   </button>
                   <Link
                     href="/catalog"
                     onClick={() => setMenuOpen(false)}
-                    className="bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"
+                    className="border border-[#C8102E] text-[#C8102E] hover:bg-[#C8102E] hover:text-white font-body text-sm px-4 py-3 text-center transition-colors duration-200"
                   >
                     Каталог запчастей
                   </Link>

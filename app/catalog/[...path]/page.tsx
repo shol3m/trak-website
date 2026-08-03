@@ -68,11 +68,12 @@ export default async function CategoryPage({
     pages: 0,
     page,
   }
+  let error = false
 
   try {
     result = await getProducts({ search, categoryPath: node.category.path, page, sort })
   } catch {
-    // DB not available
+    error = true
   }
 
   const categoryChain = [...node.ancestors, node.category]
@@ -104,6 +105,7 @@ export default async function CategoryPage({
             <CategoryTiles categories={node.children} basePath={basePath} />
           </>
         }
+        error={error}
       />
     </Suspense>
   )

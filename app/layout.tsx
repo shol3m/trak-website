@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import ThemeProvider from '@/components/providers/ThemeProvider'
-import TopBar from '@/components/layout/TopBar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
@@ -47,11 +46,11 @@ const ibmPlexMono = localFont({
 
 export const metadata: Metadata = {
   title: 'ТРАК — Автозапчасти и сервис в Уфе',
-  description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
+  description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. С 1992 года на рынке.',
   icons: { icon: '/logo.png' },
   openGraph: {
     title: 'ТРАК — Автозапчасти и сервис в Уфе',
-    description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. 30+ лет на рынке.',
+    description: 'Официальный торговый представитель ОАО «ГАЗ», субдилер УАЗ и ЗМЗ. Запчасти для ВАЗ, ГАЗ, УАЗ, КАМАЗ. С 1992 года на рынке.',
     url: 'https://trak-ufa.ru',
     siteName: 'ТРАК',
     locale: 'ru_RU',
@@ -91,9 +90,8 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider>
-          <TopBar />
           <Header />
-          <div className="pt-[100px]">
+          <div className="pt-16">
             {children}
           </div>
           <Footer />

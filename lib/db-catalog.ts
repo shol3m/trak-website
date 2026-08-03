@@ -178,6 +178,38 @@ function adapt(p: SupabaseProduct): CatalogProduct {
   }
 }
 
+// Row shape returned by the search_products() DB function (see
+// scripts/add-search-function.mjs) — flat category columns instead of a
+// nested Category object, plus a total_count window column.
+type SearchProductRow = {
+  id: string
+  name: string
+  article: string
+  priceRetail: number
+  stock: number
+  brandName: string | null
+  externalId: string | null
+  description: string | null
+  category_slug: string | null
+  category_name: string | null
+  total_count: number
+}
+
+function adaptSearchRow(p: SearchProductRow): CatalogProduct {
+  return {
+    id: p.id,
+    name: p.name,
+    article: p.article,
+    brand: p.brandName ?? '',
+    category: p.category_name ?? '',
+    categorySlug: p.category_slug ?? '',
+    price: Number(p.priceRetail),
+    stock: p.stock,
+    images: [],
+    description: p.description ?? '',
+    externalId: p.externalId,
+  }
+}
 
 const PRODUCT_COLUMNS =
   'id, name, article, priceRetail, stock, brandName, externalId, description, Category!inner(slug, name)'
@@ -202,6 +234,33 @@ export async function getProducts({
   page?: number
   sort?: string
 } = {}) {
+  const trimmedSearch = search?.trim() ? sanitizeSearch(search) : ''
+
+  // ILIKE substring search over 280k rows needs an index to stay fast, but
+  // RLS blocks index pushdown for non-leakproof operators like ILIKE — so
+  // search goes through a SECURITY DEFINER DB function that bypasses RLS
+  // instead of a plain .select().or() chain (see scripts/add-search-function.mjs).
+  if (trimmedSearch) {
+    const { data, error } = await supabase.rpc('search_products', {
+      p_search: trimmedSearch,
+      p_category_path: categoryPath || null,
+      p_brand: brand?.trim() || null,
+      p_sort: sort || null,
+      p_page: page,
+    })
+
+    if (error) throw new Error(error.message)
+
+    const rows = (data ?? []) as SearchProductRow[]
+    const total = rows[0]?.total_count ?? 0
+    return {
+      products: rows.map(adaptSearchRow),
+      total,
+      pages: Math.ceil(total / PAGE_SIZE),
+      page,
+    }
+  }
+
   const skip = (page - 1) * PAGE_SIZE
 
   let query = supabase
@@ -227,17 +286,6 @@ export async function getProducts({
 
   if (brand?.trim()) {
     query = query.eq('brandName', brand.trim())
-  }
-
-  if (search?.trim()) {
-    const q = sanitizeSearch(search)
-    if (q) {
-      // Each word must appear somewhere in name or article (AND logic)
-      const words = q.split(/\s+/).filter(Boolean)
-      for (const word of words) {
-        query = query.or(`name.ilike.%${word}%,article.ilike.%${word}%`)
-      }
-    }
   }
 
   const { data, count, error } = await query

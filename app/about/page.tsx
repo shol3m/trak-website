@@ -56,7 +56,7 @@ function CertCard({
 }
 
 const stats = [
-  { value: '30+', label: 'лет на рынке' },
+  { value: 'С 1992', label: 'года на рынке' },
   { value: '50 000+', label: 'позиций в ассортименте' },
 ]
 
@@ -86,7 +86,7 @@ const advantages = [
       </svg>
     ),
     title: 'Собственный сервис',
-    desc: 'Профессиональный автосервис с опытными мастерами. Гарантия на все виды работ. Диагностика, ТО, ремонт.',
+    desc: 'Подберём запчасти и установим их на месте — магазин и автосервис находятся по одному адресу. На выполненные работы действует гарантия.',
   },
   {
     icon: (
@@ -95,7 +95,7 @@ const advantages = [
       </svg>
     ),
     title: 'Гарантия качества',
-    desc: 'Работаем только с проверенными поставщиками. Сертифицированные запчасти и расходники с документами.',
+    desc: 'Официальные поставки запчастей ГАЗ, УАЗ и ЗМЗ. Каждая деталь — с документами и гарантией производителя.',
   },
 ]
 
@@ -129,7 +129,7 @@ export default function AboutPage() {
               ТРАК — торгово-сервисный комплекс
             </h1>
             <p className="font-body text-text-dim text-lg leading-relaxed">
-              Более 30 лет мы обеспечиваем владельцев отечественных автомобилей оригинальными запчастями
+              С 1992 года мы обеспечиваем владельцев отечественных автомобилей оригинальными запчастями
               и профессиональным сервисом. Официальный торговый представитель ОАО «ГАЗ»,
               субдилер ТД «Соллерс» по ЗМЗ и УАЗ.
             </p>
@@ -138,7 +138,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-blue-50 dark:bg-[#0A1929] border-b border-blue-100 dark:border-[#1A3A6B]/30">
+      <section className="py-16 bg-bg-card border-b border-ui-border">
         <Container>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24">
             {stats.map((s, i) => (
@@ -151,7 +151,7 @@ export default function AboutPage() {
                 variants={fadeUp}
                 className="text-center"
               >
-                <div className="font-heading text-4xl md:text-5xl text-[#2563EB] mb-2">{s.value}</div>
+                <div className="font-heading text-4xl md:text-5xl text-[#C8102E] mb-2">{s.value}</div>
                 <div className="font-body text-sm text-text-dim uppercase tracking-wider">{s.label}</div>
               </motion.div>
             ))}
@@ -202,7 +202,7 @@ export default function AboutPage() {
                 ['Субдилер ТД «Соллерс»', 'ЗМЗ и УАЗ'],
                 ['Запчасти для', 'ГАЗ, УАЗ, ВАЗ'],
                 ['Ассортимент', '50 000+ позиций'],
-                ['Опыт работы', 'более 30 лет'],
+                ['Опыт работы', 'с 1992 года'],
                 ['Регион', 'Уфа и Башкортостан'],
               ].map(([label, value]) => (
                 <div

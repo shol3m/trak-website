@@ -43,6 +43,8 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - Архитектура:        docs/ARCHITECTURE.md
 - Интеграции:         docs/INTEGRATIONS.md
 - Описание измненений:  docs/PROGRESS.md
+- Переезд на прод:     docs/MIGRATION.md
+- Аудит UX/функциональности: docs/AUDIT.md
 
 ## КОМПОНЕНТЫ (актуально)
 
@@ -63,17 +65,17 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 
 ### Layout
 - `components/layout/Container.tsx` — обёртка с max-width и padding
-- `components/layout/TopBar.tsx` — тонкая fixed-полоса над Header (доставка + телефон), `top-0`, высота 36px. Есть на всех страницах
-- `components/layout/Header.tsx` — fixed хедер (`top-9`, под TopBar), логотип, десктоп-навигация (Каталог/Сервис/О нас/Контакты, `hidden lg:flex`, между логотипом и поиском), строка поиска (десктоп: инлайн; мобилка: в выпадающем меню) → `/catalog?q=...`, телефон, кнопка CTA. На мобиле: ThemeToggle + корзина + бургер (меню включает те же nav-ссылки)
-- `components/layout/Footer.tsx` — футер с динамическим годом. trustItems: 3 элемента (30+ лет, 50 000+ позиций, Пн–Вс)
+- `components/layout/TopBar.tsx` — **не рендерится** (убран из `app/layout.tsx` 2026-08-03, тестировали хедер без верхней полосы). Файл не удалён, можно вернуть одной строкой при необходимости
+- `components/layout/Header.tsx` — fixed хедер, `top-0` (TopBar над ним больше нет), сплошной синий фон `bg-[#1A3A6B]` (не зависит от свет/тёмная тема — единый фирменный тёмный акцент, см. `ТЕМА`). Логотип всегда `/logo-dark.png` (светлый вариант, без переключения по теме). Десктоп-навигация (Каталог/Сервис/О нас/Контакты, `hidden lg:flex`), строка поиска (десктоп: инлайн; мобилка: в выпадающем меню) → `/catalog?q=...`, телефон, красная кнопка CTA «Записаться на СТО». На мобиле: ThemeToggle + корзина + бургер (в выпадающем меню — красная кнопка «Записаться на СТО» + контурная красная «Каталог запчастей», обе выровнены с десктоп-стилем)
+- `components/layout/Footer.tsx` — футер с динамическим годом, синий фон `#1A3A6B`. Верхняя trust-плашка с цифрами (30+/50 000+/Пн–Вс) **убрана** (2026-08-03) — дублировала `StatsBrandsRow` выше по странице
 
-Глобальный отступ под контент — `app/layout.tsx`, `pt-[100px]` (36px TopBar + 64px Header). Страницы `catalog/[...path]` и `product/[article]` добавляют свой `pt-24` поверх этого.
+Глобальный отступ под контент — `app/layout.tsx`, `pt-16` (только высота Header, 64px — TopBar не рендерится). Страницы `catalog/[...path]` и `product/[article]` добавляют свой `pt-24` поверх этого.
 
 ### Sections (активные на главной странице — в порядке рендера)
 - `components/sections/CategoryNavTabs.tsx` — вкладки быстрого перехода по 15 реальным корневым категориям (`getCategoryTree()`, дерево передаётся пропом из `app/page.tsx`), ссылки `/catalog/${slug}`. `'use client'`, `embla-carousel-react` (`dragFree`) со стрелками-кнопками (`hidden sm:flex`, дизейблятся на краях). Только на главной, сразу под Header
 - `components/sections/HeroSlider.tsx` — Swiper-слайдер (3 слайда, fade, autoplay 8с, navigation, pagination). Слайд 2 открывает BookingModal. Фото: `public/images/hero-1..3.webp` (реальные WebP)
-- `components/sections/StatsBrandsRow.tsx` — реальные цифры (30+ лет / 50 000+ позиций / Пн–Вс) + трастовая строка. Бейджи марок авто (ГАЗ/УАЗ/ВАЗ/КАМАЗ) и брендов запчастей (BOSCH/FEBEST/MANN/TRW/TRIALLI/FENOX, подобраны по частоте в `products.csv`) — рабочие ссылки на `/catalog?brand=...`, каждая запись имеет `label` (витринная кириллица) и `dbBrand` (точное значение `Product.brandName`, для UAZ/LADA/KAMAZ — латиницей)
-- `components/sections/PartFinderCTA.tsx` — тёмный баннер «Не знаете артикул нужной детали?» (стиль rossko.ru): фото эксперта слева (`public/images/partfinder-expert.png`, реальное фото, blend-градиент убирает шов с фоном карточки), текст + телефон + кнопка `PartRequestModal` справа. Заменил `ProductsSection` (2026-08-03)
+- `components/sections/StatsBrandsRow.tsx` — реальные цифры (С 1992 года / 50 000+ позиций / Пн–Вс) + трастовая строка. Бейджи марок авто (ГАЗ/УАЗ/ВАЗ/КАМАЗ) и брендов запчастей (BOSCH/FEBEST/MANN/TRW/TRIALLI/FENOX, подобраны по частоте в `products.csv`) — рабочие ссылки на `/catalog?brand=...`, каждая запись имеет `label` (витринная кириллица) и `dbBrand` (точное значение `Product.brandName`, для UAZ/LADA/KAMAZ — латиницей)
+- `components/sections/PartFinderCTA.tsx` — баннер «Не знаете артикул нужной детали?» (стиль rossko.ru): фото эксперта слева (`public/images/partfinder-expert.png`, реальное фото, blend-градиент убирает шов с фоном карточки), текст + телефон + кнопка `PartRequestModal` справа. Заменил `ProductsSection` (2026-08-03). Фон карточки — синий `#1A3A6B` (был почти чёрный `#161616`, перекрашен 2026-08-03 в единый фирменный тёмный акцент вместе с Header/Footer)
 - `components/sections/ServiceSection.tsx` — виды услуг, вкладки по группам, строка-услуга (иконка · название · длительность · цена · кнопка)
 - `components/sections/ReviewsSection.tsx` — Embla Carousel, autoplay 4с, 1/2/3 колонки. 5 реальных отзывов. Карточки `h-full` для одинаковой высоты
 
@@ -90,10 +92,10 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 ### Pages
 - `app/page.tsx` — главная страница
 - `app/service/page.tsx` — страница услуг
-- `app/about/page.tsx` — страница о компании. Stats: 2 элемента (30+, 50 000+). Advantages: 4 карточки с inline SVG-иконками (не emoji)
+- `app/about/page.tsx` — страница о компании. Stats: 2 элемента (С 1992 года, 50 000+), секция на `bg-bg-card` (была голубоватая `bg-blue-50`/`dark:#0A1929` — перекрашена 2026-08-03 в нейтральный фон + красные цифры, как в `StatsBrandsRow`). Advantages: 4 карточки с inline SVG-иконками (не emoji)
 - `app/contacts/page.tsx` — контакты: два отдела с цветными left-border (Магазин #C8102E, Автосервис #1A3A6B, Оптовый #C4922A), Яндекс.Карты embed (320px), email/WhatsApp в bg-bg-muted
 - `app/catalog/page.tsx` — корень каталога: плитки корневых категорий (`getCategoryTree()`) + общий поиск по всем товарам. URL-params: q (поиск), sort (price_asc/price_desc), page, brand (точный фильтр по `Product.brandName`). `generateMetadata()` — при `?brand=X` отдаёт уникальные title/description для SEO
-- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список, проп `brand` (заголовок «Запчасти {brand}», снимаемый бейдж-фильтр — подпись «Марка»/«Бренд» определяется по `VEHICLE_MAKE_BRANDS` из `lib/categories.ts`, сохраняется в URL при пагинации). Табов категорий больше нет — берётся `title`/`basePath`/`topSlot` пропсами от вызывающей страницы. Переиспользуется в `[...path]`
+- `app/catalog/CatalogView.tsx` — client-компонент: debounced поиск 350ms, сортировка, переключатель сетка/список, проп `brand` (заголовок «Запчасти {brand}», снимаемый бейдж-фильтр — подпись «Марка»/«Бренд» определяется по `VEHICLE_MAKE_BRANDS` из `lib/categories.ts`, сохраняется в URL при пагинации). Табов категорий больше нет — берётся `title`/`basePath`/`topSlot` пропсами от вызывающей страницы. Проп `error` (2026-08-03) — если запрос к БД упал, показывает «Не удалось загрузить каталог» вместо ложного «ничего не найдено» (раньше любая ошибка `getProducts()` молча превращалась в пустую выдачу). Переиспользуется в `[...path]`
 - `app/catalog/CategoryTiles.tsx` — плитки подкатегорий (переиспользуется в `page.tsx` и `[...path]/page.tsx`)
 - `app/catalog/[...path]/page.tsx` — catch-all для дерева категорий любой глубины. Определяет категорию по последнему сегменту URL (слаги глобально уникальны), товары фильтруются по `Category.path` (вся ветка целиком, не только точная категория). 404 если категория не найдена или в ней нет товаров
 - `app/product/[article]/page.tsx` — страница товара (галерея, артикул, цена, полный breadcrumb через `getCategoryNode()`). Раньше жила на `/catalog/[slug]/[article]`, переехала на верхний уровень — артикул глобально уникален, слаг категории в URL не нужен
@@ -103,6 +105,7 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 ### Lib
 - `lib/supabase.ts` — Supabase JS клиент (читает `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Кастомный fetch: `cache: no-store` + `connection: close` (предотвращает 15s stale keep-alive таймауты). Удаляет `HTTPS_PROXY`/`HTTP_PROXY` при инициализации — прокси нужен только для Telegram.
 - `lib/db-catalog.ts` — каталог через Supabase JS (не Prisma). `getProducts()` (принимает `categoryPath` — фильтр по префиксу `Category.path`, вся ветка целиком; `brand` — точный фильтр по `Product.brandName`), `getProductByArticle()`, `getFeaturedProducts()`. `getCategoryTree()` / `getCategoryNode(slug)` — дерево категорий строится из закешированных строк (`unstable_cache`, тег `categories`, не голая module-level переменная — инвалидация работает на всех serverless-инстансах через `invalidateCategoryTree()`, вызывается из `/api/products` после успешного синка), `hasProducts` считается рекурсивно вверх по дереву (категория "активна", если у неё самой или у любого потомка есть товар) — иначе новое дерево из 920 категорий показывало бы пустые ветки.
+  **Поиск (`search`) идёт не через `.select().or()`, а через RPC `search_products`** (2026-08-03, см. `ИЗВЕСТНЫЕ ФИКСЫ ВЕРСИЙ`) — обычный запрос от публичной роли на 280k строк падал по тайм-ауту.
 - `lib/cart-store.ts` — Zustand store: items, isOpen, add/remove/update/clear. Persist localStorage 'trak-cart'. Экспортирует useCartTotal, useCartCount
 - `lib/phone-utils.ts` — formatPhone, normalizePhone, isPhoneValid (переиспользуются в BookingModal и CartDrawer)
 - `lib/categories.ts` — `VEHICLE_MAKE_BRANDS` — Set значений `Product.brandName`, которые считаются маркой авто, а не брендом запчасти (используется для подписи бейджа в `CatalogView.tsx`)
@@ -130,7 +133,6 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 ### Не реализовано / ожидает
 - Реальные фото галереи: `public/images/gallery-1..6.jpg` — пока SVG-заглушки (ServiceGallery не подключён)
 - FTP-синхронизация: GitHub Actions workflow для автосинхронизации CSV из 1С
-- Fuzzy-поиск: нужен GIN-индекс на pg_trgm в БД — сейчас поиск по подстроке (ilike)
 
 ## ОГРАНИЧЕНИЯ СЕРВИСА (важно для контента)
 - Шиномонтаж — НЕТ
@@ -207,6 +209,14 @@ Vitest (тесты) · ESLint (`next/core-web-vitals`)
 - `Header.tsx`: `dark:brightness-0 dark:invert` убран. Теперь два `<Image>` (`/logo.png` + `/logo-dark.png`), переключение классами `dark:hidden` / `hidden dark:block`
 - `Footer.tsx`: `brightness-0 invert` убран (футер всегда на синем `#1A3A6B`), логотип — `/logo-dark.png` напрямую, без фильтра
 
+### P10 — Выполнено ✓ (2026-08-03)
+- **Копирайтинг**: собраны референсы (rossko.ru, autopiter.ru, tdbl.ru, stogood.ru) и переписаны тексты в `PartFinderCTA`, `ServiceSection` (интро + 3 буллета), `about/page.tsx` (2 карточки преимуществ), `Footer` (описание) — меньше канцелярита, конкретнее обещания (без непроверяемых SLA вроде «перезвоним за 15 минут»)
+- **«30+ лет» → «С 1992 года»** — везде, где раньше было приблизительное «30+»: `StatsBrandsRow`, `Footer` trustItems (до удаления, см. ниже), `about/page.tsx` (hero-текст, stats, таблица характеристик), `app/layout.tsx` (SEO meta description/OG)
+- **Header/TopBar**: `TopBar` убран из рендера, `Header` перекрашен в сплошной синий `#1A3A6B` (не зависит от темы), логотип — `/logo-dark.png` без переключения. Глобальный отступ `pt-16` вместо `pt-[100px]`
+- **Footer**: убрана верхняя trust-плашка с цифрами (дублировала `StatsBrandsRow`)
+- **Единый тёмный акцент**: `PartFinderCTA` (было `#161616`) и stats-секция `about/page.tsx` (было `bg-blue-50`/`dark:#0A1929` + голубые цифры `#2563EB`) перекрашены в тот же синий `#1A3A6B` / красные цифры `#C8102E`, что Header/Footer/StatsBrandsRow — было несколько разных тёмных/синих оттенков вперемешку
+- **Критический баг поиска исправлен** — см. `ИЗВЕСТНЫЕ ФИКСЫ ВЕРСИЙ`: точный артикул не находился (тайм-аут). Добавлены GIN trgm-индексы + `SECURITY DEFINER` функция `search_products` в БД, `lib/db-catalog.ts` переведён на неё. Плюс `app/catalog/page.tsx` / `[...path]/page.tsx` / `CatalogView.tsx` — при сбое БД показывают «Не удалось загрузить каталог» вместо ложного «ничего не найдено»
+
 ## ТЕМА
 
 ### Система: next-themes + Tailwind darkMode: "class"
@@ -262,6 +272,7 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 | Stale TCP keep-alive соединения → 15s таймаут на повторных запросах к Supabase | `connection: close` заголовок в кастомном fetch `lib/supabase.ts` |
 | `HTTPS_PROXY` из `.env.local` тормозит Supabase HTTP-запросы | `next.config.mjs` удаляет proxy env vars при старте сервера |
 | `/api/booking`/`/api/order` возвращают 502 «Ошибка отправки» локально | Локальный прокси-клиент на `HTTPS_PROXY` (`127.0.0.1:12334`) не запущен — Telegram заблокирован напрямую в РФ. Если прямой доступ временно доступен (проверить `curl https://api.telegram.org/`), можно закомментировать `HTTPS_PROXY`/`HTTP_PROXY` в `.env.local` и перезапустить дев-сервер; иначе — запустить прокси-клиент |
+| Поиск по каталогу падал по тайм-ауту (`canceling statement due to statement timeout`), особенно на точный артикул | Причина двойная: (1) не было индекса для поиска по подстроке на 280k строк — добавлены GIN trgm-индексы на `Product.name`/`Product.article` (`scripts/add-search-indexes.mjs`); (2) даже с индексом RLS-политика (`isActive = true`) не даёт планировщику использовать индекс для нелипкопруф-операторов вроде `ILIKE` — обойдено через `SECURITY DEFINER`-функцию `search_products` в БД (`scripts/add-search-function.mjs`), которая сама повторяет условие `isActive = true` и строит запрос через `EXECUTE format(...)` с литеральным значением поиска (иначе параметризованный план тоже не видит индекс). `lib/db-catalog.ts` вызывает её через `supabase.rpc('search_products', ...)` вместо `.select().or()` |
 
 ## ЧТО НЕ РЕАЛИЗОВАНО (следующие задачи)
 
@@ -292,5 +303,7 @@ Overlay (`from-[#0D0D0D]/80`) намеренно всегда тёмный — �
 - `scripts/import-products.mjs` — скрипт прямого импорта (для отладки)
 - `scripts/import-categories.mjs` — импорт дерева категорий из `КаталогиСайт.txt` (920 категорий, справочник 1С). Идемпотентен, безопасно перезапускать
 - `scripts/generate-import-csv.mjs` — генератор CSV для Supabase Dashboard импорта
+- `scripts/add-search-indexes.mjs` — разовый скрипт (2026-08-03): создаёт GIN trgm-индексы на `Product.name`/`Product.article` через `DIRECT_URL`. Безопасно перезапускать (`IF NOT EXISTS`, `CONCURRENTLY` — не блокирует запись во время синка из 1С)
+- `scripts/add-search-function.mjs` — разовый скрипт (2026-08-03): создаёт/пересоздаёт `SECURITY DEFINER`-функцию `search_products` в БД (обход RLS-ограничения на поиск по подстроке, см. `ИЗВЕСТНЫЕ ФИКСЫ ВЕРСИЙ`). Безопасно перезапускать (`create or replace function`)
 - **products.csv** — полный каталог от 1С: 280 072 товара, загружен в БД через Supabase Dashboard
 - **FTP** — 1С кладёт файл на FTP, нужен GitHub Actions worker для автосинхронизации

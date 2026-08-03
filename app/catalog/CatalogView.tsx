@@ -28,6 +28,7 @@ interface CatalogViewProps {
   title: string
   basePath: string
   topSlot?: ReactNode
+  error?: boolean
 }
 
 function ProductListRow({
@@ -84,6 +85,7 @@ export default function CatalogView({
   title,
   basePath,
   topSlot,
+  error,
 }: CatalogViewProps) {
   const router = useRouter()
   const [query, setQuery] = useState(search)
@@ -138,9 +140,11 @@ export default function CatalogView({
             {title}
           </h1>
           <p className="font-mono text-sm text-text-dim">
-            {total > 0
-              ? `${total.toLocaleString('ru-RU')} товаров`
-              : 'Товары не найдены'}
+            {error
+              ? 'Ошибка загрузки'
+              : total > 0
+                ? `${total.toLocaleString('ru-RU')} товаров`
+                : 'Товары не найдены'}
           </p>
           {brand && (
             <Link
@@ -215,7 +219,19 @@ export default function CatalogView({
         </div>
 
         {/* Products */}
-        {products.length === 0 ? (
+        {error ? (
+          <div className="py-20 text-center">
+            <p className="font-mono text-sm text-text-dim">
+              Не удалось загрузить каталог, попробуйте обновить страницу через минуту
+            </p>
+            <button
+              onClick={() => router.refresh()}
+              className="mt-4 font-mono text-xs text-[#C8102E] hover:underline"
+            >
+              Обновить
+            </button>
+          </div>
+        ) : products.length === 0 ? (
           <div className="py-20 text-center">
             <p className="font-mono text-sm text-text-dim">
               {search

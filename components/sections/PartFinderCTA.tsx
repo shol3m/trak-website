@@ -11,7 +11,7 @@ export default function PartFinderCTA() {
   return (
     <section className="py-20 bg-bg-muted">
       <Container>
-        <div className="relative overflow-hidden rounded-2xl bg-[#161616] flex flex-col md:flex-row items-stretch">
+        <div className="relative overflow-hidden rounded-2xl bg-[#1A3A6B] flex flex-col md:flex-row items-stretch">
           <div className="relative w-full md:w-[280px] shrink-0 min-h-[220px] md:min-h-0">
             <Image
               src="/images/partfinder-expert.png"
@@ -20,7 +20,7 @@ export default function PartFinderCTA() {
               sizes="(max-width: 768px) 100vw, 280px"
               className="object-cover object-top"
             />
-            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,transparent_55%,#161616_100%)] md:bg-[linear-gradient(to_right,transparent_55%,#161616_100%)]" />
+            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,transparent_55%,#1A3A6B_100%)] md:bg-[linear-gradient(to_right,transparent_55%,#1A3A6B_100%)]" />
           </div>
 
           <div className="relative z-10 flex-1 p-8 md:p-12 flex flex-col justify-center">
@@ -31,7 +31,7 @@ export default function PartFinderCTA() {
               Не знаете артикул нужной детали?
             </h2>
             <p className="font-body text-white/60 text-base mb-8 max-w-md">
-              Опишите деталь своими словами — подберём подходящий вариант из наличия или под заказ.
+              Опишите деталь своими словами или укажите марку и модель авто — специалист проверит совместимость и подберёт вариант в наличии или под заказ.
             </p>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">

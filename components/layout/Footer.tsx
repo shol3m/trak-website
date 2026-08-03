@@ -1,63 +1,12 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useInView, animate } from 'framer-motion'
 import Container from './Container'
-
-const trustItems = [
-  { value: '30+', label: 'лет на рынке' },
-  { value: '50 000+', label: 'позиций в наличии' },
-  { value: 'Пн–Вс', label: 'работаем без выходных' },
-]
-
-function TrustCounter({ raw }: { raw: string }) {
-  const match = raw.match(/^([\d\s]+)(\+?)$/)
-  const ref = useRef<HTMLParagraphElement>(null)
-  const inView = useInView(ref, { once: true })
-  const [display, setDisplay] = useState('0')
-
-  const numeric = match ? parseInt(match[1].replace(/\s/g, ''), 10) : null
-  const suffix = match ? match[2] : ''
-
-  useEffect(() => {
-    if (!numeric || !inView) return
-    const controls = animate(0, numeric, {
-      duration: 1.6,
-      ease: 'easeOut',
-      onUpdate: (v) => setDisplay(Math.round(v).toLocaleString('ru-RU')),
-    })
-    return controls.stop
-  }, [inView, numeric])
-
-  if (!numeric) {
-    return <p className="font-heading font-bold text-2xl text-white">{raw}</p>
-  }
-
-  return (
-    <p ref={ref} className="font-heading text-2xl text-white">
-      {display}{suffix}
-    </p>
-  )
-}
 
 export default function Footer() {
   return (
     <footer className="bg-[#1A3A6B]">
-      <div className="border-b border-white/15 py-8">
-        <Container>
-          <div className="grid grid-cols-3 gap-6">
-            {trustItems.map((item) => (
-              <div key={item.value} className="text-center">
-                <TrustCounter raw={item.value} />
-                <p className="font-body text-xs text-white/60 mt-1">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </div>
-
       <Container className="pt-10 pb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
@@ -65,7 +14,7 @@ export default function Footer() {
               <Image src="/logo-dark.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" />
             </Link>
             <p className="font-body text-white/60 text-sm leading-relaxed mb-4">
-              Торгово-сервисный комплекс. Официальный торговый представитель ОАО «ГАЗ». Субдилер ТД «Соллерс» (УАЗ, ЗМЗ).
+              Запчасти и собственный автосервис в Уфе с 1992 года. Торговый представитель ГАЗ, субдилер УАЗ и ЗМЗ.
             </p>
           </div>
 

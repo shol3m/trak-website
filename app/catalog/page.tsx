@@ -36,6 +36,7 @@ export default async function CatalogPage({
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
   let roots: TreeCategory[] = []
+  let error = false
 
   try {
     ;[result, roots] = await Promise.all([
@@ -44,6 +45,7 @@ export default async function CatalogPage({
     ])
   } catch (e) {
     console.error('[catalog] error:', e)
+    error = true
   }
 
   return (
@@ -59,6 +61,7 @@ export default async function CatalogPage({
         title={brand ? `Запчасти ${brand}` : 'Каталог запчастей'}
         basePath="/catalog"
         topSlot={<CategoryTiles categories={roots} basePath="/catalog" />}
+        error={error}
       />
     </Suspense>
   )

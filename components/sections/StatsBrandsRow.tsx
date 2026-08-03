@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Container from '@/components/layout/Container'
 
 const stats = [
-  { value: '30+', label: 'лет на рынке' },
+  { value: 'С 1992', label: 'года на рынке' },
   { value: '50 000+', label: 'позиций в наличии' },
   { value: 'Пн–Вс', label: 'без выходных' },
 ]
@@ -42,7 +42,7 @@ export default function StatsBrandsRow() {
               ))}
             </div>
             <p className="font-body text-xs text-text-dim leading-relaxed mt-3 max-w-xs">
-              Официальный торговый представитель ГАЗ и субдилер УАЗ — 30 лет поставляем оригинальные и аналоговые запчасти для ГАЗ, УАЗ, ВАЗ, КАМАЗ и других марок, с собственным автосервисом в Уфе.
+              Официальный торговый представитель ГАЗ и субдилер УАЗ — с 1992 года поставляем оригинальные и аналоговые запчасти для ГАЗ, УАЗ, ВАЗ, КАМАЗ и других марок, с собственным автосервисом в Уфе.
             </p>
           </div>
 
