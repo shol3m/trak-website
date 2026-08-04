@@ -96,7 +96,7 @@ export default function HeroSlider() {
 
                 <Container className="relative z-10 py-10 md:py-12">
                   <div className="max-w-2xl">
-                    <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-[0.2em] mb-3 border border-[#C4922A]/40 px-3 py-1 bg-[#0D0D0D]/50">
+                    <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-widest mb-3 border border-[#C4922A]/40 px-3 py-1 bg-[#0D0D0D]/50">
                       {slide.badge}
                     </span>
                     <div className="w-12 h-0.5 bg-[#1A3A6B] mb-3" />

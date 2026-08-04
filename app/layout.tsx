@@ -7,38 +7,42 @@ import Footer from '@/components/layout/Footer'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import CartDrawer from '@/components/ui/CartDrawer'
 
-const russoOne = localFont({
+// Oswald — variable font (fvar axis 400–700), pinned to a single 700 weight.
+// None of the 45 `font-heading` usages across the codebase set an explicit
+// weight class — they all relied on the old Russo One face being a single
+// static weight that always rendered bold. Pinning here (rather than
+// declaring a range) preserves that everywhere without touching every file.
+// latin-ext subset carries the ₽ ruble sign (U+20BD) — Google buckets it
+// there, not in plain "latin" or "cyrillic". Skipping it earlier meant every
+// price fell back to a system font for just that one glyph (visibly thinner
+// than the digits next to it). All three families below need it.
+const oswald = localFont({
   src: [
-    { path: '../public/fonts/russo-one-latin.woff2', style: 'normal' },
-    { path: '../public/fonts/russo-one-cyrillic.woff2', style: 'normal' },
+    { path: '../public/fonts/oswald-latin.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/oswald-latin-ext.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/oswald-cyrillic.woff2', weight: '700', style: 'normal' },
   ],
   variable: '--font-russo',
   display: 'swap',
 })
 
-const ibmPlexSans = localFont({
+// Inter — variable font (wght 100–900), one file per subset.
+const inter = localFont({
   src: [
-    { path: '../public/fonts/ibm-plex-sans-400-latin.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-400-cyrillic.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-400i-latin.woff2', weight: '400', style: 'italic' },
-    { path: '../public/fonts/ibm-plex-sans-400i-cyrillic.woff2', weight: '400', style: 'italic' },
-    { path: '../public/fonts/ibm-plex-sans-500-latin.woff2', weight: '500', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-500-cyrillic.woff2', weight: '500', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-600-latin.woff2', weight: '600', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-600-cyrillic.woff2', weight: '600', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-700-latin.woff2', weight: '700', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-sans-700-cyrillic.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/inter-latin.woff2', weight: '100 900', style: 'normal' },
+    { path: '../public/fonts/inter-latin-ext.woff2', weight: '100 900', style: 'normal' },
+    { path: '../public/fonts/inter-cyrillic.woff2', weight: '100 900', style: 'normal' },
   ],
   variable: '--font-ibm-plex',
   display: 'swap',
 })
 
-const ibmPlexMono = localFont({
+// JetBrains Mono — variable font (wght 400–800), one file per subset.
+const jetbrainsMono = localFont({
   src: [
-    { path: '../public/fonts/ibm-plex-mono-400-latin.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-mono-400-cyrillic.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-mono-500-latin.woff2', weight: '500', style: 'normal' },
-    { path: '../public/fonts/ibm-plex-mono-500-cyrillic.woff2', weight: '500', style: 'normal' },
+    { path: '../public/fonts/jetbrains-mono-latin.woff2', weight: '400 800', style: 'normal' },
+    { path: '../public/fonts/jetbrains-mono-latin-ext.woff2', weight: '400 800', style: 'normal' },
+    { path: '../public/fonts/jetbrains-mono-cyrillic.woff2', weight: '400 800', style: 'normal' },
   ],
   variable: '--font-ibm-plex-mono',
   display: 'swap',
@@ -64,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" suppressHydrationWarning className={`${russoOne.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+    <html lang="ru" suppressHydrationWarning className={`${oswald.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-body antialiased">
         <script
           type="application/ld+json"

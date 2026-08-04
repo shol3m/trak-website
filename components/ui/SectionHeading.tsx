@@ -12,7 +12,7 @@ export default function SectionHeading({ title, subtitle, align = 'left', eyebro
     <div className={`mb-10 ${alignCls}`}>
       {align === 'left' && <div className="w-8 h-0.5 bg-[#C8102E] mb-4" />}
       {eyebrow && (
-        <span className="font-body text-xs text-[#C8102E] uppercase tracking-[0.2em] mb-2 block">
+        <span className="font-body text-xs text-[#C8102E] uppercase tracking-widest mb-2 block">
           {eyebrow}
         </span>
       )}

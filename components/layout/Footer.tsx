@@ -14,7 +14,7 @@ export default function Footer() {
               <Image src="/logo-dark.png" alt="ТРАК" width={90} height={36} className="object-contain h-9 w-auto" />
             </Link>
             <p className="font-body text-white/60 text-sm leading-relaxed mb-4">
-              Запчасти и собственный автосервис в Уфе с 1992 года. Торговый представитель ГАЗ, субдилер УАЗ и ЗМЗ.
+              Запчасти и автосервис в Уфе с 1992 года. Торговый представитель ГАЗ, субдилер УАЗ и ЗМЗ.
             </p>
           </div>
 

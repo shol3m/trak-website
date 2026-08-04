@@ -72,12 +72,12 @@ export default async function ProductPage({ params }: { params: { article: strin
 
             <div className="flex items-center gap-3 flex-wrap">
               {node && (
-                <span className="font-mono text-xs px-2 py-0.5 bg-bg-muted text-text-dim">
+                <span className="font-body text-xs px-2 py-0.5 bg-bg-muted text-text-dim">
                   {node.category.name}
                 </span>
               )}
               <span className="font-mono text-xs text-text-dim">Арт: {product!.article}</span>
-              <span className={`font-mono text-xs px-2 py-0.5 uppercase ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
+              <span className={`font-body text-xs px-2 py-0.5 uppercase ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
                 {inStock ? `В наличии · ${product!.stock} шт` : 'Под заказ'}
               </span>
             </div>

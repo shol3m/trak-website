@@ -24,7 +24,7 @@ function PhotoPlaceholder({ alt }: { alt: string }) {
         <circle cx="8.5" cy="8.5" r="1.5" />
         <path d="m21 15-5-5L5 21" />
       </svg>
-      <span className="font-mono text-xs text-text-ghost text-center px-4">{alt}</span>
+      <span className="font-body text-xs text-text-ghost text-center px-4">{alt}</span>
     </div>
   )
 }

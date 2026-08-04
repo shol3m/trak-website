@@ -47,7 +47,7 @@ export default async function CategoryPage({
     return (
       <div className="min-h-screen bg-bg-page pt-24 pb-20">
         <Container>
-          <p className="font-mono text-sm text-text-dim py-20 text-center">
+          <p className="font-body text-sm text-text-dim py-20 text-center">
             Каталог временно недоступен, попробуйте обновить страницу через минуту
           </p>
         </Container>
@@ -69,7 +69,7 @@ export default async function CategoryPage({
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''
   const sort = searchParams.sort ?? ''
-  const brand = searchParams.brand ?? ''
+  const brands = searchParams.brand ? searchParams.brand.split(',').map((b) => b.trim()).filter(Boolean) : []
   const inStock = searchParams.inStock === '1'
   const priceMin = searchParams.priceMin ? Number(searchParams.priceMin) : undefined
   const priceMax = searchParams.priceMax ? Number(searchParams.priceMax) : undefined
@@ -86,7 +86,7 @@ export default async function CategoryPage({
     result = await getProducts({
       search,
       categoryPath: node.category.path,
-      brand,
+      brand: brands,
       inStock,
       priceMin,
       priceMax,
@@ -109,7 +109,7 @@ export default async function CategoryPage({
         page={result.page}
         search={search}
         sort={sort}
-        brand={brand}
+        brands={brands}
         inStock={inStock}
         priceMin={priceMin}
         priceMax={priceMax}

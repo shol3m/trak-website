@@ -24,7 +24,7 @@ export default function PartFinderCTA() {
           </div>
 
           <div className="relative z-10 flex-1 p-8 md:p-12 flex flex-col justify-center">
-            <span className="font-body text-xs text-[#C8102E] uppercase tracking-[0.2em] mb-3 block">
+            <span className="font-body text-xs text-[#C8102E] uppercase tracking-widest mb-3 block">
               Помощь эксперта
             </span>
             <h2 className="font-heading text-3xl md:text-4xl text-white uppercase leading-tight mb-4 max-w-lg">

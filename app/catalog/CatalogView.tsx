@@ -25,7 +25,7 @@ interface CatalogViewProps {
   page: number
   search: string
   sort: string
-  brand?: string
+  brands: string[]
   inStock?: boolean
   priceMin?: number
   priceMax?: number
@@ -62,7 +62,7 @@ function ProductListRow({
           <p className="font-body text-sm text-text-base leading-snug line-clamp-1">{product.name}</p>
         )}
       </div>
-      <span className={`shrink-0 font-mono text-[10px] uppercase px-2 py-0.5 hidden sm:block ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
+      <span className={`shrink-0 font-body text-[10px] uppercase px-2 py-0.5 hidden sm:block ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
         {inStock ? 'В наличии' : 'Под заказ'}
       </span>
       <span className="shrink-0 font-heading text-sm text-text-base w-24 text-right">
@@ -85,7 +85,7 @@ export default function CatalogView({
   page,
   search,
   sort,
-  brand,
+  brands,
   inStock,
   priceMin,
   priceMax,
@@ -119,7 +119,7 @@ export default function CatalogView({
     q?: string
     sort?: string
     page?: number
-    brand?: string
+    brands?: string[]
     inStock?: boolean
     priceMin?: string
     priceMax?: string
@@ -128,7 +128,7 @@ export default function CatalogView({
     if (params.q) qs.set('q', params.q)
     if (params.sort) qs.set('sort', params.sort)
     if (params.page && params.page > 1) qs.set('page', String(params.page))
-    if (params.brand) qs.set('brand', params.brand)
+    if (params.brands && params.brands.length > 0) qs.set('brand', params.brands.join(','))
     if (params.inStock) qs.set('inStock', '1')
     if (params.priceMin) qs.set('priceMin', params.priceMin)
     if (params.priceMax) qs.set('priceMax', params.priceMax)
@@ -149,7 +149,7 @@ export default function CatalogView({
       router.push(buildUrl({
         q: trimmed || undefined,
         sort: sort || undefined,
-        brand,
+        brands,
         inStock,
         priceMin: currentPriceMin,
         priceMax: currentPriceMax,
@@ -163,7 +163,7 @@ export default function CatalogView({
     router.push(buildUrl({
       q: search || undefined,
       sort: newSort || undefined,
-      brand,
+      brands,
       inStock,
       priceMin: currentPriceMin,
       priceMax: currentPriceMax,
@@ -174,29 +174,33 @@ export default function CatalogView({
     router.push(buildUrl({
       q: search || undefined,
       sort: sort || undefined,
-      brand,
+      brands,
       inStock: checked,
       priceMin: currentPriceMin,
       priceMax: currentPriceMax,
     }))
   }
 
-  function handleBrandChange(newBrand: string) {
+  function handleBrandChange(newBrands: string[]) {
     router.push(buildUrl({
       q: search || undefined,
       sort: sort || undefined,
-      brand: newBrand || undefined,
+      brands: newBrands,
       inStock,
       priceMin: currentPriceMin,
       priceMax: currentPriceMax,
     }))
   }
 
+  function handleRemoveBrand(toRemove: string) {
+    handleBrandChange(brands.filter((b) => b !== toRemove))
+  }
+
   function handlePriceApply() {
     router.push(buildUrl({
       q: search || undefined,
       sort: sort || undefined,
-      brand,
+      brands,
       inStock,
       priceMin: priceMinInput.trim() || undefined,
       priceMax: priceMaxInput.trim() || undefined,
@@ -209,11 +213,11 @@ export default function CatalogView({
     router.push(buildUrl({ q: search || undefined, sort: sort || undefined }))
   }
 
-  const hasActiveFilters = Boolean(brand || inStock || priceMin !== undefined || priceMax !== undefined)
+  const hasActiveFilters = Boolean(brands.length > 0 || inStock || priceMin !== undefined || priceMax !== undefined)
 
   const searchParam = search ? `&q=${encodeURIComponent(search)}` : ''
   const sortParam = sort ? `&sort=${sort}` : ''
-  const brandParam = brand ? `&brand=${encodeURIComponent(brand)}` : ''
+  const brandParam = brands.length > 0 ? `&brand=${encodeURIComponent(brands.join(','))}` : ''
   const inStockParam = inStock ? '&inStock=1' : ''
   const priceMinParam = priceMin !== undefined ? `&priceMin=${priceMin}` : ''
   const priceMaxParam = priceMax !== undefined ? `&priceMax=${priceMax}` : ''
@@ -228,21 +232,26 @@ export default function CatalogView({
           <h1 className="font-heading text-2xl md:text-3xl text-text-base uppercase mb-1">
             {title}
           </h1>
-          <p className="font-mono text-sm text-text-dim">
+          <p className="font-body text-sm text-text-dim">
             {error
               ? 'Ошибка загрузки'
               : total > 0
                 ? `${total.toLocaleString('ru-RU')} товаров`
                 : 'Товары не найдены'}
           </p>
-          {brand && (
-            <Link
-              href={basePath}
-              className="inline-flex items-center gap-1.5 mt-2 font-mono text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors"
-            >
-              {VEHICLE_MAKE_BRANDS.has(brand) ? 'Марка' : 'Бренд'}: {brand}
-              <span aria-hidden="true">×</span>
-            </Link>
+          {brands.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {brands.map((b) => (
+                <button
+                  key={b}
+                  onClick={() => handleRemoveBrand(b)}
+                  className="inline-flex items-center gap-1.5 font-body text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors"
+                >
+                  {VEHICLE_MAKE_BRANDS.has(b) ? 'Марка' : 'Бренд'}: {b}
+                  <span aria-hidden="true">×</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -258,7 +267,7 @@ export default function CatalogView({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Артикул или название..."
-              className="w-full pl-9 pr-9 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-sm focus:outline-none focus:border-[#C8102E] transition-colors"
+              className="w-full pl-9 pr-9 py-2.5 bg-bg-card border border-ui-border text-text-base font-body text-sm focus:outline-none focus:border-[#C8102E] transition-colors"
             />
             {query && (
               <button
@@ -275,7 +284,7 @@ export default function CatalogView({
           <select
             value={sort}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="px-3 py-2.5 bg-bg-card border border-ui-border text-text-dim font-mono text-xs focus:outline-none focus:border-[#C8102E] transition-colors cursor-pointer hover:border-[#C8102E]/50"
+            className="px-3 py-2.5 bg-bg-card border border-ui-border text-text-dim font-body text-xs focus:outline-none focus:border-[#C8102E] transition-colors cursor-pointer hover:border-[#C8102E]/50"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -309,7 +318,7 @@ export default function CatalogView({
 
         {/* Filters: in stock + brand/mark + price range */}
         <div className="flex flex-wrap items-center gap-2 mb-5">
-          <label className="flex items-center gap-2 px-3 py-2.5 bg-bg-card border border-ui-border font-mono text-xs text-text-dim hover:border-[#C8102E]/50 transition-colors cursor-pointer">
+          <label className="flex items-center gap-2 px-3 py-2.5 bg-bg-card border border-ui-border font-body text-xs text-text-dim hover:border-[#C8102E]/50 transition-colors cursor-pointer">
             <input
               type="checkbox"
               checked={Boolean(inStock)}
@@ -320,7 +329,7 @@ export default function CatalogView({
           </label>
 
           <BrandSelect
-            value={brand ?? ''}
+            value={brands}
             makes={ALL_VEHICLE_MAKES}
             brands={ALL_PART_BRANDS}
             onChange={handleBrandChange}
@@ -335,7 +344,7 @@ export default function CatalogView({
               value={priceMinInput}
               onChange={(e) => setPriceMinInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handlePriceApply()}
-              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
+              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-body text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
             />
             <span className="text-text-ghost">—</span>
             <input
@@ -346,11 +355,11 @@ export default function CatalogView({
               value={priceMaxInput}
               onChange={(e) => setPriceMaxInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handlePriceApply()}
-              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
+              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-body text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
             />
             <button
               onClick={handlePriceApply}
-              className="px-3 py-2.5 bg-bg-card border border-ui-border font-mono text-xs text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+              className="px-3 py-2.5 bg-bg-card border border-ui-border font-body text-xs text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
             >
               Ок
             </button>
@@ -359,7 +368,7 @@ export default function CatalogView({
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="font-mono text-xs text-text-dim hover:text-[#C8102E] underline transition-colors"
+              className="font-body text-xs text-text-dim hover:text-[#C8102E] underline transition-colors"
             >
               Сбросить фильтры
             </button>
@@ -369,19 +378,19 @@ export default function CatalogView({
         {/* Products */}
         {error ? (
           <div className="py-20 text-center">
-            <p className="font-mono text-sm text-text-dim">
+            <p className="font-body text-sm text-text-dim">
               Не удалось загрузить каталог, попробуйте обновить страницу через минуту
             </p>
             <button
               onClick={() => router.refresh()}
-              className="mt-4 font-mono text-xs text-[#C8102E] hover:underline"
+              className="mt-4 font-body text-xs text-[#C8102E] hover:underline"
             >
               Обновить
             </button>
           </div>
         ) : products.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="font-mono text-sm text-text-dim">
+            <p className="font-body text-sm text-text-dim">
               {search
                 ? `По запросу «${search}» ничего не найдено`
                 : 'Товары не найдены'}
@@ -389,7 +398,7 @@ export default function CatalogView({
             {search && (
               <button
                 onClick={() => setQuery('')}
-                className="mt-4 font-mono text-xs text-[#C8102E] hover:underline"
+                className="mt-4 font-body text-xs text-[#C8102E] hover:underline"
               >
                 Сбросить поиск
               </button>
@@ -437,18 +446,18 @@ export default function CatalogView({
             {page > 1 && (
               <Link
                 href={`${basePath}?page=${page - 1}${searchParam}${sortParam}${brandParam}${inStockParam}${priceMinParam}${priceMaxParam}`}
-                className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+                className="px-5 py-2.5 bg-bg-card border border-ui-border font-body text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 ← Назад
               </Link>
             )}
-            <span className="font-mono text-sm text-text-dim">
+            <span className="font-body text-sm text-text-dim">
               {page} / {pages}
             </span>
             {page < pages && (
               <Link
                 href={`${basePath}?page=${page + 1}${searchParam}${sortParam}${brandParam}${inStockParam}${priceMinParam}${priceMaxParam}`}
-                className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+                className="px-5 py-2.5 bg-bg-card border border-ui-border font-body text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 Вперёд →
               </Link>

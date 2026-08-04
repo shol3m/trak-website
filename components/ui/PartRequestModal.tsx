@@ -144,7 +144,7 @@ export default function PartRequestModal({ isOpen, onClose }: PartRequestModalPr
               </svg>
             </button>
 
-            <span className="font-body text-xs text-[#3B82F6] uppercase tracking-[0.2em] mb-3 block">
+            <span className="font-body text-xs text-[#3B82F6] uppercase tracking-widest mb-3 block">
               Подбор запчасти
             </span>
             <h3 className="font-heading text-2xl text-text-base uppercase mb-6">

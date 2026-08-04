@@ -52,7 +52,7 @@ export default function HeroSection() {
           transition={{ duration: 0.7 }}
           className="max-w-2xl"
         >
-          <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-[0.2em] mb-6 border border-[#C4922A]/40 px-3 py-1">
+          <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-widest mb-6 border border-[#C4922A]/40 px-3 py-1">
             Официальный представитель ОАО «ГАЗ» · Субдилер УАЗ, ЗМЗ
           </span>
           <div className="w-12 h-0.5 bg-[#1A3A6B] mb-6" />

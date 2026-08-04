@@ -10,7 +10,7 @@ export default function ServiceBookingCTA() {
     <>
       <div className="border border-ui-border bg-bg-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
-          <span className="font-body text-xs text-[#C8102E] uppercase tracking-[0.2em] block mb-2">
+          <span className="font-body text-xs text-[#C8102E] uppercase tracking-widest block mb-2">
             Запись по телефону
           </span>
           <a

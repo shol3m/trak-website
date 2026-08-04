@@ -29,11 +29,14 @@ const sql = `
 -- signature than the old 5-arg version, so "create or replace" would add an
 -- overload instead of replacing it — drop the old signature explicitly first.
 drop function if exists search_products(text, text, text, text, int);
+-- p_brand changed from text to text[] (multi-select brand/make filter,
+-- 2026-08-04) — same reasoning, drop the single-brand signature explicitly.
+drop function if exists search_products(text, text, text, text, int, boolean, numeric, numeric);
 
 create or replace function search_products(
   p_search text default null,
   p_category_path text default null,
-  p_brand text default null,
+  p_brand text[] default null,
   p_sort text default null,
   p_page int default 1,
   p_in_stock boolean default null,
@@ -88,7 +91,7 @@ begin
     where p."isActive" = true
       and %s
       and ($1::text is null or c.path = $1 or c.path like $1 || '/%%')
-      and ($2::text is null or p."brandName" = $2)
+      and ($2::text[] is null or p."brandName" = any($2))
       and ($5::boolean is null or p.stock > 0)
       and ($6::numeric is null or p."priceRetail" >= $6)
       and ($7::numeric is null or p."priceRetail" <= $7)
@@ -104,7 +107,7 @@ begin
 end;
 $$;
 
-grant execute on function search_products(text, text, text, text, int, boolean, numeric, numeric) to anon, authenticated;
+grant execute on function search_products(text, text, text[], text, int, boolean, numeric, numeric) to anon, authenticated;
 `
 
 async function main() {

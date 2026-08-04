@@ -10,10 +10,10 @@ export default function BrandSelect({
   brands,
   onChange,
 }: {
-  value: string
+  value: string[]
   makes: BrandOption[]
   brands: BrandOption[]
-  onChange: (dbBrand: string) => void
+  onChange: (dbBrands: string[]) => void
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -35,16 +35,19 @@ export default function BrandSelect({
     else setQuery('')
   }, [open])
 
-  const selected = [...makes, ...brands].find((b) => b.dbBrand === value)
+  const selectedLabels = [...makes, ...brands]
+    .filter((b) => value.includes(b.dbBrand))
+    .map((b) => b.label)
 
   const q = query.trim().toLowerCase()
   const filteredMakes = q ? makes.filter((b) => b.label.toLowerCase().includes(q)) : makes
   const filteredBrands = q ? brands.filter((b) => b.label.toLowerCase().includes(q)) : brands
   const nothingFound = filteredMakes.length === 0 && filteredBrands.length === 0
 
-  function select(dbBrand: string) {
-    onChange(dbBrand)
-    setOpen(false)
+  function toggle(dbBrand: string) {
+    onChange(
+      value.includes(dbBrand) ? value.filter((v) => v !== dbBrand) : [...value, dbBrand]
+    )
   }
 
   return (
@@ -52,10 +55,14 @@ export default function BrandSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3 py-2.5 bg-bg-card border border-ui-border font-mono text-xs hover:border-[#C8102E]/50 transition-colors min-w-[160px] justify-between"
+        className="flex items-center gap-2 px-3 py-2.5 bg-bg-card border border-ui-border font-body text-xs hover:border-[#C8102E]/50 transition-colors min-w-[160px] justify-between"
       >
-        <span className={`truncate ${selected ? 'text-text-base' : 'text-text-dim'}`}>
-          {selected?.label ?? 'Марка / бренд'}
+        <span className={`truncate ${selectedLabels.length ? 'text-text-base' : 'text-text-dim'}`}>
+          {selectedLabels.length === 0
+            ? 'Марка / бренд'
+            : selectedLabels.length === 1
+              ? selectedLabels[0]
+              : `Марка / бренд (${selectedLabels.length})`}
         </span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`shrink-0 text-text-dim transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>
           <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -70,52 +77,62 @@ export default function BrandSelect({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Поиск марки или бренда..."
-              className="w-full px-2.5 py-1.5 bg-bg-page border border-ui-border text-text-base font-mono text-xs focus:outline-none focus:border-[#C8102E]"
+              className="w-full px-2.5 py-1.5 bg-bg-page border border-ui-border text-text-base font-body text-xs focus:outline-none focus:border-[#C8102E]"
             />
           </div>
 
           <div className="overflow-y-auto">
-            {value && (
+            {value.length > 0 && (
               <button
-                onClick={() => select('')}
-                className="w-full text-left px-3 py-2 font-mono text-xs text-text-dim hover:bg-bg-muted transition-colors border-b border-ui-border"
+                onClick={() => onChange([])}
+                className="w-full text-left px-3 py-2 font-body text-xs text-text-dim hover:bg-bg-muted transition-colors border-b border-ui-border"
               >
-                Сбросить выбор
+                Сбросить выбор ({value.length})
               </button>
             )}
 
             {filteredMakes.length > 0 && (
               <div>
-                <div className="px-3 pt-2 pb-1 font-mono text-[10px] uppercase tracking-wide text-text-ghost">Марки техники</div>
+                <div className="px-3 pt-2 pb-1 font-body text-[10px] uppercase tracking-wide text-text-ghost">Марки техники</div>
                 {filteredMakes.map((b) => (
-                  <button
+                  <label
                     key={b.dbBrand}
-                    onClick={() => select(b.dbBrand)}
-                    className={`w-full text-left px-3 py-1.5 font-mono text-xs hover:bg-bg-muted transition-colors ${b.dbBrand === value ? 'text-[#C8102E]' : 'text-text-base'}`}
+                    className="flex items-center gap-2 px-3 py-1.5 font-body text-xs hover:bg-bg-muted transition-colors cursor-pointer"
                   >
-                    {b.label}
-                  </button>
+                    <input
+                      type="checkbox"
+                      checked={value.includes(b.dbBrand)}
+                      onChange={() => toggle(b.dbBrand)}
+                      className="accent-[#C8102E] w-3.5 h-3.5 shrink-0"
+                    />
+                    <span className={value.includes(b.dbBrand) ? 'text-[#C8102E]' : 'text-text-base'}>{b.label}</span>
+                  </label>
                 ))}
               </div>
             )}
 
             {filteredBrands.length > 0 && (
               <div>
-                <div className="px-3 pt-2 pb-1 font-mono text-[10px] uppercase tracking-wide text-text-ghost">Бренды запчастей</div>
+                <div className="px-3 pt-2 pb-1 font-body text-[10px] uppercase tracking-wide text-text-ghost">Бренды запчастей</div>
                 {filteredBrands.map((b) => (
-                  <button
+                  <label
                     key={b.dbBrand}
-                    onClick={() => select(b.dbBrand)}
-                    className={`w-full text-left px-3 py-1.5 font-mono text-xs hover:bg-bg-muted transition-colors ${b.dbBrand === value ? 'text-[#C8102E]' : 'text-text-base'}`}
+                    className="flex items-center gap-2 px-3 py-1.5 font-body text-xs hover:bg-bg-muted transition-colors cursor-pointer"
                   >
-                    {b.label}
-                  </button>
+                    <input
+                      type="checkbox"
+                      checked={value.includes(b.dbBrand)}
+                      onChange={() => toggle(b.dbBrand)}
+                      className="accent-[#C8102E] w-3.5 h-3.5 shrink-0"
+                    />
+                    <span className={value.includes(b.dbBrand) ? 'text-[#C8102E]' : 'text-text-base'}>{b.label}</span>
+                  </label>
                 ))}
               </div>
             )}
 
             {nothingFound && (
-              <div className="px-3 py-4 text-center font-mono text-xs text-text-dim">Ничего не найдено</div>
+              <div className="px-3 py-4 text-center font-body text-xs text-text-dim">Ничего не найдено</div>
             )}
           </div>
         </div>

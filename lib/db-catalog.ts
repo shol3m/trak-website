@@ -233,7 +233,7 @@ export async function getProducts({
 }: {
   search?: string
   categoryPath?: string
-  brand?: string
+  brand?: string[]
   inStock?: boolean
   priceMin?: number
   priceMax?: number
@@ -241,6 +241,7 @@ export async function getProducts({
   sort?: string
 } = {}) {
   const trimmedSearch = search?.trim() ? sanitizeSearch(search) : ''
+  const brands = brand?.filter((b) => b.trim()) ?? []
 
   // ILIKE substring search over 280k rows needs an index to stay fast, but
   // RLS blocks index pushdown for non-leakproof operators like ILIKE — so
@@ -250,7 +251,7 @@ export async function getProducts({
     const { data, error } = await supabase.rpc('search_products', {
       p_search: trimmedSearch,
       p_category_path: categoryPath || null,
-      p_brand: brand?.trim() || null,
+      p_brand: brands.length > 0 ? brands : null,
       p_in_stock: inStock ?? null,
       p_price_min: priceMin ?? null,
       p_price_max: priceMax ?? null,
@@ -299,8 +300,8 @@ export async function getProducts({
     query = query.or(`path.eq.${categoryPath},path.like.${categoryPath}/*`, { foreignTable: 'Category' })
   }
 
-  if (brand?.trim()) {
-    query = query.eq('brandName', brand.trim())
+  if (brands.length > 0) {
+    query = query.in('brandName', brands)
   }
 
   if (inStock) {

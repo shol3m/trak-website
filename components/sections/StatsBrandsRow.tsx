@@ -23,7 +23,7 @@ export default function StatsBrandsRow() {
               ))}
             </div>
             <p className="font-body text-xs text-text-dim leading-relaxed mt-3 max-w-xs">
-              Официальный торговый представитель ГАЗ и субдилер УАЗ — с 1992 года поставляем оригинальные и аналоговые запчасти для ГАЗ, УАЗ, ВАЗ, КАМАЗ и других марок, с собственным автосервисом в Уфе.
+              Официальный торговый представитель ГАЗ и субдилер УАЗ — с 1992 года поставляем оригинальные и аналоговые запчасти для ГАЗ, УАЗ, ВАЗ, КАМАЗ и других марок, с автосервисом в Уфе.
             </p>
           </div>
 
@@ -36,7 +36,7 @@ export default function StatsBrandsRow() {
                 <Link
                   key={brand.label}
                   href={`/catalog?brand=${encodeURIComponent(brand.dbBrand)}`}
-                  className="font-mono text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors duration-200"
+                  className="font-body text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors duration-200"
                 >
                   {brand.label}
                 </Link>
@@ -48,7 +48,7 @@ export default function StatsBrandsRow() {
                 <Link
                   key={brand.label}
                   href={`/catalog?brand=${encodeURIComponent(brand.dbBrand)}`}
-                  className="font-mono text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors duration-200"
+                  className="font-body text-xs uppercase tracking-wide text-text-dim border border-ui-border px-3 py-1.5 hover:border-[#C8102E] hover:text-text-base transition-colors duration-200"
                 >
                   {brand.label}
                 </Link>

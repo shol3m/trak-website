@@ -14,16 +14,20 @@ type CatalogSearchParams = {
   priceMax?: string
 }
 
+function parseBrands(raw?: string): string[] {
+  return raw ? raw.split(',').map((b) => b.trim()).filter(Boolean) : []
+}
+
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: CatalogSearchParams
 }) {
-  const brand = searchParams.brand?.trim()
-  if (brand) {
+  const brands = parseBrands(searchParams.brand)
+  if (brands.length === 1) {
     return {
-      title: `Запчасти ${brand} — купить в Уфе | ТРАК`,
-      description: `Запчасти ${brand} в наличии и под заказ.`,
+      title: `Запчасти ${brands[0]} — купить в Уфе | ТРАК`,
+      description: `Запчасти ${brands[0]} в наличии и под заказ.`,
     }
   }
   return {
@@ -40,7 +44,7 @@ export default async function CatalogPage({
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''
   const sort = searchParams.sort ?? ''
-  const brand = searchParams.brand ?? ''
+  const brands = parseBrands(searchParams.brand)
   const inStock = searchParams.inStock === '1'
   const priceMin = searchParams.priceMin ? Number(searchParams.priceMin) : undefined
   const priceMax = searchParams.priceMax ? Number(searchParams.priceMax) : undefined
@@ -51,7 +55,7 @@ export default async function CatalogPage({
 
   try {
     ;[result, roots] = await Promise.all([
-      getProducts({ search, brand, inStock, priceMin, priceMax, page, sort }),
+      getProducts({ search, brand: brands, inStock, priceMin, priceMax, page, sort }),
       getCategoryTree(),
     ])
   } catch (e) {
@@ -68,11 +72,11 @@ export default async function CatalogPage({
         page={result.page}
         search={search}
         sort={sort}
-        brand={brand}
+        brands={brands}
         inStock={inStock}
         priceMin={priceMin}
         priceMax={priceMax}
-        title={brand ? `Запчасти ${brand}` : 'Каталог запчастей'}
+        title={brands.length === 1 ? `Запчасти ${brands[0]}` : 'Каталог запчастей'}
         basePath="/catalog"
         topSlot={<CategoryTiles categories={roots} basePath="/catalog" />}
         error={error}

@@ -36,7 +36,7 @@ export default function ProductCard({ product, href, onAddToCart }: ProductCardP
           onError={() => setImgError(true)}
         />
       ) : placeholder}
-      <span className={`absolute top-2 left-2 font-mono text-[10px] uppercase px-2 py-0.5 ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
+      <span className={`absolute top-2 left-2 font-body text-[10px] uppercase px-2 py-0.5 ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
         {inStock ? 'В наличии' : 'Под заказ'}
       </span>
     </div>
