@@ -21,7 +21,7 @@ const slides = [
     title: '50 000+',
     titleAccent: 'запчастей',
     titleSuffix: 'в наличии',
-    subtitle: 'ВАЗ, ГАЗ, УАЗ, КАМАЗ — в наличии и под заказ. Доставка по России.',
+    subtitle: 'ВАЗ, ГАЗ, УАЗ, КАМАЗ — в наличии и под заказ.',
     cta: { label: 'В каталог', href: '/catalog', modal: false },
     overlay: 'from-[#0D0D0D]/80 via-[#0D0D0D]/60 to-[#0D0D0D]/30',
   },

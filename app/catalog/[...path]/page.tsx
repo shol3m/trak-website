@@ -28,7 +28,15 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: { path: string[] }
-  searchParams: { q?: string; page?: string; sort?: string }
+  searchParams: {
+    q?: string
+    page?: string
+    sort?: string
+    brand?: string
+    inStock?: string
+    priceMin?: string
+    priceMax?: string
+  }
 }) {
   let node
   try {
@@ -61,6 +69,10 @@ export default async function CategoryPage({
   const page = Math.max(1, Number(searchParams.page) || 1)
   const search = searchParams.q ?? ''
   const sort = searchParams.sort ?? ''
+  const brand = searchParams.brand ?? ''
+  const inStock = searchParams.inStock === '1'
+  const priceMin = searchParams.priceMin ? Number(searchParams.priceMin) : undefined
+  const priceMax = searchParams.priceMax ? Number(searchParams.priceMax) : undefined
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = {
     products: [],
@@ -71,7 +83,16 @@ export default async function CategoryPage({
   let error = false
 
   try {
-    result = await getProducts({ search, categoryPath: node.category.path, page, sort })
+    result = await getProducts({
+      search,
+      categoryPath: node.category.path,
+      brand,
+      inStock,
+      priceMin,
+      priceMax,
+      page,
+      sort,
+    })
   } catch {
     error = true
   }
@@ -88,6 +109,10 @@ export default async function CategoryPage({
         page={result.page}
         search={search}
         sort={sort}
+        brand={brand}
+        inStock={inStock}
+        priceMin={priceMin}
+        priceMax={priceMax}
         title={node.category.name}
         basePath={basePath}
         topSlot={

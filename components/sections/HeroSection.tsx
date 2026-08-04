@@ -64,7 +64,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="font-body text-[#888888] text-lg mb-10 max-w-md">
-            ВАЗ, ГАЗ, УАЗ, КАМАЗ — в наличии и под заказ. Доставка по России.
+            ВАЗ, ГАЗ, УАЗ, КАМАЗ — в наличии и под заказ.
           </p>
 
           <div className="flex flex-wrap gap-4">

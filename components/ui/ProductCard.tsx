@@ -36,14 +36,9 @@ export default function ProductCard({ product, href, onAddToCart }: ProductCardP
           onError={() => setImgError(true)}
         />
       ) : placeholder}
-      <span className={`absolute top-2 left-2 font-mono text-[10px] uppercase px-2 py-0.5 ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-bg-muted text-text-dim'}`}>
+      <span className={`absolute top-2 left-2 font-mono text-[10px] uppercase px-2 py-0.5 ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
         {inStock ? 'В наличии' : 'Под заказ'}
       </span>
-      {product.brand && (
-        <span className="absolute top-2 right-2 font-mono text-[10px] uppercase px-2 py-0.5 bg-[#C8102E]/10 text-[#C8102E] max-w-[90px] truncate">
-          {product.brand}
-        </span>
-      )}
     </div>
   )
 
@@ -56,7 +51,14 @@ export default function ProductCard({ product, href, onAddToCart }: ProductCardP
       {href ? <Link href={href}>{imageBlock}</Link> : imageBlock}
 
       <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1">
-        <span className="font-mono text-xs text-text-dim">{product.article}</span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono text-xs text-text-dim">{product.article}</span>
+          {product.brand && (
+            <span className="font-heading text-xs font-bold text-text-base uppercase tracking-wide shrink-0">
+              {product.brand}
+            </span>
+          )}
+        </div>
         {href ? (
           <Link href={href} className="flex-1">
             <p className="font-body text-text-base text-sm leading-snug hover:text-[#C8102E] transition-colors">

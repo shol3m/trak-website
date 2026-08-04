@@ -17,15 +17,6 @@ const advantages = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-      </svg>
-    ),
-    title: 'Быстрая доставка',
-    text: 'Доставка по Уфе в день заказа, по России — от 1 дня транспортными компаниями.',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
@@ -49,7 +40,7 @@ export default function AdvantagesSection() {
     <section className="py-20 bg-bg-muted">
       <Container>
         <SectionHeading title="Почему выбирают нас" align="center" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {advantages.map((item, i) => (
             <motion.div
               key={item.title}

@@ -25,12 +25,20 @@ const client = new Client({ connectionString: DIRECT_URL, ssl: false })
 // (can't see the literal value), which alone was enough to make Postgres
 // fall back to a full scan even with RLS bypassed.
 const sql = `
+-- New params (p_in_stock/p_price_min/p_price_max) give this a different
+-- signature than the old 5-arg version, so "create or replace" would add an
+-- overload instead of replacing it — drop the old signature explicitly first.
+drop function if exists search_products(text, text, text, text, int);
+
 create or replace function search_products(
   p_search text default null,
   p_category_path text default null,
   p_brand text default null,
   p_sort text default null,
-  p_page int default 1
+  p_page int default 1,
+  p_in_stock boolean default null,
+  p_price_min numeric default null,
+  p_price_max numeric default null
 )
 returns table (
   id text,
@@ -81,17 +89,22 @@ begin
       and %s
       and ($1::text is null or c.path = $1 or c.path like $1 || '/%%')
       and ($2::text is null or p."brandName" = $2)
+      and ($5::boolean is null or p.stock > 0)
+      and ($6::numeric is null or p."priceRetail" >= $6)
+      and ($7::numeric is null or p."priceRetail" <= $7)
     order by
       case when $3 = 'price_asc' then p."priceRetail" end asc nulls last,
       case when $3 = 'price_desc' then p."priceRetail" end desc nulls last,
+      case when $3 is null or $3 not in ('price_asc', 'price_desc') then p.stock end desc nulls last,
+      case when $3 is null or $3 not in ('price_asc', 'price_desc') then p."priceRetail" end desc nulls last,
       case when $3 is null or $3 not in ('price_asc', 'price_desc') then p.id end asc
     limit 50 offset $4
   $f$, v_search_cond)
-  using p_category_path, p_brand, p_sort, (greatest(p_page, 1) - 1) * 50;
+  using p_category_path, p_brand, p_sort, (greatest(p_page, 1) - 1) * 50, p_in_stock, p_price_min, p_price_max;
 end;
 $$;
 
-grant execute on function search_products(text, text, text, text, int) to anon, authenticated;
+grant execute on function search_products(text, text, text, text, int, boolean, numeric, numeric) to anon, authenticated;
 `
 
 async function main() {

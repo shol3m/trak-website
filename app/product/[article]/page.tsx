@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { getProductByArticle, getCategoryNode } from '@/lib/db-catalog'
 import Container from '@/components/layout/Container'
 import Breadcrumb from '@/components/ui/Breadcrumb'
@@ -48,34 +49,35 @@ export default async function ProductPage({ params }: { params: { article: strin
       <Container>
         <Breadcrumb items={breadcrumbItems} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-[380px_1fr] gap-10 lg:gap-16">
           {/* Image */}
-          <div className="relative aspect-square bg-bg-card border border-ui-border flex items-center justify-center">
+          <div className="relative aspect-square max-w-sm md:max-w-none mx-auto md:mx-0 w-full bg-bg-card border border-ui-border flex items-center justify-center">
             <ProductImage src={product!.images?.[0]} alt={product!.name} />
           </div>
 
           {/* Info */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              {product!.brand && (
-                <span className="font-mono text-xs px-2 py-0.5 bg-[#C8102E]/10 text-[#C8102E] uppercase">
-                  {product!.brand}
-                </span>
-              )}
-              {node && (
-                <span className="font-mono text-xs px-2 py-0.5 bg-bg-muted text-text-dim">
-                  {node.category.name}
-                </span>
-              )}
-            </div>
+            {product!.brand && (
+              <Link
+                href={`/catalog?brand=${encodeURIComponent(product!.brand)}`}
+                className="inline-block font-heading text-xl md:text-2xl font-bold text-text-base uppercase tracking-wide hover:text-[#C8102E] transition-colors w-fit"
+              >
+                {product!.brand}
+              </Link>
+            )}
 
             <h1 className="font-heading text-2xl md:text-3xl text-text-base uppercase leading-tight">
               {product!.name}
             </h1>
 
             <div className="flex items-center gap-3 flex-wrap">
+              {node && (
+                <span className="font-mono text-xs px-2 py-0.5 bg-bg-muted text-text-dim">
+                  {node.category.name}
+                </span>
+              )}
               <span className="font-mono text-xs text-text-dim">Арт: {product!.article}</span>
-              <span className={`font-mono text-xs px-2 py-0.5 ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-bg-muted text-text-dim'}`}>
+              <span className={`font-mono text-xs px-2 py-0.5 uppercase ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
                 {inStock ? `В наличии · ${product!.stock} шт` : 'Под заказ'}
               </span>
             </div>
@@ -92,6 +94,13 @@ export default async function ProductPage({ params }: { params: { article: strin
                 <p className="font-body text-text-dim leading-relaxed text-sm">{product!.description}</p>
               </div>
             )}
+
+            <div className="border-t border-ui-border pt-6 mt-2">
+              <h2 className="font-body text-xs text-text-dim uppercase tracking-wider mb-3">Гарантия</h2>
+              <p className="font-body text-text-dim leading-relaxed text-sm">
+                На все товары действует гарантия.
+              </p>
+            </div>
           </div>
         </div>
       </Container>

@@ -5,10 +5,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { CatalogProduct } from '@/lib/categories'
-import { VEHICLE_MAKE_BRANDS } from '@/lib/categories'
+import { VEHICLE_MAKE_BRANDS, ALL_VEHICLE_MAKES, ALL_PART_BRANDS } from '@/lib/categories'
 import type { ReactNode } from 'react'
 import { useCartStore } from '@/lib/cart-store'
 import ProductCard from '@/components/ui/ProductCard'
+import BrandSelect from '@/components/ui/BrandSelect'
 import Container from '@/components/layout/Container'
 
 const SORT_OPTIONS = [
@@ -25,6 +26,9 @@ interface CatalogViewProps {
   search: string
   sort: string
   brand?: string
+  inStock?: boolean
+  priceMin?: number
+  priceMax?: number
   title: string
   basePath: string
   topSlot?: ReactNode
@@ -58,7 +62,7 @@ function ProductListRow({
           <p className="font-body text-sm text-text-base leading-snug line-clamp-1">{product.name}</p>
         )}
       </div>
-      <span className={`shrink-0 font-mono text-[10px] uppercase px-2 py-0.5 hidden sm:block ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-bg-muted text-text-dim'}`}>
+      <span className={`shrink-0 font-mono text-[10px] uppercase px-2 py-0.5 hidden sm:block ${inStock ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-400'}`}>
         {inStock ? 'В наличии' : 'Под заказ'}
       </span>
       <span className="shrink-0 font-heading text-sm text-text-base w-24 text-right">
@@ -82,6 +86,9 @@ export default function CatalogView({
   search,
   sort,
   brand,
+  inStock,
+  priceMin,
+  priceMax,
   title,
   basePath,
   topSlot,
@@ -90,6 +97,8 @@ export default function CatalogView({
   const router = useRouter()
   const [query, setQuery] = useState(search)
   const [view, setView] = useState<'grid' | 'list'>('grid')
+  const [priceMinInput, setPriceMinInput] = useState(priceMin !== undefined ? String(priceMin) : '')
+  const [priceMaxInput, setPriceMaxInput] = useState(priceMax !== undefined ? String(priceMax) : '')
   const addItem = useCartStore((s) => s.addItem)
   const openCart = useCartStore((s) => s.openCart)
 
@@ -98,15 +107,37 @@ export default function CatalogView({
     setQuery(search)
   }, [search])
 
-  function buildUrl(params: { q?: string; sort?: string; page?: number }) {
+  useEffect(() => {
+    setPriceMinInput(priceMin !== undefined ? String(priceMin) : '')
+    setPriceMaxInput(priceMax !== undefined ? String(priceMax) : '')
+  }, [priceMin, priceMax])
+
+  // Every call site passes the full current filter state explicitly — q/sort
+  // omit-if-falsy, but brand/inStock/price are "sticky" and must be repeated
+  // on every navigation (e.g. changing sort) or they'd silently reset.
+  function buildUrl(params: {
+    q?: string
+    sort?: string
+    page?: number
+    brand?: string
+    inStock?: boolean
+    priceMin?: string
+    priceMax?: string
+  }) {
     const qs = new URLSearchParams()
     if (params.q) qs.set('q', params.q)
     if (params.sort) qs.set('sort', params.sort)
     if (params.page && params.page > 1) qs.set('page', String(params.page))
-    if (brand) qs.set('brand', brand)
+    if (params.brand) qs.set('brand', params.brand)
+    if (params.inStock) qs.set('inStock', '1')
+    if (params.priceMin) qs.set('priceMin', params.priceMin)
+    if (params.priceMax) qs.set('priceMax', params.priceMax)
     const str = qs.toString()
     return str ? `${basePath}?${str}` : basePath
   }
+
+  const currentPriceMin = priceMin !== undefined ? String(priceMin) : undefined
+  const currentPriceMax = priceMax !== undefined ? String(priceMax) : undefined
 
   // Debounced search — intentionally keyed only on `query`. Including
   // router/sort/search/buildUrl would reset or refire the timer on every
@@ -115,19 +146,77 @@ export default function CatalogView({
     const trimmed = query.trim()
     if (trimmed === search) return
     const timer = setTimeout(() => {
-      router.push(buildUrl({ q: trimmed || undefined, sort: sort || undefined }))
+      router.push(buildUrl({
+        q: trimmed || undefined,
+        sort: sort || undefined,
+        brand,
+        inStock,
+        priceMin: currentPriceMin,
+        priceMax: currentPriceMax,
+      }))
     }, 350)
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
   function handleSortChange(newSort: string) {
-    router.push(buildUrl({ q: search || undefined, sort: newSort || undefined }))
+    router.push(buildUrl({
+      q: search || undefined,
+      sort: newSort || undefined,
+      brand,
+      inStock,
+      priceMin: currentPriceMin,
+      priceMax: currentPriceMax,
+    }))
   }
+
+  function handleInStockChange(checked: boolean) {
+    router.push(buildUrl({
+      q: search || undefined,
+      sort: sort || undefined,
+      brand,
+      inStock: checked,
+      priceMin: currentPriceMin,
+      priceMax: currentPriceMax,
+    }))
+  }
+
+  function handleBrandChange(newBrand: string) {
+    router.push(buildUrl({
+      q: search || undefined,
+      sort: sort || undefined,
+      brand: newBrand || undefined,
+      inStock,
+      priceMin: currentPriceMin,
+      priceMax: currentPriceMax,
+    }))
+  }
+
+  function handlePriceApply() {
+    router.push(buildUrl({
+      q: search || undefined,
+      sort: sort || undefined,
+      brand,
+      inStock,
+      priceMin: priceMinInput.trim() || undefined,
+      priceMax: priceMaxInput.trim() || undefined,
+    }))
+  }
+
+  function handleResetFilters() {
+    setPriceMinInput('')
+    setPriceMaxInput('')
+    router.push(buildUrl({ q: search || undefined, sort: sort || undefined }))
+  }
+
+  const hasActiveFilters = Boolean(brand || inStock || priceMin !== undefined || priceMax !== undefined)
 
   const searchParam = search ? `&q=${encodeURIComponent(search)}` : ''
   const sortParam = sort ? `&sort=${sort}` : ''
   const brandParam = brand ? `&brand=${encodeURIComponent(brand)}` : ''
+  const inStockParam = inStock ? '&inStock=1' : ''
+  const priceMinParam = priceMin !== undefined ? `&priceMin=${priceMin}` : ''
+  const priceMaxParam = priceMax !== undefined ? `&priceMax=${priceMax}` : ''
 
   return (
     <div className="min-h-screen bg-bg-page pt-24 pb-20">
@@ -218,6 +307,65 @@ export default function CatalogView({
           </div>
         </div>
 
+        {/* Filters: in stock + brand/mark + price range */}
+        <div className="flex flex-wrap items-center gap-2 mb-5">
+          <label className="flex items-center gap-2 px-3 py-2.5 bg-bg-card border border-ui-border font-mono text-xs text-text-dim hover:border-[#C8102E]/50 transition-colors cursor-pointer">
+            <input
+              type="checkbox"
+              checked={Boolean(inStock)}
+              onChange={(e) => handleInStockChange(e.target.checked)}
+              className="accent-[#C8102E] w-3.5 h-3.5"
+            />
+            Только в наличии
+          </label>
+
+          <BrandSelect
+            value={brand ?? ''}
+            makes={ALL_VEHICLE_MAKES}
+            brands={ALL_PART_BRANDS}
+            onChange={handleBrandChange}
+          />
+
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="Цена от"
+              value={priceMinInput}
+              onChange={(e) => setPriceMinInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePriceApply()}
+              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
+            />
+            <span className="text-text-ghost">—</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="Цена до"
+              value={priceMaxInput}
+              onChange={(e) => setPriceMaxInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePriceApply()}
+              className="w-24 px-2.5 py-2.5 bg-bg-card border border-ui-border text-text-base font-mono text-xs focus:outline-none focus:border-[#C8102E] transition-colors"
+            />
+            <button
+              onClick={handlePriceApply}
+              className="px-3 py-2.5 bg-bg-card border border-ui-border font-mono text-xs text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
+            >
+              Ок
+            </button>
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleResetFilters}
+              className="font-mono text-xs text-text-dim hover:text-[#C8102E] underline transition-colors"
+            >
+              Сбросить фильтры
+            </button>
+          )}
+        </div>
+
         {/* Products */}
         {error ? (
           <div className="py-20 text-center">
@@ -288,7 +436,7 @@ export default function CatalogView({
           <div className="flex items-center justify-center gap-3 mt-12">
             {page > 1 && (
               <Link
-                href={`${basePath}?page=${page - 1}${searchParam}${sortParam}${brandParam}`}
+                href={`${basePath}?page=${page - 1}${searchParam}${sortParam}${brandParam}${inStockParam}${priceMinParam}${priceMaxParam}`}
                 className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 ← Назад
@@ -299,7 +447,7 @@ export default function CatalogView({
             </span>
             {page < pages && (
               <Link
-                href={`${basePath}?page=${page + 1}${searchParam}${sortParam}${brandParam}`}
+                href={`${basePath}?page=${page + 1}${searchParam}${sortParam}${brandParam}${inStockParam}${priceMinParam}${priceMaxParam}`}
                 className="px-5 py-2.5 bg-bg-card border border-ui-border font-mono text-sm text-text-dim hover:border-[#C8102E] hover:text-text-base transition-colors"
               >
                 Вперёд →

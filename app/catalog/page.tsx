@@ -4,7 +4,15 @@ import type { CatalogProduct, TreeCategory } from '@/lib/db-catalog'
 import CatalogView from './CatalogView'
 import CategoryTiles from './CategoryTiles'
 
-type CatalogSearchParams = { q?: string; page?: string; sort?: string; brand?: string }
+type CatalogSearchParams = {
+  q?: string
+  page?: string
+  sort?: string
+  brand?: string
+  inStock?: string
+  priceMin?: string
+  priceMax?: string
+}
 
 export async function generateMetadata({
   searchParams,
@@ -15,7 +23,7 @@ export async function generateMetadata({
   if (brand) {
     return {
       title: `Запчасти ${brand} — купить в Уфе | ТРАК`,
-      description: `Запчасти ${brand} в наличии и под заказ. Доставка по России, самовывоз в Уфе.`,
+      description: `Запчасти ${brand} в наличии и под заказ.`,
     }
   }
   return {
@@ -33,6 +41,9 @@ export default async function CatalogPage({
   const search = searchParams.q ?? ''
   const sort = searchParams.sort ?? ''
   const brand = searchParams.brand ?? ''
+  const inStock = searchParams.inStock === '1'
+  const priceMin = searchParams.priceMin ? Number(searchParams.priceMin) : undefined
+  const priceMax = searchParams.priceMax ? Number(searchParams.priceMax) : undefined
 
   let result: { products: CatalogProduct[]; total: number; pages: number; page: number } = { products: [], total: 0, pages: 0, page }
   let roots: TreeCategory[] = []
@@ -40,7 +51,7 @@ export default async function CatalogPage({
 
   try {
     ;[result, roots] = await Promise.all([
-      getProducts({ search, brand, page, sort }),
+      getProducts({ search, brand, inStock, priceMin, priceMax, page, sort }),
       getCategoryTree(),
     ])
   } catch (e) {
@@ -58,6 +69,9 @@ export default async function CatalogPage({
         search={search}
         sort={sort}
         brand={brand}
+        inStock={inStock}
+        priceMin={priceMin}
+        priceMax={priceMax}
         title={brand ? `Запчасти ${brand}` : 'Каталог запчастей'}
         basePath="/catalog"
         topSlot={<CategoryTiles categories={roots} basePath="/catalog" />}

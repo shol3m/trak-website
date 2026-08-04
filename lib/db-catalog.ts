@@ -225,12 +225,18 @@ export async function getProducts({
   search,
   categoryPath,
   brand,
+  inStock,
+  priceMin,
+  priceMax,
   page = 1,
   sort,
 }: {
   search?: string
   categoryPath?: string
   brand?: string
+  inStock?: boolean
+  priceMin?: number
+  priceMax?: number
   page?: number
   sort?: string
 } = {}) {
@@ -245,6 +251,9 @@ export async function getProducts({
       p_search: trimmedSearch,
       p_category_path: categoryPath || null,
       p_brand: brand?.trim() || null,
+      p_in_stock: inStock ?? null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
       p_sort: sort || null,
       p_page: page,
     })
@@ -274,7 +283,13 @@ export async function getProducts({
   } else if (sort === 'price_desc') {
     query = query.order('priceRetail', { ascending: false })
   } else {
-    query = query.order('id', { ascending: true })
+    // Default order: in-stock first (stock desc groups all stock>0 rows
+    // ahead of 0), then among out-of-stock rows, priced ones before
+    // price-on-request ones (priceRetail desc groups >0 ahead of 0).
+    query = query
+      .order('stock', { ascending: false })
+      .order('priceRetail', { ascending: false })
+      .order('id', { ascending: true })
   }
 
   // Matches this category and every category nested under it (materialized path).
@@ -286,6 +301,18 @@ export async function getProducts({
 
   if (brand?.trim()) {
     query = query.eq('brandName', brand.trim())
+  }
+
+  if (inStock) {
+    query = query.gt('stock', 0)
+  }
+
+  if (priceMin !== undefined) {
+    query = query.gte('priceRetail', priceMin)
+  }
+
+  if (priceMax !== undefined) {
+    query = query.lte('priceRetail', priceMax)
   }
 
   const { data, count, error } = await query

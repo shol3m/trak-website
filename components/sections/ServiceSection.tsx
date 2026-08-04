@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Container from '@/components/layout/Container'
 import { mockServices } from '@/lib/mock-data'
+import { SERVICE_GROUP_ICONS } from '@/lib/service-icons'
 import BookingModal from '@/components/ui/BookingModal'
 
 const GROUPS = ['ТО и масла', 'Диагностика', 'Ходовая', 'Двигатель', 'Электрика']
@@ -32,7 +33,7 @@ export default function ServiceSection() {
                 Профессиональный<br />ремонт и ТО
               </h2>
               <p className="font-body text-text-dim text-base leading-relaxed mb-6">
-                Диагностика, ТО и ремонт ГАЗ, УАЗ, ВАЗ, КАМАЗ и иномарок: ходовая, двигатель, электрика, 3D-развал-схождение и установка фаркопов. До начала работ согласуем перечень и стоимость ремонта.
+                Диагностика, ТО и ремонт отечественных авто и иномарок: ходовая, двигатель, электрика, 3D-развал-схождение и установка фаркопов. До начала работ согласуем перечень и стоимость ремонта.
               </p>
               <div className="flex flex-col gap-2 mb-8">
                 {[
@@ -98,7 +99,7 @@ export default function ServiceSection() {
                     >
                       <span className="shrink-0 text-[#C8102E]">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                          {SERVICE_GROUP_ICONS[service.group]}
                         </svg>
                       </span>
                       <p className="flex-1 min-w-0 font-heading text-sm text-text-base">{service.name}</p>

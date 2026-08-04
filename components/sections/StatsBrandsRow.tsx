@@ -1,30 +1,11 @@
 import Link from 'next/link'
 import Container from '@/components/layout/Container'
+import { CAR_BRANDS, PART_BRANDS } from '@/lib/categories'
 
 const stats = [
   { value: 'С 1992', label: 'года на рынке' },
   { value: '50 000+', label: 'позиций в наличии' },
   { value: 'Пн–Вс', label: 'без выходных' },
-]
-
-// label — что показываем; dbBrand — точное значение Product.brandName для фильтра
-// /catalog?brand=... (в БД марки хранятся как в CSV от 1С: КАМАЗ/ВАЗ/УАЗ — латиницей).
-const carBrands = [
-  { label: 'ГАЗ', dbBrand: 'ГАЗ' },
-  { label: 'УАЗ', dbBrand: 'UAZ' },
-  { label: 'ВАЗ', dbBrand: 'LADA' },
-  { label: 'КАМАЗ', dbBrand: 'KAMAZ' },
-]
-
-// Комбинация узнаваемых мировых брендов (BOSCH/MANN/TRW — трастовый сигнал)
-// и самых частых по факту в каталоге (FEBEST/TRIALLI/FENOX, см. products.csv).
-const partBrands = [
-  { label: 'BOSCH', dbBrand: 'BOSCH' },
-  { label: 'FEBEST', dbBrand: 'FEBEST' },
-  { label: 'MANN', dbBrand: 'MANN' },
-  { label: 'TRW', dbBrand: 'TRW' },
-  { label: 'TRIALLI', dbBrand: 'TRIALLI' },
-  { label: 'FENOX', dbBrand: 'FENOX' },
 ]
 
 export default function StatsBrandsRow() {
@@ -51,7 +32,7 @@ export default function StatsBrandsRow() {
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-body text-xs text-text-ghost uppercase tracking-wide shrink-0">Марки авто</span>
-              {carBrands.map((brand) => (
+              {CAR_BRANDS.map((brand) => (
                 <Link
                   key={brand.label}
                   href={`/catalog?brand=${encodeURIComponent(brand.dbBrand)}`}
@@ -63,7 +44,7 @@ export default function StatsBrandsRow() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-body text-xs text-text-ghost uppercase tracking-wide shrink-0">Бренды запчастей</span>
-              {partBrands.map((brand) => (
+              {PART_BRANDS.map((brand) => (
                 <Link
                   key={brand.label}
                   href={`/catalog?brand=${encodeURIComponent(brand.dbBrand)}`}
