@@ -67,7 +67,6 @@ export default function ContactsPage() {
       <section className="py-16 border-b border-ui-border">
         <Container>
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-            <span className="font-body text-xs text-[#C8102E] uppercase tracking-widest block mb-3">Контакты</span>
             <h1 className="font-heading text-4xl md:text-5xl text-text-base uppercase mb-3">
               Как нас найти
             </h1>

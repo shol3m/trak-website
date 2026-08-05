@@ -38,13 +38,15 @@ interface CatalogViewProps {
 function ProductListRow({
   product,
   href,
-  onAddToCart,
 }: {
   product: CatalogProduct
   href?: string
-  onAddToCart?: () => void
 }) {
   const inStock = product.stock > 0
+  const quantity = useCartStore((s) => s.items.find((i) => i.product.id === product.id)?.quantity ?? 0)
+  const addItem = useCartStore((s) => s.addItem)
+  const updateQuantity = useCartStore((s) => s.updateQuantity)
+  const openCart = useCartStore((s) => s.openCart)
   return (
     <div className="group flex items-center gap-3 bg-bg-card border border-ui-border hover:border-[#C8102E]/50 px-4 py-3 transition-colors duration-150">
       <div className="w-10 h-10 shrink-0 bg-bg-muted flex items-center justify-center">
@@ -68,12 +70,32 @@ function ProductListRow({
       <span className="shrink-0 font-heading text-sm text-text-base w-24 text-right">
         {product.price > 0 ? `${product.price.toLocaleString('ru-RU')} ₽` : 'По запросу'}
       </span>
-      <button
-        onClick={onAddToCart}
-        className="shrink-0 bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-xs px-3 py-2 transition-colors duration-200"
-      >
-        {inStock ? 'В корзину' : 'Заказать'}
-      </button>
+      {quantity > 0 ? (
+        <div className="shrink-0 flex items-center gap-2">
+          <button
+            onClick={() => updateQuantity(product.id, quantity - 1)}
+            className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+            aria-label="Уменьшить количество"
+          >
+            −
+          </button>
+          <span className="font-mono text-sm text-text-base w-5 text-center">{quantity}</span>
+          <button
+            onClick={() => updateQuantity(product.id, quantity + 1)}
+            className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+            aria-label="Увеличить количество"
+          >
+            +
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => { addItem(product); openCart() }}
+          className="shrink-0 bg-[#C8102E] hover:bg-[#9B0B22] text-white font-body text-xs px-3 py-2 transition-colors duration-200"
+        >
+          {inStock ? 'В корзину' : 'Заказать'}
+        </button>
+      )}
     </div>
   )
 }
@@ -99,8 +121,6 @@ export default function CatalogView({
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [priceMinInput, setPriceMinInput] = useState(priceMin !== undefined ? String(priceMin) : '')
   const [priceMaxInput, setPriceMaxInput] = useState(priceMax !== undefined ? String(priceMax) : '')
-  const addItem = useCartStore((s) => s.addItem)
-  const openCart = useCartStore((s) => s.openCart)
 
   // Sync query when search prop changes (after navigation)
   useEffect(() => {
@@ -256,7 +276,7 @@ export default function CatalogView({
         </div>
 
         {/* Toolbar: search + sort + view toggle */}
-        <div className="flex gap-2 mb-5">
+        <div className="flex flex-col sm:flex-row gap-2 mb-5">
           {/* Search */}
           <div className="relative flex-1">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim w-4 h-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -280,39 +300,41 @@ export default function CatalogView({
             )}
           </div>
 
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => handleSortChange(e.target.value)}
-            className="px-3 py-2.5 bg-bg-card border border-ui-border text-text-dim font-body text-xs focus:outline-none focus:border-[#C8102E] transition-colors cursor-pointer hover:border-[#C8102E]/50"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <div className="flex gap-2">
+            {/* Sort */}
+            <select
+              value={sort}
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="flex-1 sm:flex-none px-3 py-2.5 bg-bg-card border border-ui-border text-text-dim font-body text-xs focus:outline-none focus:border-[#C8102E] transition-colors cursor-pointer hover:border-[#C8102E]/50"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
 
-          {/* View toggle */}
-          <div className="flex border border-ui-border overflow-hidden">
-            <button
-              onClick={() => setView('grid')}
-              className={`px-3 py-2.5 transition-colors duration-150 ${view === 'grid' ? 'bg-[#C8102E] text-white' : 'bg-bg-card text-text-dim hover:text-text-base'}`}
-              aria-label="Сетка"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
-                <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
-              </svg>
-            </button>
-            <button
-              onClick={() => setView('list')}
-              className={`px-3 py-2.5 transition-colors duration-150 ${view === 'list' ? 'bg-[#C8102E] text-white' : 'bg-bg-card text-text-dim hover:text-text-base'}`}
-              aria-label="Список"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <line x1="5" y1="4" x2="14" y2="4"/><line x1="5" y1="8" x2="14" y2="8"/><line x1="5" y1="12" x2="14" y2="12"/>
-                <circle cx="2" cy="4" r="1" fill="currentColor" stroke="none"/><circle cx="2" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="2" cy="12" r="1" fill="currentColor" stroke="none"/>
-              </svg>
-            </button>
+            {/* View toggle */}
+            <div className="flex border border-ui-border overflow-hidden">
+              <button
+                onClick={() => setView('grid')}
+                className={`px-3 py-2.5 transition-colors duration-150 ${view === 'grid' ? 'bg-[#C8102E] text-white' : 'bg-bg-card text-text-dim hover:text-text-base'}`}
+                aria-label="Сетка"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
+                  <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+              </button>
+              <button
+                onClick={() => setView('list')}
+                className={`px-3 py-2.5 transition-colors duration-150 ${view === 'list' ? 'bg-[#C8102E] text-white' : 'bg-bg-card text-text-dim hover:text-text-base'}`}
+                aria-label="Список"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <line x1="5" y1="4" x2="14" y2="4"/><line x1="5" y1="8" x2="14" y2="8"/><line x1="5" y1="12" x2="14" y2="12"/>
+                  <circle cx="2" cy="4" r="1" fill="currentColor" stroke="none"/><circle cx="2" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="2" cy="12" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -410,14 +432,13 @@ export default function CatalogView({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
           >
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 href={`/product/${product.article}`}
-                onAddToCart={() => { addItem(product); openCart() }}
               />
             ))}
           </motion.div>
@@ -434,7 +455,6 @@ export default function CatalogView({
                 key={product.id}
                 product={product}
                 href={`/product/${product.article}`}
-                onAddToCart={() => { addItem(product); openCart() }}
               />
             ))}
           </motion.div>

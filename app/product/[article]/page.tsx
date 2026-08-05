@@ -82,21 +82,22 @@ export default async function ProductPage({ params }: { params: { article: strin
               </span>
             </div>
 
-            <p className="font-heading text-4xl text-text-base">
-              {product!.price > 0 ? `${product!.price.toLocaleString('ru-RU')} ₽` : 'Цена по запросу'}
-            </p>
-
-            <AddToCartButton product={product!} />
+            <div className="bg-bg-muted border border-ui-border p-5 flex flex-col gap-4">
+              <p className="font-heading text-4xl text-text-base">
+                {product!.price > 0 ? `${product!.price.toLocaleString('ru-RU')} ₽` : 'Цена по запросу'}
+              </p>
+              <AddToCartButton product={product!} />
+            </div>
 
             {product!.description && (
               <div className="border-t border-ui-border pt-6 mt-2">
-                <h2 className="font-body text-xs text-text-dim uppercase tracking-wider mb-3">Описание</h2>
+                <h2 className="font-body text-sm font-bold text-text-base mb-3">Описание</h2>
                 <p className="font-body text-text-dim leading-relaxed text-sm">{product!.description}</p>
               </div>
             )}
 
             <div className="border-t border-ui-border pt-6 mt-2">
-              <h2 className="font-body text-xs text-text-dim uppercase tracking-wider mb-3">Гарантия</h2>
+              <h2 className="font-body text-sm font-bold text-text-base mb-3">Гарантия</h2>
               <p className="font-body text-text-dim leading-relaxed text-sm">
                 На все товары действует гарантия.
               </p>

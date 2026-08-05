@@ -5,13 +5,9 @@ import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/ui/SectionHeading'
 import ProductCard from '@/components/ui/ProductCard'
 import Button from '@/components/ui/Button'
-import { useCartStore } from '@/lib/cart-store'
 import type { CatalogProduct } from '@/lib/categories'
 
 export default function ProductsSection({ products }: { products: CatalogProduct[] }) {
-  const addItem = useCartStore((s) => s.addItem)
-  const openCart = useCartStore((s) => s.openCart)
-
   if (!products.length) return null
 
   return (
@@ -36,10 +32,6 @@ export default function ProductsSection({ products }: { products: CatalogProduct
               key={product.id}
               product={product}
               href={`/product/${product.article}`}
-              onAddToCart={() => {
-                addItem(product)
-                openCart()
-              }}
             />
           ))}
         </motion.div>

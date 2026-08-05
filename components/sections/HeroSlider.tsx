@@ -96,11 +96,6 @@ export default function HeroSlider() {
 
                 <Container className="relative z-10 py-10 md:py-12">
                   <div className="max-w-2xl">
-                    <span className="inline-block font-body text-xs text-[#C4922A] uppercase tracking-widest mb-3 border border-[#C4922A]/40 px-3 py-1 bg-[#0D0D0D]/50">
-                      {slide.badge}
-                    </span>
-                    <div className="w-12 h-0.5 bg-[#1A3A6B] mb-3" />
-
                     <h1
                       className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-3"
                       style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.9)' }}

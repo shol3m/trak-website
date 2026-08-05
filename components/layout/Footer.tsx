@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import Container from './Container'
+import type { TreeCategory } from '@/lib/db-catalog'
 
-export default function Footer() {
+export default function Footer({ categories }: { categories: TreeCategory[] }) {
   return (
     <footer className="bg-[#1A3A6B]">
       <Container className="pt-10 pb-6">
@@ -21,10 +22,10 @@ export default function Footer() {
           <div>
             <h4 className="font-heading text-sm uppercase tracking-widest text-white mb-4">Каталог</h4>
             <ul className="flex flex-col gap-2">
-              {['Двигатели', 'Фильтры', 'Тормоза', 'Подвеска', 'Масла'].map((cat) => (
-                <li key={cat}>
-                  <Link href="/catalog" className="font-body text-white/60 hover:text-white text-sm transition-colors duration-200">
-                    {cat}
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <Link href={`/catalog/${cat.slug}`} className="font-body text-white/60 hover:text-white text-sm transition-colors duration-200">
+                    {cat.name}
                   </Link>
                 </li>
               ))}

@@ -26,9 +26,6 @@ export default function ServiceSection() {
               viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="font-body text-xs text-[#C8102E] uppercase tracking-widest mb-4 block">
-                Автосервис
-              </span>
               <h2 className="font-heading text-4xl md:text-5xl text-text-base uppercase leading-tight mb-4">
                 Профессиональный<br />ремонт и ТО
               </h2>

@@ -1,15 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useCartStore, useCartTotal } from '@/lib/cart-store'
-import { formatPhone, normalizePhone, isPhoneValid } from '@/lib/phone-utils'
+import CheckoutForm from './CheckoutForm'
 
 type View = 'cart' | 'checkout'
-type Status = 'idle' | 'loading' | 'success' | 'error'
-
-const NAME_RE = /^[а-яёА-ЯЁa-zA-Z\s\-']{2,50}$/
 
 export default function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen)
@@ -21,17 +18,6 @@ export default function CartDrawer() {
   const total = useCartTotal()
 
   const [view, setView] = useState<View>('cart')
-  const [status, setStatus] = useState<Status>('idle')
-  const [errorMsg, setErrorMsg] = useState('')
-
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [comment, setComment] = useState('')
-  const [honeypot, setHoneypot] = useState('')
-  const [nameError, setNameError] = useState('')
-  const [phoneError, setPhoneError] = useState('')
-  const [rateLimitMsg, setRateLimitMsg] = useState('')
-  const lastSubmitRef = useRef<number>(0)
 
   useEffect(() => {
     if (!isOpen) return
@@ -41,89 +27,8 @@ export default function CartDrawer() {
   }, [isOpen, closeCart])
 
   useEffect(() => {
-    if (!isOpen) {
-      setView('cart')
-      setStatus('idle')
-      setName('')
-      setPhone('')
-      setComment('')
-      setHoneypot('')
-      setNameError('')
-      setPhoneError('')
-      setRateLimitMsg('')
-      setErrorMsg('')
-    }
+    if (!isOpen) setView('cart')
   }, [isOpen])
-
-  function validateName(v: string) {
-    if (!v.trim()) return 'Введите имя'
-    if (!NAME_RE.test(v.trim())) return 'Только буквы, 2–50 символов'
-    return ''
-  }
-
-  function validatePhone(v: string) {
-    if (!v.trim()) return 'Введите телефон'
-    if (!isPhoneValid(v)) return 'Введите корректный номер'
-    return ''
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (honeypot) return
-
-    const now = Date.now()
-    const elapsed = now - lastSubmitRef.current
-    if (lastSubmitRef.current && elapsed < 30000) {
-      const sec = Math.ceil((30000 - elapsed) / 1000)
-      setRateLimitMsg(`Подождите ${sec} секунд`)
-      return
-    }
-
-    const nErr = validateName(name)
-    const pErr = validatePhone(phone)
-    setNameError(nErr)
-    setPhoneError(pErr)
-    if (nErr || pErr) return
-
-    setStatus('loading')
-    setErrorMsg('')
-    setRateLimitMsg('')
-    lastSubmitRef.current = now
-
-    try {
-      const res = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: normalizePhone(phone),
-          comment: comment.trim() || undefined,
-          honeypot,
-          items: items.map((i) => ({
-            productId: i.product.id,
-            name: i.product.name,
-            article: i.product.article,
-            price: i.product.price,
-            quantity: i.quantity,
-          })),
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Ошибка отправки')
-        setStatus('error')
-      } else {
-        setStatus('success')
-        clearCart()
-      }
-    } catch {
-      setErrorMsg('Нет соединения с сервером')
-      setStatus('error')
-    }
-  }
-
-  const inputCls = (hasError: boolean) =>
-    `bg-bg-page border ${hasError ? 'border-[#C8102E]' : 'border-ui-border focus:border-[#3B82F6]'} text-text-base font-body text-sm px-4 py-3 outline-none transition-colors duration-200 placeholder:text-text-ghost w-full`
 
   return (
     <AnimatePresence>
@@ -179,7 +84,9 @@ export default function CartDrawer() {
               <>
                 {items.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6">
-                    <span className="text-5xl">🛒</span>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-text-ghost">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.976-4.759 2.532-7.334a.75.75 0 00-.734-.916H5.106M7.5 14.25L5.106 5.25M7.5 14.25L4.635 4.5M9.75 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm9 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    </svg>
                     <p className="font-heading text-lg text-text-base uppercase">Корзина пуста</p>
                     <Link
                       href="/catalog"
@@ -249,12 +156,22 @@ export default function CartDrawer() {
                       >
                         Оформить заказ
                       </button>
-                      <button
-                        onClick={clearCart}
-                        className="font-body text-xs text-text-ghost hover:text-text-dim transition-colors text-center"
-                      >
-                        Очистить корзину
-                      </button>
+                      <div className="flex items-center justify-center gap-4">
+                        <Link
+                          href="/cart"
+                          onClick={closeCart}
+                          className="font-body text-xs text-text-dim hover:text-text-base transition-colors"
+                        >
+                          Перейти в корзину
+                        </Link>
+                        <span className="text-text-ghost">·</span>
+                        <button
+                          onClick={clearCart}
+                          className="font-body text-xs text-text-ghost hover:text-text-dim transition-colors"
+                        >
+                          Очистить корзину
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -263,101 +180,7 @@ export default function CartDrawer() {
 
             {view === 'checkout' && (
               <div className="flex-1 overflow-y-auto">
-                {status === 'success' ? (
-                  <div className="flex flex-col items-center justify-center h-full gap-6 px-6 text-center">
-                    <span className="text-5xl">✅</span>
-                    <div>
-                      <p className="font-heading text-xl text-text-base uppercase mb-2">Заказ принят!</p>
-                      <p className="font-body text-sm text-text-dim">Мы свяжемся с вами в ближайшее время</p>
-                    </div>
-                    <button
-                      onClick={closeCart}
-                      className="font-body text-sm text-[#C8102E] hover:underline"
-                    >
-                      Продолжить покупки
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-6 py-5">
-                    {/* Honeypot */}
-                    <input
-                      type="text"
-                      name="website"
-                      value={honeypot}
-                      onChange={(e) => setHoneypot(e.target.value)}
-                      tabIndex={-1}
-                      autoComplete="off"
-                      style={{ display: 'none' }}
-                      aria-hidden="true"
-                    />
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-body text-xs text-text-dim uppercase tracking-wider">Имя</label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => { setName(e.target.value); if (nameError) setNameError('') }}
-                        onBlur={() => setNameError(validateName(name))}
-                        placeholder="Ваше имя"
-                        className={inputCls(!!nameError)}
-                      />
-                      {nameError && <p className="font-body text-xs text-[#C8102E]">{nameError}</p>}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-body text-xs text-text-dim uppercase tracking-wider">Телефон</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => { setPhone(formatPhone(e.target.value)); if (phoneError) setPhoneError('') }}
-                        onBlur={() => setPhoneError(validatePhone(phone))}
-                        placeholder="+7 (000) 000-00-00"
-                        className={inputCls(!!phoneError)}
-                      />
-                      {phoneError && <p className="font-body text-xs text-[#C8102E]">{phoneError}</p>}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-body text-xs text-text-dim uppercase tracking-wider">Комментарий</label>
-                      <textarea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder="Адрес доставки или дополнительная информация"
-                        rows={3}
-                        maxLength={500}
-                        className={`${inputCls(false)} resize-none`}
-                      />
-                    </div>
-
-                    {/* Order summary */}
-                    <div className="border border-ui-border p-4 flex flex-col gap-2">
-                      <p className="font-body text-xs text-text-dim uppercase tracking-wider mb-1">Состав заказа</p>
-                      {items.map((i) => (
-                        <div key={i.product.id} className="flex justify-between gap-2">
-                          <span className="font-body text-xs text-text-dim truncate flex-1">{i.product.name} × {i.quantity}</span>
-                          <span className="font-mono text-xs text-text-base shrink-0">
-                            {(i.product.price * i.quantity).toLocaleString('ru-RU')} ₽
-                          </span>
-                        </div>
-                      ))}
-                      <div className="border-t border-ui-border pt-2 mt-1 flex justify-between">
-                        <span className="font-body text-xs text-text-dim">Итого</span>
-                        <span className="font-heading text-sm text-text-base">{total.toLocaleString('ru-RU')} ₽</span>
-                      </div>
-                    </div>
-
-                    {rateLimitMsg && <p className="font-body text-xs text-text-dim">{rateLimitMsg}</p>}
-                    {status === 'error' && <p className="font-body text-xs text-[#C8102E]">{errorMsg}</p>}
-
-                    <button
-                      type="submit"
-                      disabled={status === 'loading'}
-                      className="w-full bg-[#C8102E] hover:bg-[#9B0B22] disabled:opacity-60 text-white font-body text-sm px-6 py-3 transition-colors duration-200"
-                    >
-                      {status === 'loading' ? 'Отправка...' : 'Отправить заказ'}
-                    </button>
-                  </form>
-                )}
+                <CheckoutForm onSuccessContinue={closeCart} />
               </div>
             )}
           </motion.div>

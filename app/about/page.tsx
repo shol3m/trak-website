@@ -122,9 +122,6 @@ export default function AboutPage() {
             variants={fadeUp}
             className="max-w-3xl"
           >
-            <span className="font-body text-xs text-[#1A3A6B] uppercase tracking-widest block mb-4">
-              О компании
-            </span>
             <h1 className="font-heading text-4xl md:text-5xl text-text-base uppercase tracking-wide mb-6">
               ТРАК — торгово-сервисный комплекс
             </h1>
@@ -305,9 +302,6 @@ export default function AboutPage() {
         <Container>
           <div className="border border-ui-border bg-bg-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <span className="font-body text-xs text-[#1A3A6B] uppercase tracking-widest block mb-2">
-                Свяжитесь с нами
-              </span>
               <a
                 href="tel:+73472237208"
                 className="font-heading text-3xl text-text-base hover:text-[#C8102E] transition-colors duration-200"

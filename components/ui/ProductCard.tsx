@@ -5,18 +5,23 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import type { CatalogProduct } from '@/lib/categories'
+import { useCartStore } from '@/lib/cart-store'
 import Button from './Button'
 
 type ProductCardProps = {
   product: CatalogProduct
   href?: string
-  onAddToCart?: () => void
 }
 
-export default function ProductCard({ product, href, onAddToCart }: ProductCardProps) {
+export default function ProductCard({ product, href }: ProductCardProps) {
   const inStock = product.stock > 0
   const imageUrl = product.images?.[0]
   const [imgError, setImgError] = useState(false)
+
+  const quantity = useCartStore((s) => s.items.find((i) => i.product.id === product.id)?.quantity ?? 0)
+  const addItem = useCartStore((s) => s.addItem)
+  const updateQuantity = useCartStore((s) => s.updateQuantity)
+  const openCart = useCartStore((s) => s.openCart)
 
   const placeholder = (
     <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 text-text-dim opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -72,9 +77,29 @@ export default function ProductCard({ product, href, onAddToCart }: ProductCardP
           <span className="font-heading text-base sm:text-xl text-text-base">
             {product.price > 0 ? `${product.price.toLocaleString('ru-RU')} ₽` : 'По запросу'}
           </span>
-          <Button size="sm" onClick={onAddToCart} className="w-full sm:w-auto text-xs">
-            {inStock ? 'В корзину' : 'Заказать'}
-          </Button>
+          {quantity > 0 ? (
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
+              <button
+                onClick={() => updateQuantity(product.id, quantity - 1)}
+                className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                aria-label="Уменьшить количество"
+              >
+                −
+              </button>
+              <span className="font-mono text-sm text-text-base w-5 text-center">{quantity}</span>
+              <button
+                onClick={() => updateQuantity(product.id, quantity + 1)}
+                className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                aria-label="Увеличить количество"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <Button size="sm" onClick={() => { addItem(product); openCart() }} className="w-full sm:w-auto text-xs">
+              {inStock ? 'В корзину' : 'Заказать'}
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

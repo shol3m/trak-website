@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import CartDrawer from '@/components/ui/CartDrawer'
+import { getCategoryTree } from '@/lib/db-catalog'
 
 // Oswald — variable font (fvar axis 400–700), pinned to a single 700 weight.
 // None of the 45 `font-heading` usages across the codebase set an explicit
@@ -62,11 +63,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const categories = await getCategoryTree()
+
   return (
     <html lang="ru" suppressHydrationWarning className={`${oswald.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-body antialiased">
@@ -98,7 +101,7 @@ export default function RootLayout({
           <div className="pt-16">
             {children}
           </div>
-          <Footer />
+          <Footer categories={categories.slice(0, 5)} />
           <WhatsAppButton />
           <CartDrawer />
         </ThemeProvider>

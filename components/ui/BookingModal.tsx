@@ -146,9 +146,6 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
               </svg>
             </button>
 
-            <span className="font-body text-xs text-[#3B82F6] uppercase tracking-widest mb-3 block">
-              Запись
-            </span>
             <h3 className="font-heading text-2xl text-text-base uppercase mb-6">
               Записаться на СТО
             </h3>
