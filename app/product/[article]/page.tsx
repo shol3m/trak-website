@@ -45,7 +45,7 @@ export default async function ProductPage({ params }: { params: { article: strin
   ]
 
   return (
-    <div className="min-h-screen bg-bg-page pt-24 pb-20">
+    <div className="min-h-screen bg-bg-page pt-8 pb-20">
       <Container>
         <Breadcrumb items={breadcrumbItems} />
 

@@ -45,7 +45,7 @@ export default async function CategoryPage({
     // DB temporarily unreachable — this category may well be valid, so don't
     // hard-404 it (that's a real 404 to search engines and stale bookmarks).
     return (
-      <div className="min-h-screen bg-bg-page pt-24 pb-20">
+      <div className="min-h-screen bg-bg-page pt-8 pb-20">
         <Container>
           <p className="font-body text-sm text-text-dim py-20 text-center">
             Каталог временно недоступен, попробуйте обновить страницу через минуту

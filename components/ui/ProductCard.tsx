@@ -57,7 +57,7 @@ export default function ProductCard({ product, href }: ProductCardProps) {
 
       <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-xs text-text-dim">{product.article}</span>
+          <span className="font-mono text-xs text-text-dim truncate min-w-0">{product.article}</span>
           {product.brand && (
             <span className="font-heading text-xs font-bold text-text-base uppercase tracking-wide shrink-0">
               {product.brand}
@@ -81,7 +81,7 @@ export default function ProductCard({ product, href }: ProductCardProps) {
             <div className="flex items-center gap-2 justify-center sm:justify-start">
               <button
                 onClick={() => updateQuantity(product.id, quantity - 1)}
-                className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
                 aria-label="Уменьшить количество"
               >
                 −
@@ -89,7 +89,7 @@ export default function ProductCard({ product, href }: ProductCardProps) {
               <span className="font-mono text-sm text-text-base w-5 text-center">{quantity}</span>
               <button
                 onClick={() => updateQuantity(product.id, quantity + 1)}
-                className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
                 aria-label="Увеличить количество"
               >
                 +

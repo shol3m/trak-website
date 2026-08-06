@@ -1,5 +1,5 @@
 import { unstable_cache, revalidateTag } from 'next/cache'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseCached } from '@/lib/supabase'
 import { PAGE_SIZE } from '@/lib/categories'
 import type { CatalogProduct } from '@/lib/categories'
 
@@ -52,17 +52,22 @@ const CATEGORY_FETCH_LIMIT = 5000
 // serverless instance can invalidate the tree everywhere via invalidateCategoryTree().
 const fetchCategoryRows = unstable_cache(
   async (): Promise<{ cats: CategoryRow[]; productCategoryIds: string[] }> => {
+    // The "which categories have an active product" half used to be a
+    // PostgREST embedded join (Category.select('id, Product!inner(id)').eq
+    // ('Product.isActive', true)) — RLS's `isActive = true` policy blocks
+    // index pushdown for embedded/join queries (same class of bug as
+    // search, see search_products), so on 280k products this timed out
+    // (statement timeout, code 57014) and getCategoryTree() silently fell
+    // back to []. Routed through a SECURITY DEFINER RPC instead (see
+    // scripts/add-category-active-ids-function.mjs), which bypasses RLS
+    // and can use the existing Product_isActive_categoryId_idx index.
     const [{ data: cats, error: catsError }, { data: withProducts, error: prodError }] = await Promise.all([
-      supabase
+      supabaseCached
         .from('Category')
         .select('id, parentId, slug, name, level, path, sortOrder')
         .order('sortOrder', { ascending: true })
         .limit(CATEGORY_FETCH_LIMIT),
-      supabase
-        .from('Category')
-        .select('id, Product!inner(id)')
-        .eq('Product.isActive', true)
-        .limit(CATEGORY_FETCH_LIMIT),
+      supabaseCached.rpc('get_active_category_ids'),
     ])
 
     // Throw (not return-empty) on error — unstable_cache only caches a
@@ -118,7 +123,8 @@ export async function getCategoryTree(): Promise<TreeCategory[]> {
   try {
     const tree = await loadTree()
     return tree.roots
-  } catch {
+  } catch (err) {
+    console.error('[getCategoryTree] failed:', err)
     return []
   }
 }

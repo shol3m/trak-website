@@ -74,7 +74,7 @@ function ProductListRow({
         <div className="shrink-0 flex items-center gap-2">
           <button
             onClick={() => updateQuantity(product.id, quantity - 1)}
-            className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+            className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
             aria-label="Уменьшить количество"
           >
             −
@@ -82,7 +82,7 @@ function ProductListRow({
           <span className="font-mono text-sm text-text-base w-5 text-center">{quantity}</span>
           <button
             onClick={() => updateQuantity(product.id, quantity + 1)}
-            className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+            className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
             aria-label="Увеличить количество"
           >
             +
@@ -243,7 +243,7 @@ export default function CatalogView({
   const priceMaxParam = priceMax !== undefined ? `&priceMax=${priceMax}` : ''
 
   return (
-    <div className="min-h-screen bg-bg-page pt-24 pb-20">
+    <div className="min-h-screen bg-bg-page pt-8 pb-20">
       <Container>
         {topSlot}
 

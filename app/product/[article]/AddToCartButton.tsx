@@ -15,7 +15,7 @@ export default function AddToCartButton({ product }: { product: CatalogProduct }
       <div className="flex items-center gap-3">
         <button
           onClick={() => updateQuantity(product.id, quantity - 1)}
-          className="w-10 h-10 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-base"
+          className="w-11 h-11 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-base"
           aria-label="Уменьшить количество"
         >
           −
@@ -23,7 +23,7 @@ export default function AddToCartButton({ product }: { product: CatalogProduct }
         <span className="font-mono text-base text-text-base w-6 text-center">{quantity}</span>
         <button
           onClick={() => updateQuantity(product.id, quantity + 1)}
-          className="w-10 h-10 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-base"
+          className="w-11 h-11 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-base"
           aria-label="Увеличить количество"
         >
           +

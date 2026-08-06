@@ -4,7 +4,6 @@ import './globals.css'
 import ThemeProvider from '@/components/providers/ThemeProvider'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import CartDrawer from '@/components/ui/CartDrawer'
 import { getCategoryTree } from '@/lib/db-catalog'
 
@@ -102,7 +101,6 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer categories={categories.slice(0, 5)} />
-          <WhatsAppButton />
           <CartDrawer />
         </ThemeProvider>
       </body>

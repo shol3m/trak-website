@@ -16,7 +16,7 @@ export default function CartView() {
   const [orderPlaced, setOrderPlaced] = useState(false)
 
   return (
-    <div className="min-h-screen bg-bg-page pt-24 pb-20">
+    <div className="min-h-screen bg-bg-page pt-8 pb-20">
       <Container>
         <Breadcrumb items={[{ name: 'Главная', href: '/' }, { name: 'Корзина' }]} />
 
@@ -60,7 +60,7 @@ export default function CartView() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                          className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
                           aria-label="Уменьшить количество"
                         >
                           −
@@ -68,7 +68,7 @@ export default function CartView() {
                         <span className="font-mono text-sm text-text-base w-6 text-center">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="w-8 h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                          className="w-11 h-11 sm:w-8 sm:h-8 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
                           aria-label="Увеличить количество"
                         >
                           +

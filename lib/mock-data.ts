@@ -72,3 +72,52 @@ export const mockReviews: MockReview[] = [
     createdAt: '2025-04-10T16:45:00Z',
   },
 ]
+
+export type MockCampaign = {
+  id: string
+  icon: 'stock' | 'budget' | 'brand' | 'oil'
+  title: string
+  description: string
+  cta: string
+  href: string
+}
+
+export const mockCampaigns: MockCampaign[] = [
+  {
+    id: '1',
+    icon: 'stock',
+    title: 'В наличии — без ожидания',
+    description: 'Тысячи позиций на складе — можно забрать сегодня, не дожидаясь заказа.',
+    cta: 'Смотреть в наличии',
+    href: '/catalog?inStock=1',
+  },
+  {
+    id: '2',
+    icon: 'budget',
+    title: 'Расходники до 500 ₽',
+    description: 'Прокладки, крепёж, лампы и другая мелочёвка по доступным ценам.',
+    cta: 'Смотреть товары',
+    href: '/catalog?priceMax=500&inStock=1',
+  },
+  {
+    id: '3',
+    icon: 'brand',
+    title: 'Оригинал ГАЗ и УАЗ',
+    description: 'Официальный торговый представитель ГАЗ, субдилер УАЗ — оригинальные запчасти.',
+    cta: 'Смотреть запчасти',
+    href: '/catalog?brand=ГАЗ',
+  },
+  {
+    id: '4',
+    icon: 'oil',
+    title: 'Замена масла бесплатно',
+    description: 'Работа по замене масла и фильтра — бесплатно при покупке масла у нас.',
+    cta: 'Подобрать масло',
+    href: '/catalog/masla',
+  },
+]
+
+// Real photo per campaign id, replaces the icon placeholder in PromoCampaigns
+// when present — same fallback pattern as CATEGORY_IMAGES in lib/category-icons.tsx.
+// GPT prompts for these 4 are in docs/PROGRESS.md (2026-08-07 entry).
+export const CAMPAIGN_IMAGES: Record<string, string> = {}

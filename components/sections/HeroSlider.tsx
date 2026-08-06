@@ -18,7 +18,7 @@ const slides = [
     id: 1,
     image: '/images/hero-1.webp',
     badge: 'Магазин запчастей',
-    title: '50 000+',
+    title: '10 000+',
     titleAccent: 'запчастей',
     titleSuffix: 'в наличии',
     subtitle: 'ВАЗ, ГАЗ, УАЗ, КАМАЗ — в наличии и под заказ.',
@@ -51,6 +51,7 @@ const slides = [
 
 export default function HeroSlider() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   return (
     <>
@@ -67,12 +68,19 @@ export default function HeroSlider() {
           }}
           pagination={{ clickable: true, el: '.hero-pagination' }}
           loop
-          className="hero-swiper"
-          style={{ height: '420px' }}
+          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          className="hero-swiper h-[300px] sm:h-[420px]"
         >
-          {slides.map((slide) => (
+          {slides.map((slide, i) => {
+            // effect="fade" keeps every slide mounted and layered, so an <h1>
+            // per slide means 3 competing page-level headings at once — only
+            // the active slide gets the real heading tag, others render the
+            // identical styling as a <p> (no visual difference, Tailwind
+            // resets margin/font entirely via className, not the tag).
+            const HeadingTag = i === activeIndex ? 'h1' : 'p'
+            return (
             <SwiperSlide key={slide.id}>
-              <div className="relative h-[420px] flex items-center bg-[#0D0D0D]">
+              <div className="relative h-[300px] sm:h-[420px] flex items-center bg-[#0D0D0D]">
                 {/* Background image */}
                 <div className="absolute inset-0">
                   <Image
@@ -96,14 +104,14 @@ export default function HeroSlider() {
 
                 <Container className="relative z-10 py-10 md:py-12">
                   <div className="max-w-2xl">
-                    <h1
-                      className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-3"
+                    <HeadingTag
+                      className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#F0F0F0] uppercase leading-[0.95] tracking-tight mb-3"
                       style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.9)' }}
                     >
                       {slide.title}<br />
                       <span className="text-[#C8102E]">{slide.titleAccent}</span><br />
                       {slide.titleSuffix}
-                    </h1>
+                    </HeadingTag>
 
                     <p
                       className="font-body text-[#CCCCCC] text-sm md:text-base mb-6 max-w-md"
@@ -131,7 +139,8 @@ export default function HeroSlider() {
                 </Container>
               </div>
             </SwiperSlide>
-          ))}
+            )
+          })}
         </Swiper>
 
         {/* Navigation */}

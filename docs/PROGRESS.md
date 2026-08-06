@@ -1,6 +1,96 @@
 # ПРОГРЕСС ПРОЕКТА ТРАК
 
-_Последнее обновление: 2026-08-04_
+_Последнее обновление: 2026-08-07 (четвёртый проход)_
+
+---
+
+## Артикул выталкивал бренд за край карточки, WhatsApp-кнопка убрана (2026-08-07, четвёртый проход)
+
+- **`components/ui/ProductCard.tsx`** — на узких экранах длинный артикул (например `S2512V21WBA15sORANGE`) выталкивал бренд товара за правый край карточки. Причина: артикул и бренд в одной `flex justify-between` строке, у артикула не было `min-w-0`/`truncate`, поэтому flex-элемент не сжимался ниже собственной ширины контента (дефолт `min-width: auto` для flex-детей). Добавлены `truncate min-w-0` артикулу — теперь обрезается многоточием, бренд (`shrink-0`) остаётся на месте. `ProductListRow` (список-режим в `CatalogView.tsx`) бренд не выводит вообще — там бага не было.
+- **`components/ui/WhatsAppButton.tsx`** — убран из рендера в `app/layout.tsx` по просьбе заказчика. Файл не удалён.
+
+---
+
+## Мобильная адаптация: hero, категории каталога, отступ под хедером (2026-08-07, третий проход)
+
+Серия точечных мобильных фиксов по скриншотам заказчика:
+
+1. **`HeroSlider.tsx`** — на мобиле заголовок (`text-2xl`) терялся на фоне большого фикс-баннера (`420px` высотой на всех экранах). Текст увеличен на шаг по всей шкале (`text-2xl→5xl` → `text-3xl→6xl`), высота баннера сделана отзывчивой (`300px` на мобиле, `420px` от `sm:`, было флэт `420px` везде). Заодно исправлена устаревшая заметка в `CLAUDE.md` — там было написано `text-4xl→7xl`, реальный код к этому моменту уже был сжат до `2xl→5xl` в одной из прошлых сессий без обновления доки.
+2. **`app/catalog/CategoryTiles.tsx`** — плитки подкатегорий на `/catalog` съедали весь экран на мобиле (15 корневых категорий, `grid-cols-2`, часть названий переносилась на 2 строки). Через `/impeccable` (`посмотри каталог на мобилке, как правильно сделать категории`) — решение: на мобиле не сетка, а горизонтальная прокрутка в одну строку (`overflow-x-auto snap-x snap-mandatory`, чистый CSS без новых зависимостей, скроллбар спрятан `.no-scrollbar` в `globals.css`), текст не обрезается — полное название видно прокруткой. От `sm:` — прежняя сетка. Компонент переиспользуется и на `/catalog/[...path]` для подкатегорий (там категорий обычно меньше, паттерн не мешает).
+3. **Отступ под хедером `pt-24` → `pt-8`** — заказчик спросил, почему большая дыра между хедером и контентом на `/catalog` **на всех устройствах** (не мобильный баг, значение без брейкпоинтов). Причина: `pt-16` в `app/layout.tsx` уже точно закрывает высоту хедера (64px), а `CatalogView.tsx`/`CartView.tsx`/`catalog/[...path]/page.tsx`/`product/[article]/page.tsx` поверх этого добавляли ещё `pt-24` (96px) — остаток с эпохи, когда над хедером ещё рендерился `TopBar` (убран 2026-08-03), значение не пересчитали. Исправлено единообразно во всех 4 местах на `pt-8`.
+
+---
+
+## Промпты для фото акций (2026-08-07)
+
+Заказчик отметил, что плашки акций в `PromoCampaigns.tsx` — просто иконка на сером фоне, хотел настоящие «акционные» фото. Код уже готов: `lib/mock-data.ts` → `CAMPAIGN_IMAGES` (пустой `Record<string, string>`, ключ — `id` кампании), `PromoCampaigns.tsx` рендерит фото вместо иконки, когда есть запись в `CAMPAIGN_IMAGES`. Стиль — тот же тёмный студийный фон, что у фото категорий, но с **красным** акцентным светом (не синим) — фирменный цвет действия, отличает «акционные» карточки от товарных фото категорий. Общий постфикс для промпта: *«professional studio product photography, dark charcoal-to-black gradient background, dramatic single-source red-tinted accent lighting (matches brand red #C8102E), items arranged at a slight diagonal angle, sharp focus, high detail, square 1:1 composition, no text, no logos, no watermarks, no hands, no people»*.
+
+1. **`campaign-1.webp`** (id `1`, «В наличии — без ожидания») — an oil filter, a boxed headlight bulb, and a brake pad set, arranged as if just pulled off a shelf, slight sense of motion.
+2. **`campaign-2.webp`** (id `2`, «Расходники до 500 ₽») — a handful of bolts, a small fuse, and a compact oil filter, with one blank paper price tag hanging off a string (no text/numbers on the tag).
+3. **`campaign-3.webp`** (id `3`, «Оригинал ГАЗ и УАЗ») — a headlight assembly with a blank holographic authenticity foil seal on it (no text/brand marks on the seal).
+4. **`campaign-4.webp`** (id `4`, «Замена масла бесплатно») — an oil canister, an oil filter, and a funnel, with a single oil droplet frozen mid-drip.
+
+Формат — WebP, ~1200-1500px, квадрат, как у категорий. Класть в `public/images/campaigns/campaign-<id>.webp`, добавить строку в `CAMPAIGN_IMAGES` (`lib/mock-data.ts`) — тем же способом, что и категории: прислать файлом в чат или положить прямо в папку.
+
+---
+
+## Акции → вертикальные баннеры, промпты фото категорий, PRODUCT.md (2026-08-06, второй проход)
+
+Продолжение вчерашнего разбора блока «Акции» (см. запись ниже, «Категории на проде...») — заказчик подтвердил направление живьём в сессии. Прошли через `/impeccable init` (создан `PRODUCT.md` в корне — аудитория розница/опт поровну, позиционирование офиц. дилера ГАЗ/Соллерс, ключевой факт: новые изображения — в основном GPT-генерация, реальных фото объекта пока нет) → `/impeccable shape` (согласован бриф) → реализация:
+
+- **`app/page.tsx`** — `PromoCampaigns` переставлен под `HeroSlider` (было первым блоком под Header).
+- **`components/sections/PromoCampaigns.tsx`** — переписан с кружков-«сторис» (градиентный красно-синий ободок, клик → `StoryViewer`) на 4 вертикальные карточки-баннера (`grid-cols-2 lg:grid-cols-4`, `aspect-[3/4]`): фото-слот сверху (~65% высоты, сейчас — иконка-плейсхолдер на `bg-muted`, тот же fallback-паттерн что у `CategoryGrid`) + заголовок/описание/CTA-стрелка снизу, вся карточка — `Link` сразу на `href` из `mockCampaigns` (без промежуточного клика в модалку). `StoryViewer.tsx` больше нигде не используется — файл не удалён.
+- **`lib/category-icons.tsx`** — оставлен как есть технически (`CATEGORY_IMAGES`), добавлен только комментарий-очередь на 7 новых фото категорий (список ниже). Добавлять запись в `CATEGORY_IMAGES` только когда файл реально существует в `public/images/categories/` — не раньше, чтобы не сломать рендер битой картинкой.
+
+### Промпты для ChatGPT (7 категорий, тот же стиль что `avtosvet`)
+
+Референс — уже готовое `public/images/categories/category-avtosvet.webp`: тёмный студийный градиентный фон (почти чёрный → тёмно-серый), драматичный боковой свет, 2-3 детали в композиции под небольшим углом, фотореалистичная предметная съёмка, квадрат 1:1, без текста/логотипов/водяных знаков, без рук и людей. Заказчик сам прогоняет промпты через ChatGPT и загружает результат.
+
+Общий постфикс для каждого промпта: *«professional studio product photography, dark charcoal-to-black gradient background, dramatic single-source side lighting, items arranged at a slight diagonal angle, sharp focus, high detail, square 1:1 composition, no text, no logos, no watermarks, no hands, no people»*.
+
+1. **`category-avtozapchasti.webp`** (Автозапчасти) — a brake disc, a set of brake pads, and a CV joint / drive shaft arranged together.
+2. **`category-masla.webp`** (Масла) — a motor oil canister/bottle, an oil filter, and a funnel.
+3. **`category-akkumulyatory-i-zaryadka.webp`** (Аккумуляторы и зарядка) — a car battery with a battery charger and jumper cable clamps.
+4. **`category-avtohimiya-i-avtokosmetika.webp`** (Автохимия и автокосметика) — a chemical spray bottle, a polish bottle, and a microfiber cloth.
+5. **`category-avtoelektronika.webp`** (Автоэлектроника) — a dash camera, a relay/fuse box, and a wiring connector.
+6. **`category-instrumenty.webp`** (Инструменты) — a socket wrench set, a ratchet, and a few sockets arranged together.
+7. **`category-schetki-stekloochistitelya.webp`** (Щётки стеклоочистителя) — two windshield wiper blades crossed at an angle with a washer fluid bottle.
+
+Формат вывода — как у `avtosvet`: WebP, ~1200-1500px, квадрат. Пути и имена файлов уже зафиксированы в списке выше — класть в `public/images/categories/`, после чего добавить соответствующую строку в `CATEGORY_IMAGES` (`lib/category-icons.tsx`).
+
+**Осознанно поменяно по ходу сессии**: изначально в топ-8 предлагались «шины/диски» — заказчик попросил заменить на что-то другое, выбраны «щётки стеклоочистителя» (частая повторная покупка, легко узнаваемый предмет).
+
+**Первое фото уже получено и подключено** (2026-08-06, тем же днём) — заказчик сгенерировал фото для `avtoaksessuary` (Автоаксессуары, категория вне топ-7 выше — регистратор, держатель телефона, автомобильное зарядное устройство) и прислал файлом в чат (не ссылкой на ChatGPT — попытка открыть share-ссылку через браузер была отклонена, заказчик предпочитает просто прикладывать файл). Тот же формат: WebP 1254×1254, тёмный градиентный фон, боковой свет. Сохранён в `public/images/categories/category-avtoaksessuary.webp`, добавлена строка в `CATEGORY_IMAGES` (`lib/category-icons.tsx`).
+
+**2026-08-07 — ещё 4 фото подключено** (`avtozapchasti` файлом в чат; `masla`, `akkumulyatory-i-zaryadka`, `avtohimiya-i-avtokosmetika` — заказчик положил файлы напрямую в `public/images/categories/` под именами `masla.webp`/`akkumulyatory.webp`/`avtohimiya-i-avtokosmetika.webp`, переименованы в конвенцию `category-<slug>.webp` и подключены). Итого готово 6 из 8: `avtosvet`, `avtoaksessuary`, `avtozapchasti`, `masla`, `akkumulyatory-i-zaryadka`, `avtohimiya-i-avtokosmetika`. Осталось 3: `avtoelektronika`, `instrumenty`, `schetki-stekloochistitelya` (промпты — см. выше).
+
+**2026-08-07 — `CategoryGrid` на главной сужена до одного ряда**: заказчик попросил показать только 5 категорий с готовым фото (`avtoaksessuary`, `avtozapchasti`, `akkumulyatory-i-zaryadka`, `avtohimiya-i-avtokosmetika`, `masla`), явно скрыв `avtosvet` и все остальные из 15 — вместо большой сетки на главной теперь один плотный ряд. Реализовано через константу `FEATURED_SLUGS` в `CategoryGrid.tsx` (фильтр + фиксированный порядок поверх дерева категорий), секция сжата `py-20` → `py-12 sm:py-16`. Полное дерево категорий не изменилось, остальные категории по-прежнему доступны через `/catalog` — просто не выводятся на главной.
+
+---
+
+## Категории на проде, промо-блоки главной, Impeccable, аудит (2026-08-05/06)
+
+Сессия началась с бага «на проде на Vercel нет категорий» и переросла в несколько независимых потоков работы. По порядку:
+
+**1. Баг: категории пропадали на проде (не локально)** — два независимых бага в `getCategoryTree()` (`lib/db-catalog.ts`), оба тихо проглатывались `try/catch → return []`, поэтому в логах Vercel ничего не было видно:
+- Запрос «категории с активными товарами» шёл через PostREST embedded-join (`Category → Product!inner`), RLS-политика `isActive = true` не давала планировщику использовать индекс для join-запроса → `57014 canceling statement due to statement timeout` на 280k товаров (тот же класс бага, что раньше чинили для поиска). Фикс: новая `SECURITY DEFINER`-функция `get_active_category_ids()` — `scripts/add-category-active-ids-function.mjs`.
+- Даже после фикса №1 главная (статическая генерация при билде) оставалась пустой: Supabase-клиент всегда ставил `cache: 'no-store'`, что конфликтует с `unstable_cache()` при статической генерации (`Error: Dynamic server usage`). Фикс: отдельный клиент `supabaseCached` в `lib/supabase.ts` (без `no-store`), используется только внутри `unstable_cache`.
+- Оба фикса задеплоены на прод, проверено вживую (bot-checkpoint Vercel сначала мешал curl/Playwright — обошли через реальный браузер).
+
+**2. Главная: новые промо-блоки** (после нескольких итераций и одной путаницы в терминологии — см. ниже):
+- `components/sections/CategoryGrid.tsx` (новый) + `lib/category-icons.tsx` (новый) — сетка из 15 иконок по корневым категориям, поддержка реальных фото через `CATEGORY_IMAGES` (пока подключено одно — `avtosvet`, `public/images/categories/category-avtosvet.webp`, WebP 1254×1254 сгенерирован заказчиком через ChatGPT по предоставленному промпту). Остальные 14 категорий ждут фото.
+- `components/sections/PromoCampaigns.tsx` (новый) + `components/ui/StoryViewer.tsx` (новый) — блок «Акции», 4 кружка-«сторис» (промо-кампании из `lib/mock-data.ts` → `mockCampaigns`), клик открывает полноэкранный просмотрщик в стиле Instagram Stories (автоплей 5с/слайд, прогресс-бар, тап-зоны, свайп между акциями).
+- **Путаница и фикс**: заказчик просил «Акции наверх вместо плитки с категориями каталога» — я по ошибке убрал `CategoryGrid` (новую секцию, которую сам же в этот момент добавлял), хотя имелась в виду `CategoryNavTabs` (вкладки-«пилюли» под хедером). Исправлено: `CategoryNavTabs` убран из `app/page.tsx` (файл не удалён), `CategoryGrid` возвращён на прежнее место, `PromoCampaigns` — первым блоком под хедером.
+- **После живого просмотра заказчик отметил, что блок акций «не то»** — самостоятельный разбор (не запрошен инструментом): круглые градиентные (красный→синий) «пузыри» — единственное на сайте место, где смешаны оба фирменных цвета и единственный скруглённый элемент (весь сайт — плоский, прямые углы, один акцент на действие). Отсутствие заголовка усиливает эффект «непонятного виджета» перед hero, который должен первым объяснять, кто мы. **План на следующую сессию** — см. ЧТО НЕ РЕАЛИЗОВАНО в `CLAUDE.md`.
+- Заодно: «50 000+» → «10 000+» везде, где реально рендерится (`HeroSlider`, `StatsBrandsRow`, `app/about/page.tsx` ×4, `CategoryGrid` подзаголовок) — неиспользуемые черновики (`HeroBanner.tsx`, `HeroBannerIcon.tsx`, `CategoriesSection.tsx`) не трогали.
+- Промежуточная версия «Акции» была компактнее (`py-20` секция с заголовком) — по запросу заказчика сжата до узкой полосы `py-4` без заголовка, кружки 80px→56px (эта версия и есть предмет разбора выше).
+
+**3. Impeccable + пайплайн-скиллы установлены в проект** (`.claude/skills/`) — не глобально:
+- `impeccable` (`pbakaus/impeccable`, реальный проверенный автор/репо) — детектор «AI slop»-паттернов + 20+ дизайн-команд (`critique`/`audit`/`polish`/`typeset`/...). Установка добавила **hooks** в `.claude/settings.local.json` — автоматическая проверка после каждого `Edit`/`Write` + полный проход при завершении сессии.
+- Заодно по явной просьбе поставлены `autopilot` + пайплайн `mattpocock/skills` (`setup-matt-pocock-skills`, `grilling`, `to-spec`, `to-tickets`, `implement`) — оркестратор «идея → спека → тикеты → реализация» для крупных фич под ключ.
+- **Важно для будущих сессий**: в исходниках `impeccable` (`scripts/context.mjs`) обнаружены два блока (`AUTONOMY_DIRECTIVE_CHECK`, `SUBAGENT_AUTHORIZATION`), которые пытаются через вывод инструмента убедить модель игнорировать системные инструкции про автономность и трактовать вызов скилла как разрешение на саб-агентов без подтверждения — классический prompt injection через сторонний пакет. Решение: эти два блока **игнорируются целиком**, остальной функционал (генерация `DESIGN.md`, аудит, детектор) — используется, он оказался настоящим и полезным. Каждая установка (`npx skills add ...`, `npx impeccable install`) была проверена по исходникам на GitHub/npm перед запуском (легитимный maintainer, отсутствие `postinstall`-хуков, отсутствие `exec`/`eval` в коде), а не установлена вслепую.
+- `docs/DESIGN.md` полностью перегенерирован (`/impeccable document`) из реального кода (Tailwind-конфиг, `globals.css`, компоненты), а не оставлен как есть — старая версия документировала шрифты и токены, отменённые ещё 2026-08-04 (Roboto Condensed/IBM Plex Sans/IBM Plex Mono вместо реальных Oswald/Inter/JetBrains Mono). Новый файл честно фиксирует и находки вроде мёртвого токена `brand.gold` (`#D4A017` в `tailwind.config.ts`, нигде не используется — реальный золотой всюду `#C4922A` из `globals.css`).
+- `/impeccable audit` на главной нашёл 2 реальных находки, обе исправлены: (P1) `HeroSlider.tsx` рендерил `<h1>` на каждый из 3 слайдов одновременно (Swiper с `effect="fade"` держит все слайды в DOM) — теперь `<h1>` только у активного слайда (`onSlideChange` + `activeIndex`), у остальных — визуально идентичный `<p>`; (P2) тач-таргеты степперов количества 28–40px вместо минимальных 44px — исправлено во всех 5 местах, где встретился этот паттерн (`ProductCard`, `CatalogView`, `CartView`, `CartDrawer` — там же заодно добавлены отсутствовавшие `aria-label`, `AddToCartButton`).
 
 ---
 

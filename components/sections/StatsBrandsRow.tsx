@@ -4,7 +4,7 @@ import { CAR_BRANDS, PART_BRANDS } from '@/lib/categories'
 
 const stats = [
   { value: 'С 1992', label: 'года на рынке' },
-  { value: '50 000+', label: 'позиций в наличии' },
+  { value: '10 000+', label: 'позиций в наличии' },
   { value: 'Пн–Вс', label: 'без выходных' },
 ]
 

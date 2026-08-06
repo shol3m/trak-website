@@ -113,14 +113,16 @@ export default function CartDrawer() {
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                  className="w-7 h-7 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                                  className="w-11 h-11 sm:w-7 sm:h-7 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                                  aria-label="Уменьшить количество"
                                 >
                                   −
                                 </button>
                                 <span className="font-mono text-sm text-text-base w-5 text-center">{item.quantity}</span>
                                 <button
                                   onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                  className="w-7 h-7 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                                  className="w-11 h-11 sm:w-7 sm:h-7 border border-ui-border text-text-base hover:border-[#C8102E] transition-colors flex items-center justify-center font-body text-sm"
+                                  aria-label="Увеличить количество"
                                 >
                                   +
                                 </button>
